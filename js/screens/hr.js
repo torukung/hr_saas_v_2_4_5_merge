@@ -923,6 +923,7 @@
   /* ---------- v2.4.5 T3 (B1·B2) — Compliance & close ---------- */
   web["leveling"] = () => {
     const lv = PAY.leveling(), r = PAY.run();
+    const recov = (PAY.recoverable ? PAY.recoverable() : []), recovSum = recov.reduce((s, a) => s + (a.amount || 0), 0); // G5 — approved advances awaiting recovery
     return {
       title: "Compliance & close", sub: "Set the compliance level, then close the month's run. A closed run is immutable and posts staff cost to the cashbook.",
       body: `
@@ -932,12 +933,14 @@
           ${kpi("Run cost", PAY.kip(r.cost), r.people + " people")}
         </div>
         ${card("Compliance leveling (L0–L3)", `<p class="small muted" style="margin-bottom:8px">L0 setup → L3 audit-ready. Closing a run needs L1 or higher.</p><div class="choice-row">${lv.all.map(([code], i) => `<button class="btn xs ${lv.level === i ? "soft" : ""}" data-act="pay:level:${i}">${code}</button>`).join("")}</div>`, { icon: "shield" })}
-        ${card("Pay-run lifecycle", `${rowitem({ icon: r.state === "close" ? "check" : "banknote", title: `${r.id} · ${r.state}`, sub: r.state === "close" ? ("closed " + r.closedAt + " · " + PAY.kip(r.cost) + " posted to cashbook") : ("draft · " + PAY.kip(r.cost) + " · " + r.people + " people"), side: r.state === "close" ? badge("approved") : `<button class="btn" data-act="pay:close">${icon("check")} Close run</button>` })}<p class="small muted" style="margin-top:8px">${r.state === "close" ? "Immutable — post an adjustment to change a closed run." : "Draft is editable in Staff pay; closing locks it and posts to the ledger."}</p>`, { icon: "banknote" })}`
+        ${card("Pay-run lifecycle", `${rowitem({ icon: r.state === "close" ? "check" : "banknote", title: `${r.id} · ${r.state}`, sub: r.state === "close" ? ("closed " + r.closedAt + " · " + PAY.kip(r.cost) + " posted to cashbook" + (r.recoveredCount ? " · recovered " + PAY.kip(r.recovered) + " from " + r.recoveredCount + " advance(s)" : "")) : ("draft · " + PAY.kip(r.cost) + " · " + r.people + " people"), side: r.state === "close" ? badge("approved") : `<button class="btn" data-act="pay:close">${icon("check")} Close run</button>` })}<p class="small muted" style="margin-top:8px">${r.state === "close" ? "Immutable — post an adjustment to change a closed run." : ("Draft is editable in Staff pay; closing locks it, posts to the ledger" + (recov.length ? " and recovers " + PAY.kip(recovSum) + " from " + recov.length + " approved advance(s)" : "") + ".")}</p>`, { icon: "banknote" })}`
     };
   };
   /* ---------- v2.4.5 T3 (B3·B4) — Advances (EWA) + earned-to-date ---------- */
   web["advances"] = () => {
     const comps = PAY.components().slice(0, 10), adv = PAY.advances();
+    const sum = (arr) => arr.reduce((a, x) => a + (x.amount || 0), 0); // G5 — split outstanding vs recovered
+    const outstanding = adv.filter(a => a.status !== "recovered"), recovered = adv.filter(a => a.status === "recovered");
     const rows = comps.map(c => { const etd = PAY.earnedToDate(c.emp), cap = PAY.advanceCap(c.emp);
       return { cells: [`<span class="strong">${esc(c.name)}</span>`, `<span class="badge acc plain">${esc(c.div || "—")}</span>`, `<span class="num">${PAY.kip(etd.net)}</span> <span class="small muted">${etd.pct}%</span>`, `<span class="num">${PAY.kip(cap)}</span>`, `<button class="btn xs" data-act="pay:advance:${c.emp}">${icon("banknote")} Advance</button>`] };
     });
@@ -946,8 +949,8 @@
       body: `
         <div class="grid cols-3">
           ${kpi("Advances drawn", String(adv.length), "this cycle", { hero: 1 })}
-          ${kpi("Total drawn", PAY.kip(adv.reduce((a, x) => a + x.amount, 0)), "to recover")}
-          ${kpi("Cap", "50%", "of earned-to-date")}
+          ${kpi("Outstanding", PAY.kip(sum(outstanding)), recovered.length ? "to recover next run" : "to recover · 50% cap")}
+          ${kpi("Recovered", PAY.kip(sum(recovered)), recovered.length ? "netted on close" : "none yet")}
         </div>
         ${card("Earned-to-date · advance cap", table([{ h: "Staff" }, { h: "Division" }, { h: "Earned-to-date" }, { h: "Cap (50%)" }, { h: "", r: 1 }], rows), { icon: "banknote" })}
         ${adv.length ? card("Advances drawn", rowlist(adv.map(a => rowitem({ icon: "banknote", title: `${idtag(a.id)} ${esc(a.name)} — ${PAY.kip(a.amount)}`, sub: `cap ${PAY.kip(a.cap)} · ${a.date}`, side: badge(a.status) }))), { icon: "history" }) : ""}`
@@ -960,7 +963,32 @@
     const sec = (s) => card(s.label, table([{ h: "Field" }, { h: "Value", r: 1 }], s.fields.map(([k, lbl]) => ({ cells: [`<span class="small muted">${esc(lbl)}</span>`, `<span class="strong">${esc(PROFILE.value(e, k, s.sealed))}</span>`] }))) + (s.sealed ? `<p class="small muted" style="margin-top:6px">Sealed fields (DOB · National ID) are masked.</p>` : ""), { icon: s.icon });
     return {
       title: `Profile — ${esc(e.name)}`, sub: "SuccessFactors-style profile — General · Personal · Job. Sealed fields masked. Staff see the same profile read-only under “Me”.",
+      actions: `<button class="btn" data-go="hr/web/profile-edit/${e.id}">${icon("edit")} Edit profile</button>`,
       body: `<div class="grid cols-3">${PROFILE.sections().map(sec).join("")}</div>`
+    };
+  };
+  /* ---------- v2.4.5 G3 — HR Profile EDIT form (writes db_people via the People cell) ---------- */
+  web["profile-edit"] = (param) => {
+    const list = DB.list("db_people", "employees") || [];
+    const e = (param ? list.find(x => x.id === param) : null) || list[0] || { id: "EMP-0214", name: "Staff" };
+    const f = (k, lbl, ph) => `<div class="field"><label>${esc(lbl)}</label><input class="input" data-f="${k}" value="${esc(PROFILE.value(e, k) === "—" ? "" : PROFILE.value(e, k))}" placeholder="${esc(ph || "")}"></div>`;
+    return {
+      title: `Edit profile — ${esc(e.name)}`, sub: "HR edits the People record (db_people) — General + Job fields. Sealed identity fields (DOB · National ID) stay read-only and masked.",
+      crumbs: [{ label: "Profile", go: "hr/web/profile-view" }, { label: e.id }],
+      body: `
+        <div class="grid cols-3">
+          <div class="span-2">${card("General & Job", `<div id="pe-form" data-emp="${e.id}" class="grid cols-2" style="gap:12px">
+            ${f("name", "Full name")}
+            ${f("pos", "Position")}
+            ${f("div", "Division")}
+            ${f("team", "Team")}
+            ${f("phone", "Phone", "+856 20 …")}
+            ${f("pemail", "Personal email", "name@mail.la")}
+            ${f("manager", "Reports to")}
+            ${f("start", "Start date")}
+          </div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="btn ghost" data-go="hr/web/profile-view">${icon("x")} Cancel</button><button class="btn" data-act="profile-save">${icon("check")} Save changes</button></div>`, { icon: "edit" })}</div>
+          <div>${card("Sealed — read-only", table([{ h: "Field" }, { h: "Value", r: 1 }], [["dob", "Date of birth"], ["nid", "National ID"]].map(([k, lbl]) => ({ cells: [`<span class="small muted">${esc(lbl)}</span>`, `<span class="strong">${esc(PROFILE.value(e, k, true))}</span>`] }))) + `<p class="small muted" style="margin-top:6px">Identity fields are masked and change only through the secured identity flow.</p>`, { icon: "shield" })}</div>
+        </div>`
     };
   };
   /* ---------- v2.4.5 T5 (F1) — Holidays ---------- */
@@ -1033,7 +1061,7 @@
       { group: "Data", items: [{ id: "data", icon: "layers", label: "Data manager" }] },
       { group: "Account", items: [{ id: "security", icon: "shield", label: "My security" }] }
     ],
-    parent: { approval: "approvals", person: "people", "person-new": "people", "payroll-run": "payroll", "pay-otq": "pay-ot", "report-run": "reports", "report-files": "reports", group: "clocking" },
+    parent: { approval: "approvals", person: "people", "person-new": "people", "profile-edit": "profile-view", "payroll-run": "payroll", "pay-otq": "pay-ot", "report-run": "reports", "report-files": "reports", group: "clocking" },
     tabs: [
       { id: "queue", icon: "inbox", label: "Queue", lock: "l2" },
       { id: "alerts", icon: "bell", label: "Alerts" },

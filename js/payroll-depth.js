@@ -37,7 +37,13 @@
     if (LEVEL < 1) return { ok: false, err: "Raise compliance to L1 or higher before closing the run." };
     r.state = "close"; r.closedAt = "2026-06-25";
     try { if (window.LEDGER && LEDGER.postStaffCost) LEDGER.postStaffCost(r); } catch (e) {}
-    audit("payroll.run_closed", r.id + " · " + kip(r.cost) + " → ledger");
+    // B4 recovery — net approved earned-wage advances against this run. This is a NET-PAY deduction,
+    // not an employer-cost change, so it runs AFTER postStaffCost and never alters r.cost (no double-count).
+    const rec = ADV.filter(a => a.status === "approved");
+    rec.forEach(a => { a.status = "recovered"; a.recoveredRun = r.id; });
+    r.recovered = rec.reduce((s, a) => s + (a.amount || 0), 0);
+    r.recoveredCount = rec.length;
+    audit("payroll.run_closed", r.id + " · " + kip(r.cost) + " → ledger" + (r.recoveredCount ? " · recovered " + kip(r.recovered) + " from " + r.recoveredCount + " advance(s)" : ""));
     pulse();
     return { ok: true, run: r };
   }
@@ -59,14 +65,26 @@
     const amt = Math.min(Math.max(0, Math.round(amount || cap)), cap);
     const row = { id: "ADV-" + String(ADV.length + 1).padStart(3, "0"), emp, name: (PAY.components().find(x => x.emp === emp) || {}).name || emp, amount: amt, cap, status: "pending", date: "2026-06-15" };
     ADV.unshift(row);
-    try { if (window.DATA && DATA.submitRequest) DATA.submitRequest("Advance", "EWA advance · " + kip(amt), { ewa: { emp, amount: amt } }); } catch (e) {}
+    try { if (window.DATA && DATA.submitRequest) DATA.submitRequest("Advance", "EWA advance · " + kip(amt), { ewa: { emp, amount: amt, advId: row.id } }); } catch (e) {}
     audit("payroll.advance_requested", row.id + " · " + kip(amt) + " (cap " + kip(cap) + ")");
     pulse();
     return row;
   }
+  // G5 — an approved "Advance" request flips its ADV row to "approved" (awaiting recovery at run close).
+  // Called from DATA.approve via the same hook OT/Swap use. Matches by advId, falls back to oldest pending for the emp.
+  function onRequestApproved(r) {
+    if (!r || r.type !== "Advance") return null;
+    const id = r.ewa && r.ewa.advId;
+    let a = id ? ADV.find(x => x.id === id) : null;
+    if (!a) a = ADV.find(x => x.status === "pending" && (!r.ewa || x.emp === r.ewa.emp));
+    if (a && a.status === "pending") { a.status = "approved"; audit("payroll.advance_approved", a.id + " · " + kip(a.amount)); pulse(); }
+    return a || null;
+  }
+  const recoverable = () => ADV.filter(a => a.status === "approved");          // approved, not yet recovered
+  const recoveredTotal = () => ADV.filter(a => a.status === "recovered").reduce((s, a) => s + (a.amount || 0), 0);
 
   // register the "Advance" approvable type at load so the unified inbox knows it
   try { if (window.APPROVALS && APPROVALS.register) APPROVALS.register({ key: "Advance", label: "Earned-wage advance", scope: "hr", protective: false, check: "≤50% earned-to-date", cat: "others" }); } catch (e) {}
 
-  Object.assign(window.PAY, { leveling, setLeveling, run, closeRun, earnedToDate, advances, advanceCap, requestAdvance });
+  Object.assign(window.PAY, { leveling, setLeveling, run, closeRun, earnedToDate, advances, advanceCap, requestAdvance, onRequestApproved, recoverable, recoveredTotal });
 })();

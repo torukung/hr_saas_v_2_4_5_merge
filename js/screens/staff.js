@@ -28,7 +28,7 @@
     if (filter && filter !== "All") rs = rs.filter(r => r.type === filter);
     if (!rs.length) return `<p class="small muted">No ${filter && filter !== "All" ? filter.toLowerCase() : ""} requests yet.</p>`;
     return rowlist(rs.map(r => rowitem({
-      icon: { Leave: "calendar", Overtime: "clock", Claim: "receipt", Correction: "edit" }[r.type],
+      icon: ({ Leave: "calendar", Overtime: "clock", Claim: "receipt", Correction: "edit", Advance: "banknote" }[r.type]) || "inbox",
       title: `${r.detail}`,
       sub: `${r.id} · ${r.dates} · ${r.stage}`,
       side: statusBadge(r),
@@ -97,6 +97,20 @@
   }
 
   /* ---------- WEB screens ---------- */
+  // v2.4.5 G4 — Staff earned-to-date tile (gated by FLAGS.etd); offers the advance entry when FLAGS.ewa is on. Node-safe.
+  function etdCard(device) {
+    if (typeof PAY === "undefined" || !PAY.earnedToDate || !(window.FLAGS && FLAGS.on("etd"))) return "";
+    const e = PAY.earnedToDate(DATA.me.staff.id);
+    const ewaOn = !!(window.FLAGS && FLAGS.on("ewa"));
+    return UI.card("Earned to date", `
+      <div style="margin-bottom:10px"><div class="eyebrow">Earned so far this cycle</div>
+        <div class="num" style="font-family:var(--display);font-size:28px;font-weight:550;letter-spacing:-.03em">${UI.kip(e.net)}</div>
+        <div class="small muted">of ${UI.kip(e.full)} projected · ${e.pct}% of the pay cycle</div></div>
+      ${UI.meter(e.pct, { label: "Pay cycle " + e.pct + "%" })}
+      ${ewaOn ? `<div style="margin-top:12px"><button class="btn sm" data-go="staff/${device || "web"}/advance">${icon("banknote")} Request an advance</button></div>` : ""}`,
+      { icon: "banknote" });
+  }
+
   const web = {
     home() {
       const m = DATA.me.staff;
@@ -311,7 +325,8 @@
         actions: userPicker(),
         body: `
         ${card("", empty("banknote", "No payslips yet for " + DATA.me.staff.name.split(" ")[0], "The first pay run after hire publishes here — payroll reads the db_people row this user just got."))}
-        ${card("How slips arrive", `<p class="small muted">Pay run ${idtag("PR-2026-06")} (HR → Payroll) generates one serialized slip per active employee at disbursement. New hires join the next cutoff automatically — their master record is already in db_people.</p>`, { icon: "sparkle" })}`
+        ${card("How slips arrive", `<p class="small muted">Pay run ${idtag("PR-2026-06")} (HR → Payroll) generates one serialized slip per active employee at disbursement. New hires join the next cutoff automatically — their master record is already in db_people.</p>`, { icon: "sparkle" })}
+        ${etdCard("web")}`
       };
       return {
         title: "Payslips", sub: "Self-serve slips with tax and social security breakdown — published by each pay run.",
@@ -334,6 +349,7 @@
           rowitem({ icon: "heart", title: "Social security", sub: "Employee 5.5%", side: `<b class="num">₭ 1.47M</b>` })
         ]), { icon: "pulse" })}
         </div>
+        ${etdCard("web")}
         ${card("History", table(
           [{ h: "Period" }, { h: "ID" }, { h: "Gross", r: 1 }, { h: "Net", r: 1 }, { h: "", r: 1 }],
           mine.map(s => ({
@@ -350,6 +366,35 @@
         crumbs: [{ label: "Payslips", go: "staff/web/payslips" }, { label: p.id }],
         actions: `<button class="btn ghost" data-act="export:payslip">${icon("download")} PDF</button><button class="btn ghost" data-act="export:tax">${icon("file")} Tax statement</button>`,
         body: payslipDetailBody(id, "web")
+      };
+    },
+
+    /* ---------- v2.4.5 G4 — Staff advance request (earned-wage access) ---------- */
+    advance() {
+      const m = DATA.me.staff;
+      if (typeof PAY === "undefined" || !PAY.advanceCap) return { title: "Request an advance", sub: "Earned-wage access.", body: card("", empty("banknote", "Advances unavailable", "The payroll engine isn't loaded.")) };
+      const cap = PAY.advanceCap(m.id), e = PAY.earnedToDate(m.id);
+      const mine = (PAY.advances ? PAY.advances() : []).filter(a => a.emp === m.id);
+      return {
+        title: "Request an advance", sub: "Earned-wage access — draw up to half of what you've already earned this cycle, repaid from your next pay.",
+        crumbs: [{ label: "Payslips", go: "staff/web/payslips" }, { label: "Advance" }],
+        body: `
+        <div class="grid cols-3">
+          <div class="span-2" style="display:flex;flex-direction:column;gap:16px">
+            ${card("Available now", `
+              <div style="margin-bottom:10px"><div class="eyebrow">Up to</div>
+                <div class="num" style="font-family:var(--display);font-size:34px;font-weight:550;letter-spacing:-.03em">${UI.kip(cap)}</div>
+                <div class="small muted">50% of ${UI.kip(e.net)} earned-to-date</div></div>
+              ${UI.meter(e.pct, { label: "Earned " + e.pct + "% of the cycle" })}
+              <div class="field" style="margin-top:14px;max-width:280px"><label>Amount (₭)</label><input class="input" id="adv-amt" type="number" inputmode="numeric" placeholder="${cap}" max="${cap}"></div>
+              <p class="small muted">Leave blank to request the full available amount. It goes to HR for approval, then nets against your next pay run.</p>
+              <div style="margin-top:10px"><button class="btn" data-act="adv-request">${icon("banknote")} Request advance</button></div>`, { icon: "banknote" })}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            ${card("Your advances", mine.length ? rowlist(mine.map(a => rowitem({ icon: "banknote", title: UI.kip(a.amount), sub: a.date + " · cap " + UI.kip(a.cap), side: badge(a.status) }))) : `<p class="small muted">No advances yet.</p>`, { icon: "history" })}
+            ${card("How it works", `<p class="small muted">Capped at 50% of your earned-to-date net. HR approves it in the unified inbox; on the next pay-run close it's recovered automatically from your net pay.</p>`, { icon: "sparkle" })}
+          </div>
+        </div>`
       };
     },
 
@@ -451,6 +496,7 @@
             ${userPickerCard()}
             ${card("Language", `<div class="choice-row"><button class="choice" aria-pressed="true">English</button><button class="choice" data-act="lang-lo">ລາວ</button></div><p class="small muted" style="margin-top:10px">Bilingual UI is a platform feature — the Lao pack is staged for the build phase.</p>`, { icon: "globe" })}
             ${card("My access", `<p class="small muted">Persona <b style="color:var(--acc-d)">Staff · ESS</b> — create &amp; edit own data, submit requests. Scope enforced by the kernel on every call.</p>`, { icon: "lock" })}
+            ${etdCard("web")}
           </div>
         </div>
         <div style="height:16px"></div>
@@ -508,6 +554,7 @@
         ${card("Payslips", (DATA.myPayslips().length
           ? rowlist(DATA.myPayslips().map(p => rowitem({ icon: "banknote", title: p.period, sub: "Net " + kip(p.net), side: icon("chevR"), go: `staff/mobile/payslip/${p.id}` })))
           : empty("banknote", "No payslips yet", "Published by the next pay run")), { icon: "banknote" })}
+        ${etdCard("mobile")}
         ${card("Documents", (DATA.myDocs().length
           ? rowlist(DATA.myDocs().slice(0, 3).map(d => rowitem({ icon: "file", title: d.name, sub: d.kind + " · " + d.expiry, side: badge(d.status) })))
           : empty("folder", "No documents yet", "HR uploads at onboarding")), { icon: "folder" })}
@@ -553,6 +600,17 @@
     },
     payslip(id) {
       return { title: "Payslip", back: "staff/mobile/me", body: payslipDetailBody(id, "mobile") };
+    },
+    advance() {
+      const m = DATA.me.staff;
+      if (typeof PAY === "undefined" || !PAY.advanceCap) return { title: "Advance", back: "staff/mobile/me", body: card("", empty("banknote", "Advances unavailable", "Payroll engine not loaded.")) };
+      const cap = PAY.advanceCap(m.id), e = PAY.earnedToDate(m.id);
+      const mine = (PAY.advances ? PAY.advances() : []).filter(a => a.emp === m.id);
+      return {
+        title: "Advance", back: "staff/mobile/me", body: `
+        ${card("Available now", `<div class="num" style="font-family:var(--display);font-size:30px;font-weight:550;letter-spacing:-.03em">${UI.kip(cap)}</div><div class="small muted" style="margin-bottom:10px">50% of ${UI.kip(e.net)} earned-to-date</div>${UI.meter(e.pct, { label: e.pct + "% of cycle" })}<div class="field" style="margin-top:12px"><label>Amount (₭)</label><input class="input" id="adv-amt-m" type="number" inputmode="numeric" placeholder="${cap}" max="${cap}"></div><div style="margin-top:10px"><button class="btn" data-act="adv-request">${icon("banknote")} Request</button></div>`, { icon: "banknote" })}
+        ${mine.length ? card("Your advances", rowlist(mine.map(a => rowitem({ icon: "banknote", title: UI.kip(a.amount), sub: a.date, side: badge(a.status) }))), { icon: "history" }) : ""}`
+      };
     }
   };
 
@@ -585,6 +643,7 @@
       ]},
       { group: "Pay & docs", items: [
         { id: "payslips", icon: "banknote", label: t("staff.payslips") },
+        { id: "advance", icon: "banknote", label: "Advance" },
         { id: "documents", icon: "folder", label: t("staff.documents"), lock: "vault" },
         { id: "reports", icon: "chart", label: "My reports" }
       ]},
@@ -594,14 +653,14 @@
         { id: "mydata", icon: "layers", label: "My data" }
       ] }
     ],
-    parent: { "request-new": "requests", "request-detail": "requests", "payslip": "payslips", "report-run": "reports", "report-files": "reports", "sched-swaps": "requests" },
+    parent: { "request-new": "requests", "request-detail": "requests", "payslip": "payslips", "advance": "payslips", "report-run": "reports", "report-files": "reports", "sched-swaps": "requests" },
     tabs: [
       { id: "home", icon: "home", label: "Home" },
       { id: "time", icon: "clock", label: "Time" },
       { id: "requests", icon: "inbox", label: "Requests" },
       { id: "me", icon: "user", label: "Me" }
     ],
-    tabParent: { "request-detail": "requests", "request-new": "requests", "payslip": "me", "sched-me": "time", "sched-swaps": "requests" },
+    tabParent: { "request-detail": "requests", "request-new": "requests", "payslip": "me", "advance": "me", "sched-me": "time", "sched-swaps": "requests" },
     web, mobile
   };
 })();

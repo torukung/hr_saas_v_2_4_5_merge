@@ -31,7 +31,7 @@ window.I18N = (function () {
     "hr.comms": "Communication", "hr.reports": "Reports", "hr.docs": "Documents",
     "hr.queue": "Queue",
     // ceo nav
-    "ceo.board": "Board", "ceo.trends": "Trends", "ceo.divisions": "Divisions",
+    "ceo.board": "Board", "ceo.trends": "Trends", "ceo.divisions": "Divisions", "ceo.finance": "Finance",
     "ceo.compliance": "Compliance", "ceo.packs": "Board packs",
     // sysadmin nav
     "sys.health": "Platform health", "sys.templates": "Templates", "sys.channels": "Channels",

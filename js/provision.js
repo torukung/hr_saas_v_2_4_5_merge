@@ -82,11 +82,15 @@ window.PROV = (function () {
     opts = opts || {};
     const dr = dryRun(text, opts);
     const ts = stamp();
-    let created = 0, linked = 0, errors = 0, dupes = 0;
+    let created = 0, linked = 0, errors = 0, dupes = 0, capped = 0;
+    // v2.4.5 G8 — open-tier seat cap: stop creating accounts once the cap is hit (no-op unless maxUsers is set)
+    let capRemaining = Infinity;
+    try { if (window.LICENSE && LICENSE.seatGuard) { const g = LICENSE.seatGuard(0); if (g.cap != null) capRemaining = Math.max(0, g.cap - g.have); } } catch (e) {}
     dr.items.forEach(x => {
       if (x.action === "error" || x.action === "conflict") { errors++; return; }
       if (x.action === "skip") { dupes++; return; }
       if (x.action === "create") {
+        if (capRemaining <= 0) { capped++; return; }   // seat cap reached — defer this create
         if (x.mode === "local") {
           AUTH.invite({ emp: x.emp || null, name: x.name || x.email, email: x.email, scope: x.scope, who: who || "import" });
         } else {
@@ -95,12 +99,12 @@ window.PROV = (function () {
           if (!AUTH.dirUser(x.email)) AUTH.dirAdd({ email: x.email, name: x.name, emp: x.emp, type: x.mode, role: x.scope }, who);
           save();
         }
-        created++;
+        created++; capRemaining--;
       } else if (x.action === "link") {
         AUTH.setMode(x.email, x.mode, { reason: "file import" }, who); linked++;
       }
     });
-    const job = { id: nextId("IMP"), ts, who: who || "import", source: opts.source || "pasted.csv", rows: dr.items.length, created, linked, dupes, errors, mode: dr.mode, state: "done", note: created + " created · " + linked + " linked · " + dupes + " dupe · " + errors + " error(s)" };
+    const job = { id: nextId("IMP"), ts, who: who || "import", source: opts.source || "pasted.csv", rows: dr.items.length, created, linked, dupes, errors, capped, mode: dr.mode, state: "done", note: created + " created · " + linked + " linked · " + dupes + " dupe · " + errors + " error(s)" + (capped ? " · " + capped + " held (seat cap)" : "") };
     T("import_jobs").unshift(job); save();
     fact(who || "Vilayvanh C.", "import.batch", job.id + " · " + job.source + " · +" + created + " / link " + linked + " / err " + errors);
     AUTH.mail("sync_notice", "hr@phoungern.la", "HR", { kind: "import", created, linked, suspended: 0, conflicts: errors, link: "#/hr/web/import" }, who);

@@ -4,9 +4,19 @@ Spun from **v2.4.4.edge.auth** on 2026-06-28. Pre-spin backup: `HR MS - LAOS/Bac
 Orchestration in `Blueprint - Active/` (Convergence Blueprint · Architecture & Flow Spec · Build Orchestration & Flows Instruction · Menu & Dashboard Layout Gap).
 Scope: **A1·A3·B1·B2·B3·B4·C1·C2·C3·D1·D2·E1·F1** (A2 excluded). Single-tenant · single-tier · licensing ships OFF.
 
-**Gate rule:** `node tools/smoke.js .` green before every merge. **Current: 294 · ALL CHECKS PASS.**
+**Gate rule:** `node tools/smoke.js .` green before every merge. **Current: 302 · ALL CHECKS PASS.**
 
 **WAVE 1 ✅ · WAVE 2 ✅ · Close-out ✅ · Backup/Restore ✅ · T8 deploy KIT ✅ (push + CF config pending).**
+
+### MEDIUM GAPS CLOSED — 2026-06-28 (smoke 294 → 302; all 7 mediums from the Playwright menu-flow report)
+- **G9 · persistence** — `FLAGS.state` + `LICENSE.state` (incl. `openLimits`/tier) now persist to `db_platform.settings` via `DB.platformGet/platformSet`; loaded on boot, saved on change → survive reload. Foundational (G8/G4 read through it).
+- **G8 · seat cap** — `LICENSE.seatGuard()`/`seatCount()` enforce `openLimits.maxUsers` at hire (`DATA.hireStaff` → `{blocked}`) and import (`PROV.commitImport` holds creates past the cap). No-op when no cap set (the ship default), so smoke unchanged.
+- **G6 · CEO finance read** — new read-only `ceo/web/finance` board P&L (revenue·expenses·staff cost·result + 6-mo trend + top expenses) over `LEDGER`. Standalone DW workbook export **deferred** (folded into the existing REP report library — no new capability).
+- **G4 · Staff EWA** — Staff **ETD tile** (gated `etd`) on payslips/me + **advance-request** screen (web+mobile, gated `ewa`) → `PAY.requestAdvance` → "Advance" approval in the unified inbox.
+- **G5 · EWA recovery** — approving an Advance flips it `approved`; **`PAY.closeRun` recovers** approved advances (net-pay deduction *after* `postStaffCost` → no ledger double-count); surfaced on HR Advances + Compliance/close.
+- **G3 · HR profile edit** — `DATA.editStaff` (People-cell writer, sealed DOB/NID **not** editable) + HR `profile-edit` form reached from Profile. Staff "Me" read-only PROFILE reuse **confirmed live**.
+- **G14 · webShell verification** — accepted: the standing Playwright `menu-flow.mjs` run is the rail/topbar verification smoke.js doesn't cover (102/102 menus OK).
+- Report synced: `tools/e2e/menu-flow.mjs` `DOCUMENTED_GAPS` — the 7 mediums (+ the 3 highs G1/G2/G13) marked **Done**.
 
 ### T8 · DEPLOY KIT — PREPPED in-folder · **D1 LIVE + MIGRATED (2026-06-28)**
 - `wrangler.toml` — Worker `adeptio-hr-v245` + **D1** (DB, id `e077a89e…`, **migrated**) / **KV** (SESSIONS, live id) / **R2** (BACKUPS) bindings.

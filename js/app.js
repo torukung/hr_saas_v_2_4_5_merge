@@ -362,6 +362,27 @@
     const [cmd, arg] = act.split(/:(.+)/);
     switch (cmd) {
       /* ==SEAM:ACTIONS== v2.4.5 — add handleAct case "<cell>:<cmd>" here == */
+      case "adv-request": { // G4 — Staff files an earned-wage advance (→ Advance approval in the unified inbox)
+        if (typeof PAY === "undefined" || !PAY.requestAdvance) { toast("Advances unavailable", "warn"); break; }
+        const el = document.getElementById("adv-amt") || document.getElementById("adv-amt-m");
+        const raw = el ? String(el.value).replace(/[^\d]/g, "") : "";
+        const row = PAY.requestAdvance(DATA.me.staff.id, raw ? Number(raw) : undefined);
+        if (!row) { toast("Could not file the advance — check your earned-to-date.", "warn"); break; }
+        toast(`Advance ${row.id} · ${UI.kip(row.amount)} requested — pending HR approval`);
+        DATA.pulse();
+        go("staff/" + (location.hash.indexOf("/mobile/") >= 0 ? "mobile" : "web") + "/requests");
+        break;
+      }
+      case "profile-save": { // G3 — HR saves the People-record edit form to db_people
+        const form = document.getElementById("pe-form"); if (!form) { toast("Edit form not found", "warn"); break; }
+        const id = form.getAttribute("data-emp"); const patch = {};
+        form.querySelectorAll("[data-f]").forEach(el => { patch[el.getAttribute("data-f")] = el.value.trim(); });
+        const res = DATA.editStaff(id, patch, "Vilayvanh C.");
+        if (!res || !res.ok) { toast((res && res.err) || "Could not save the profile", "warn"); break; }
+        toast(`${id} profile updated — ${res.changed} field(s) saved to db_people`);
+        go("hr/web/profile-view");
+        break;
+      }
       case "flag": { // T0 — toggle a feature flag (scope by acting persona)
         const p = route().persona; const scope = p === "manager" ? "manager" : p === "hr" ? "hr" : "sys";
         const r = FLAGS.set(arg, undefined, scope);
@@ -538,7 +559,9 @@
         const val = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ""; };
         const name = val("st-name");
         if (!name) { toast("Give the new hire a name first", "warn"); break; }
-        const id = DATA.hireStaff({ name, pos: val("st-pos"), div: val("st-div"), team: val("st-team") });
+        const res = DATA.hireStaff({ name, pos: val("st-pos"), div: val("st-div"), team: val("st-team") });
+        if (res && res.blocked) { toast(res.msg, "warn"); break; }
+        const id = res;
         toast(`${id} · ${name} created in db_people — selectable as a Staff user right away`);
         go("hr/web/person/" + id);
         break;
@@ -1205,7 +1228,7 @@
         const el = document.getElementById("imp-csv"); if (el) AUTHV.prov.csv = el.value;
         const job = PROV.commitImport(AUTHV.prov.csv, { mode: AUTHV.prov.mode, source: "pasted.csv" }, "Vilayvanh C.");
         AUTHV.prov.dry = null; AUTHV.prov.csv = "";
-        toast("Import " + job.id + " — " + job.created + " created, " + job.linked + " linked" + (job.errors ? ", " + job.errors + " error(s)" : "") + " · notice in the outbox");
+        toast("Import " + job.id + " — " + job.created + " created, " + job.linked + " linked" + (job.errors ? ", " + job.errors + " error(s)" : "") + (job.capped ? ", " + job.capped + " held (seat cap)" : "") + " · notice in the outbox", job.capped ? "warn" : undefined);
         DATA.pulse(); break;
       }
       case "prov-sync-run": {

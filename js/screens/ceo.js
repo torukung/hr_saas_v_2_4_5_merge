@@ -57,6 +57,30 @@
       };
     },
 
+    /* ---------- v2.4.5 G6 — CEO finance read (board-level P&L over the LEDGER) ---------- */
+    finance() {
+      const L = (typeof LEDGER !== "undefined" && LEDGER.rollup) ? LEDGER : null;
+      const roll = L ? L.rollup() : { revenue: 0, expense: 0, staff: 0, result: 0, margin: 0, staffRatio: 0 };
+      const top = L ? L.topExpenses(5) : [];
+      const ser = L ? L.series() : [];
+      const M = (n) => Math.round((n || 0) / 1e5) / 10; // ₭ → ₭M, one decimal (matches HR Cost & benefit)
+      return {
+        title: "Finance — board read", sub: "Aggregate P&L over the same cashbook everyone writes — revenue, cost and the 6-month trend. Read-only · no individuals.",
+        actions: `${ro} <button class="btn ghost" data-act="export:boardpack">${icon("download")} ${t("common.export")} board pack</button>`,
+        body: `
+        <div class="grid cols-4">
+          ${kpi("Revenue", UI.kip(roll.revenue), "this month", { hero: 1 })}
+          ${kpi("Expenses", UI.kip(roll.expense), "operating")}
+          ${kpi("Staff cost", UI.kip(roll.staff), Math.round(roll.staffRatio * 100) + "% of revenue")}
+          ${kpi("Result", UI.kip(roll.result), Math.round(roll.margin * 100) + "% margin")}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${ser.length ? card("Revenue vs staff-cost — 6 months (derived)", lines2(ser.map(s => M(s.revenue)), ser.map(s => M(s.staffCost)), ser.map(s => s.month)) + legend([{ c: "var(--acc)", l: "Revenue (₭M)" }, { c: "var(--muted-2)", l: "Staff cost (₭M)" }]), { icon: "trend" }) : card("Revenue vs staff-cost", empty("trend", "No ledger data yet", "The cashbook is empty."), { icon: "trend" })}
+          ${top.length ? card("Top expenses (₭M)", bars(top.map(e => ({ l: e.cat, v: M(e.amount) })), { values: 1 }), { icon: "chart" }) : card("Top expenses", empty("chart", "No expenses posted", "Nothing to chart yet."), { icon: "chart" })}
+        </div>`
+      };
+    },
+
     trends() {
       return {
         title: "Trends", sub: "Twelve months of derived metrics from the reporting warehouse — never the operational stores.",
@@ -244,6 +268,7 @@
     nav: [
       { group: "Insight", items: [
         { id: "board", icon: "grid", label: t("ceo.board") },
+        { id: "finance", icon: "banknote", label: t("ceo.finance") },
         { id: "trends", icon: "trend", label: t("ceo.trends") },
         { id: "divisions", icon: "building", label: t("ceo.divisions") },
         { id: "sched-cal", icon: "calendar", label: "Schedule coverage" }

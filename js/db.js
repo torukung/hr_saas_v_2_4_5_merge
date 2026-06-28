@@ -40,7 +40,7 @@ window.DB = (function () {
     { id: "db_docs",     name: "Documents Vault",      layer: "L-OP + L-CU",   profile: "PII · blob+meta",     writer: "Docs cell",     icon: "folder",    priority: 3, tables: ["documents"], gate: "vault",           protection: "Metadata here; files live in L-CU with bucket versioning — a DB restore never loses a file." },
     { id: "db_audit",    name: "Audit Ledger",         layer: "L-OP → L-CU",   profile: "immutable",           writer: "Event bus",     icon: "lock",      priority: 1, tables: ["events"], append: true,               protection: "Append-only · daily export to WORM (object-lock) bucket — even we cannot rewrite history." },
     { id: "dw_reports",  name: "Reporting Warehouse",  layer: "L-DR",          profile: "derived",             writer: "Projector",     icon: "chart",     priority: 5, tables: ["org_snapshots", "series", "generated"], derived: true, protection: "Rebuilt from the event ledger on demand — backup is a convenience, replay is the guarantee." },
-    { id: "db_platform", name: "Platform Registry",    layer: "L-OP · global", profile: "control plane",       writer: "Kernel",        icon: "settings",  priority: 1, tables: ["registry", "backup_policies", "drills", "flags"], global: true, protection: "The one global DB — longest PITR window + export every 6 h; it is the map to everything else." },
+    { id: "db_platform", name: "Platform Registry",    layer: "L-OP · global", profile: "control plane",       writer: "Kernel",        icon: "settings",  priority: 1, tables: ["registry", "backup_policies", "drills", "flags", "settings"], global: true, protection: "The one global DB — longest PITR window + export every 6 h; it is the map to everything else." },
     { id: "db_identity", name: "Identity & Access",    layer: "L-OP",          profile: "credentials · sensitive", writer: "Identity cell", icon: "key",   priority: 1, tables: ["accounts", "sessions", "tokens", "policies", "providers", "import_jobs", "sync_runs", "directory"], sensitive: true, protection: "Store 11 (v2.5 §3 · v2.4.1 edge) — encrypted snapshots; sessions, tokens & the directory simulator are EXCLUDED from every restore and from cloud sync (sensitive custody). Credential hashes are server-authoritative on the edge Worker (Cloudflare D1 (adeptio-hr-v245)); the browser never pushes db_identity to the cloud — the custody flip." },
     { id: "db_devices",  name: "Devices & Capture",    layer: "L-OP",          profile: "edge · telemetry",    writer: "Devices cell", icon: "grid",      priority: 3, tables: ["devices", "gates", "groups", "events"], protection: "Store 12 (v2.4.2) — biometric & gate connectors, capture groups and rolling telemetry. Connection facts only; device passwords/API keys are vault refs (never stored). Punches land in db_time — this store holds the registry, not the truth of attendance." },
     { id: "db_overtime", name: "Overtime & Quota",     layer: "L-OP",          profile: "transactional",       writer: "OT cell",       icon: "clock",     priority: 2, tables: ["quotas", "policy"],                 protection: "Store 13 (v2.4.3) — per-division OT quota limits (monthly/yearly), used & remaining hours, and the OT-rate policy. Approving an OT request decrements the live quota; the payroll OT line reads from here." },
@@ -333,7 +333,9 @@ window.DB = (function () {
           { key: "auth.scim",   label: "SCIM 2.0 — push provisioning endpoint",    state: "roadmap", tier: "enterprise",   note: "v2.4.1 ships pull import + delta sync; the standard SCIM /v2 endpoint stays Enterprise" },
           { key: "auth.bio",    label: "Biometric punch & capture",                state: "built",   tier: "professional", configure: "sysadmin/web/biometrics", note: "v2.4.2 — face / finger / card terminals (ZKTeco PUSH · Hikvision ISAPI · Dahua · Sunmi · HIP import); punches land in db_time, tagged by device & method" },
           { key: "auth.door",   label: "Door / gate & badge access",               state: "built",   tier: "enterprise",   configure: "sysadmin/web/gates",      note: "v2.4.2 — turnstiles · doors · barriers downstream of a reader/controller; same identity, physical access" }
-        ]
+        ],
+        // v2.4.5 G9 — durable runtime settings: { flags:{key:bool}, license:{enabled,locked,tier,openLimits} }. Empty = use code defaults.
+        settings: { flags: {}, license: {} }
       },
       /* ---------- store 11 — db_identity (v2.5 §3 step 1) ----------
          Accounts = the door keys; people stay in db_people (no access ≠ no
@@ -537,6 +539,9 @@ window.DB = (function () {
   /* cloud-sync hooks (js/d1-sync.js) — no-ops unless API_CONFIG.base (the D1 Worker) is set */
   function localMeta(id) { try { const p = JSON.parse(LS.getItem(key(id)) || "null"); return p ? { v: p.v, t: p.t } : null; } catch (e) { return null; } }
   function raw(id) { return data[id]; }
+  // v2.4.5 G9 — durable platform settings (FLAGS/LICENSE persistence) under db_platform.settings
+  function platformGet(k) { try { return (data.db_platform && data.db_platform.settings && data.db_platform.settings[k]) || null; } catch (e) { return null; } }
+  function platformSet(k, obj) { try { if (!data.db_platform.settings) data.db_platform.settings = {}; data.db_platform.settings[k] = obj; persist("db_platform"); } catch (e) {} return obj; }
   function hydrate(id, tables, t) {
     if (!byId[id] || !tables) return false;
     data[id] = tables;
@@ -784,6 +789,6 @@ window.DB = (function () {
     backups: { all: bkAll, now: backupNow, restore: backupRestore, remove: backupDelete, clear: backupClear },
     reports: { runs: reportRuns, save: reportSave, remove: reportDelete, nextId: nextReportId, VISIBLE: VISIBLE_RUNS },
     exportObj, tick, drill, rebuildReports,
-    persist, localMeta, raw, hydrate
+    persist, localMeta, raw, hydrate, platformGet, platformSet
   };
 })();

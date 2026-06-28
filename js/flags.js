@@ -33,6 +33,10 @@ window.FLAGS = (function () {
   ];
   const SCOPE_RANK = { manager: 1, hr: 2, sys: 3 };
   const state = {}; ORDER.forEach(k => state[k] = REGISTRY[k].def);
+  // v2.4.5 G9 — overlay persisted flag state (db_platform.settings.flags), then save on every change.
+  // Only known REGISTRY keys, boolean-coerced; absent = keep the code default. Node-safe (guards DB).
+  try { const saved = (window.DB && DB.platformGet) ? DB.platformGet("flags") : null; if (saved) ORDER.forEach(k => { if (k in saved) state[k] = !!saved[k]; }); } catch (e) {}
+  const save = () => { try { if (window.DB && DB.platformSet) DB.platformSet("flags", Object.assign({}, state)); } catch (e) {} };
 
   const pulse = () => { try { if (window.DATA && DATA.pulse) DATA.pulse(); } catch (e) {} };
   const audit = (act, ref) => { try { if (window.DB && DB.audit) DB.audit("Thip N.", act, ref, "console"); } catch (e) {} };
@@ -43,6 +47,7 @@ window.FLAGS = (function () {
     if (!reg) return { ok: false, err: "Unknown feature." };
     if ((SCOPE_RANK[reg.scope] || 3) > (SCOPE_RANK[callerScope] || 0)) return { ok: false, err: reg.scope + "-scope flag — your role can't change this." };
     state[feature] = (val == null) ? !state[feature] : !!val;
+    save();
     audit("flag.set", feature + " = " + (state[feature] ? "on" : "off")); pulse();
     return { ok: true, on: state[feature] };
   }

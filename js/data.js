@@ -133,6 +133,8 @@ window.DATA = (function () {
     try { if (r.status === "approved" && window.OT && OT.onRequestApproved) OT.onRequestApproved(r); } catch (e) { /* OT cell optional */ }
     // v2.4.4 — approving a Swap (SW) request updates the roster (Schedule cell)
     try { if (r.status === "approved" && r.type === "Swap" && window.SCHEDULE && SCHEDULE.onRequestApproved) SCHEDULE.onRequestApproved(r); } catch (e) { /* Schedule cell optional */ }
+    // v2.4.5 G5 — approving an Advance (EWA) marks it for recovery on the next pay-run close (Payroll depth)
+    try { if (r.status === "approved" && r.type === "Advance" && window.PAY && PAY.onRequestApproved) PAY.onRequestApproved(r); } catch (e) { /* Payroll cell optional */ }
     notify();
   }
   function ret(id) {
@@ -170,6 +172,8 @@ window.DATA = (function () {
 
   /* ---------- staff lifecycle — used by the UI actions AND the smoke test ---------- */
   function hireStaff(f) {
+    // v2.4.5 G8 — enforce the open-tier seat cap (no-op unless an owner set maxUsers in Platform Settings)
+    try { if (window.LICENSE && LICENSE.seatGuard) { const g = LICENSE.seatGuard(1); if (!g.ok) return { ok: false, blocked: true, msg: g.msg }; } } catch (e) {}
     const emp = DB.list("db_people", "employees");
     const next = emp.reduce((m, e) => Math.max(m, Number(String(e.id).replace(/\D/g, "")) || 0), 0) + 1;
     const id = "EMP-" + String(next).padStart(4, "0");
@@ -182,6 +186,20 @@ window.DATA = (function () {
     DB.add("db_leave", "balances", { emp: id, name: shortName(f.name), annual: 15, sick: 30, taken: 0 }, "system");
     notify();
     return id;
+  }
+  // v2.4.5 G3 — HR edits the People record (db_people is the one writer). Sealed identity fields
+  // (DOB · National ID) are NOT editable through here — they change only via the secured identity flow.
+  function editStaff(id, patch, who) {
+    const store = DB.raw("db_people"); const arr = store && store.employees;
+    const e = arr && arr.find(x => x.id === id);
+    if (!e) return { ok: false, err: "No such employee." };
+    const FIELDS = ["name", "pos", "div", "team", "phone", "pemail", "manager", "start", "site"];
+    let changed = 0;
+    FIELDS.forEach(k => { if (patch && patch[k] != null && patch[k] !== "" && patch[k] !== e[k]) { e[k] = patch[k]; changed++; } });
+    DB.persist("db_people");
+    DB.audit(who || "Vilayvanh C.", "employee.profile_edited", id + " · " + changed + " field(s)", "console");
+    notify();
+    return { ok: true, changed, emp: e };
   }
   function offboardStaff(id) {
     const e = DB.list("db_people", "employees").find(x => x.id === id);
@@ -255,7 +273,7 @@ window.DATA = (function () {
     get sent()              { return DB.list("db_comms", "messages"); },
     approve, ret, clock, submitRequest, advanceRun, sendComms,
     pendingL1, pendingL2, mine, myPayslips, myDocs,
-    hireStaff, offboardStaff, reassignStaff, generateDoc, nextDocId,
+    hireStaff, offboardStaff, editStaff, reassignStaff, generateDoc, nextDocId,
     setActingStaff, actingStaffId: () => actingStaffId,
     has, unlockLabel, setTier, org,
     tier: () => state.tier,
