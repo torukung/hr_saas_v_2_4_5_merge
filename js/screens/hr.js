@@ -17,22 +17,6 @@
   // v2.3.2.db — the master record lives in db_people.employees now (one writer: People cell)
   const allStaff = () => DATA.employees;
 
-  function l2queue(device, compact) {
-    const q = DATA.pendingL2();
-    if (!q.length) return empty("check", "L2 queue clear", "Nothing waiting on HR / Finance.");
-    return q.map(r => `
-      <div class="qrow">
-        <div class="qmain" data-go="hr/${device === "mobile" ? "mobile/approval" : "web/approval"}/${r.id}" role="button" tabindex="0">
-          <div class="qt">${idtag(r.id)} ${UI.esc(r.who)} · ${UI.esc(r.detail)} <span class="sla">${r.sla}</span></div>
-          <div class="qs">L1 ✓ Khamla S. · ${r.dates}</div>
-        </div>
-        <div class="qact">
-          <button class="btn ok sm" data-act="approve:${r.id}">${icon("check")}${compact ? "" : " Settle"}</button>
-          <button class="btn danger sm" data-act="return:${r.id}">${icon("x")}${compact ? "" : " Return"}</button>
-        </div>
-      </div>`).join("");
-  }
-
   /* ---------- WEB ---------- */
   const web = {
     pulse() {
@@ -44,13 +28,13 @@
         <div class="grid cols-4">
           ${kpi("Headcount", String(DATA.org().headcount), `<span class="up">${DATA.org().newMoM}</span> this month`, { hero: 1 })}
           ${kpi("Present today", DATA.org().presentPct, `${DATA.org().present} of ${DATA.org().headcount} · ${DATA.org().late} late`)}
-          ${DATA.has("l2") ? kpi("Approvals L2", String(DATA.pendingL2().length + 22), "oldest 1.8 d") : kpi("Approvals · L1", "9", "single-step · at managers")}
+          ${DATA.has("l2") ? kpi("Approvals", String(APPROVALS.pending()), "across modules") : kpi("Approvals · L1", "9", "single-step · at managers")}
           ${kpi("Payroll cut-off", "15 d", "Jun 25 · run in draft")}
         </div>
         <div class="grid cols-3" style="margin-top:16px">
           <div class="span-2" style="display:flex;flex-direction:column;gap:16px">
             ${card("Needs attention", rowlist([
-          DATA.has("l2") ? rowitem({ icon: "inbox", title: "L2 approvals waiting", sub: "1 claim settle + 22 cross-module", side: `<b class="num">23</b>`, go: "hr/web/approvals" }) : `<div class="rowitem row-locked"><span class="ric n">${icon("lock")}</span><div class="rmain"><div class="rt">Multi-step approvals (L1 → L2)</div><div class="rs">Single-step on Essential — managers complete at L1</div></div><div class="rside">${UI.lockTag(DATA.unlockLabel("l2"))}</div></div>`,
+          DATA.has("l2") ? rowitem({ icon: "inbox", title: "Approvals waiting", sub: `${DATA.pendingL2().length} claim to settle · ${APPROVALS.pending()} across modules`, side: `<b class="num">${APPROVALS.pending()}</b>`, go: "hr/web/approvals" }) : `<div class="rowitem row-locked"><span class="ric n">${icon("lock")}</span><div class="rmain"><div class="rt">Multi-step approvals (L1 → L2)</div><div class="rs">Single-step on Essential — managers complete at L1</div></div><div class="rside">${UI.lockTag(DATA.unlockLabel("l2"))}</div></div>`,
           rowitem({ icon: "banknote", title: "Payroll run PR-2026-06 in draft", sub: "3 OT batches pending L1 upstream", side: badge("draft"), go: "hr/web/payroll/PR-2026-06" }),
           DATA.has("vault") ? rowitem({ icon: "alert", title: "Contracts expiring ≤ 30 days", sub: "3 staff · renewal letters from template", side: `<b class="num">3</b>`, go: "hr/web/docs" }) : `<div class="rowitem row-locked"><span class="ric n">${icon("lock")}</span><div class="rmain"><div class="rt">Contract & document expiry alerts</div><div class="rs">Documents Vault</div></div><div class="rside">${UI.lockTag(DATA.unlockLabel("vault"))}</div></div>`,
           DATA.has("sysadmin") ? rowitem({ icon: "x", title: "Failed sends — LINE webhook", sub: "Channel down since 09:31 · SysAdmin notified", side: badge("failed"), go: "hr/web/comms" }) : rowitem({ icon: "check", title: "Channels healthy", sub: "in-app + transactional email · 99.4% today", side: badge("ok"), go: "hr/web/comms" }),
@@ -81,18 +65,23 @@
     },
 
     approvals() {
+      // v2.4.5 T1 — the unified inbox is HR's primary decision surface (replaces the old l2queue
+      // card that emitted a SECOND set of approve:/return: over the same ids). Single-tenant: HR
+      // works the full unified queue, so the hero KPI + nav badge both read APPROVALS.pending().
+      // The cross-module table below is read-only CONTEXT — its actions (post/approve/generate)
+      // are distinct from the inbox decide path, so it is not a duplicate decision surface.
+      const inbox = APPROVALSVIEW.inboxScreen({ persona: "hr", device: "web", canEdit: true });
       return {
-        title: "Approvals — L2 · cross-module", sub: "Final checkpoint before the ledger: claims settle, corrections post, chains close.",
+        title: inbox.title, sub: inbox.sub,
         body: `
         <div class="grid cols-4">
-          ${kpi("Waiting on HR", String(DATA.pendingL2().length + 22), "all modules", { hero: 1 })}
+          ${kpi("Waiting on HR", String(APPROVALS.pending()), "all modules", { hero: 1 })}
           ${kpi("Claims to settle", String(DATA.pendingL2().length), "via payroll or finance")}
           ${kpi("Median age", "0.9 d", "SLA 2 d")}
           ${kpi("Escalations", "0", "this week")}
         </div>
-        ${APPROVALSVIEW.bucketsCard({ persona: "hr", device: "web", canEdit: true })}
-        ${card("Settle now · L2", l2queue("web"), { icon: "inbox" })}
-        ${card("Cross-module queue (sample)", table(
+        ${inbox.body}
+        ${card("Cross-module context", table(
           [{ h: "ID" }, { h: "Type" }, { h: "Who" }, { h: "Stage" }, { h: "Age", r: 1 }, { h: "", r: 1 }],
           [
             { cells: [idtag("TC-0109"), "Correction", "Latsamy V.", "Adjust ledger", `<span class="num">0.4 d</span>`, `<button class="btn xs soft" data-act="wf-ledger-adjust">Post</button>`] },
@@ -846,10 +835,11 @@
   /* ---------- MOBILE (light) ---------- */
   const mobile = {
     queue() {
+      const inbox = APPROVALSVIEW.inboxScreen({ persona: "hr", device: "mobile", canEdit: true });
       return {
         title: "Queue", body: `
-        <div class="grid cols-2">${kpi("L2 items", String(DATA.pendingL2().length + 22), "waiting", { hero: 1 })}${kpi("Present", "95.1%", "236 of 248")}</div>
-        ${card("Settle", l2queue("mobile", true), { icon: "inbox" })}
+        <div class="grid cols-2">${kpi("Waiting on HR", String(APPROVALS.pending()), "all modules", { hero: 1 })}${kpi("Present", "95.1%", "236 of 248")}</div>
+        ${inbox.body}
         ${card("Cross-module", rowlist([
           rowitem({ icon: "edit", title: "TC-0109 · ledger adjust", sub: "Latsamy V.", side: `<button class="btn xs soft" data-act="wf-ledger-adjust">Post</button>` }),
           rowitem({ icon: "file", title: "DOC-0290 · salary cert", sub: "Manysone V.", side: `<button class="btn xs soft" data-act="gen-doc:hr-salary-manysone">Go</button>` })
@@ -1000,7 +990,7 @@
     nav: [
       { group: "Work", items: [
         { id: "pulse", icon: "pulse", label: t("hr.pulse") },
-        { id: "approvals", icon: "inbox", label: t("hr.approvals"), lock: "l2", count: () => DATA.pendingL2().length + 22 },
+        { id: "approvals", icon: "inbox", label: t("hr.approvals"), lock: "l2", count: () => APPROVALS.pending() },
         { id: "comms", icon: "megaphone", label: t("hr.comms") },
         { id: "access", icon: "key", label: "Access & invites", count: () => AUTH.stats().invited || "" },
         { id: "import", icon: "files", label: "Import accounts" },

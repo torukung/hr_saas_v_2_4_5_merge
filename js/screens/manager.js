@@ -9,9 +9,6 @@
 
   const present = () => DATA.team.filter(m => m.state === "present").length;
 
-  /* v2.4.3 — approval type taxonomy (the tab split) */
-  const TYPES = ["All", "Leave", "Overtime", "Claim", "Correction"];
-  const TYPE_LABEL = { All: "All", Leave: "Leave", Overtime: "Overtime", Claim: "Claims", Correction: "Corrections" };
   // OT remaining-quota context for the division behind an Overtime request
   function otContext(r) {
     if (r.type !== "Overtime" || typeof OT === "undefined") return "";
@@ -20,10 +17,11 @@
     const q = OT.quotaFor(div, "monthly");
     return ` <span class="badge ${OT.tone(q)}">${div} · ${OT.remaining(q)} h left</span>`;
   }
-  function queue(device, compact, filter) {
-    let q = DATA.pendingL1();
-    if (filter && filter !== "All") q = q.filter(r => r.type === filter);
-    if (!q.length) return empty("check", filter && filter !== "All" ? "No " + TYPE_LABEL[filter].toLowerCase() + " waiting" : "Queue clear", "Nothing in this queue right now.");
+  // overview / mobile-home L1 quick-queue card — the Approvals SCREEN itself now renders the
+  // unified inbox (APPROVALSVIEW.inboxScreen), so the per-type tab bar was retired in v2.4.5 T1.
+  function queue(device, compact) {
+    const q = DATA.pendingL1();
+    if (!q.length) return empty("check", "Queue clear", "Nothing in this queue right now.");
     return q.map(r => `
       <div class="qrow">
         <div class="qmain" data-go="manager/${device}/approval/${r.id}" role="button" tabindex="0">
@@ -35,12 +33,6 @@
           <button class="btn danger sm" data-act="return:${r.id}" aria-label="Return ${r.id}">${icon("x")}${compact ? "" : " " + t("common.return")}</button>
         </div>
       </div>`).join("");
-  }
-  // the type-tab bar — URL-addressable: manager/{device}/approvals/{Type}
-  function typeTabs(device, active) {
-    const q = DATA.pendingL1();
-    const n = (tp) => tp === "All" ? q.length : q.filter(r => r.type === tp).length;
-    return `<div class="choice-row" style="margin-bottom:14px">${TYPES.map(tp => `<button class="choice" ${active === tp ? 'aria-pressed="true"' : ""} data-go="manager/${device}/approvals${tp === "All" ? "" : "/" + tp}">${TYPE_LABEL[tp]}${n(tp) ? " (" + n(tp) + ")" : ""}</button>`).join("")}</div>`;
   }
 
   // v2.4.2 — the clock method a team member inherits from their capture group
@@ -108,27 +100,27 @@
       };
     },
 
-    approvals(param) {
+    approvals() {
+      // v2.4.5 T1 — the standalone unified inbox is now the driving surface (replaces the per-type
+      // tab queue). Scoped to the manager's L1 authority so the screen total == the nav badge.
       const pend = DATA.pendingL1();
-      const filter = ["Leave", "Overtime", "Claim", "Correction"].includes(param) ? param : "All";
-      const decided = DATA.requests.filter(r => r.status !== "pending" && (filter === "All" || r.type === filter));
+      const inbox = APPROVALSVIEW.inboxScreen({ persona: "manager", device: "web", canEdit: true, scopeIds: pend.map(r => r.id) });
+      const decided = DATA.requests.filter(r => r.status !== "pending");
       return {
-        title: "Approvals — L1 queue", sub: "Split by type — All · Leave · Overtime · Claims · Corrections. Inline approve / return with SLA timers; claims you approve continue to HR / Finance (L2).",
-        actions: `<button class="btn ghost soon" title="Build-phase feature — not wired in this UI preview" data-act="toast:Auto-approve routine is a build-phase feature — review items individually in this preview">${icon("check")} Approve all routine</button>`,
+        title: inbox.title, sub: inbox.sub,
         body: `
         <div class="grid cols-4">
-          ${kpi("Waiting", String(pend.length), filter === "All" ? "in your queue" : filter + " · " + pend.filter(r => r.type === filter).length, { hero: 1 })}
+          ${kpi("Waiting", String(pend.length), "in your queue", { hero: 1 })}
           ${kpi("Avg. response", "3.2 h", "last 30 days")}
           ${kpi("Returned", "1", "this week")}
           ${kpi("SLA breaches", "0", "this month")}
         </div>
-        ${APPROVALSVIEW.bucketsCard({ persona: "manager", device: "web", canEdit: true })}
-        ${card("Queue · by type", typeTabs("web", filter) + queue("web", false, filter), { icon: "inbox" })}
-        ${card("Recently decided" + (filter === "All" ? "" : " · " + TYPE_LABEL[filter]), decided.length ? rowlist(decided.map(r => rowitem({
+        ${inbox.body}
+        ${card("Recently decided", decided.length ? rowlist(decided.slice(0, 6).map(r => rowitem({
           icon: "check", neutral: r.status !== "approved",
           title: `${r.id} · ${r.who.split(" ")[0]} · ${r.detail}`,
           sub: r.stage, side: badge(r.status), go: `manager/web/approval/${r.id}`
-        }))) : `<p class="small muted">Nothing decided in this category yet.</p>`, { icon: "history" })}`
+        }))) : `<p class="small muted">Nothing decided yet.</p>`, { icon: "history" })}`
       };
     },
 
@@ -309,10 +301,11 @@
         ]), { icon: "bell" })}`
       };
     },
-    approvals(param) {
-      const filter = ["Leave", "Overtime", "Claim", "Correction"].includes(param) ? param : "All";
-      const decided = DATA.requests.filter(r => r.status !== "pending" && (filter === "All" || r.type === filter)).slice(0, 3);
-      return { title: "Approvals", body: typeTabs("mobile", filter) + queue("mobile", true, filter) + card("Decided", rowlist(decided.map(r => rowitem({ icon: "check", neutral: 1, title: r.id + " · " + r.detail, sub: r.stage, side: badge(r.status) }))), { icon: "history" }) };
+    approvals() {
+      const pend = DATA.pendingL1();
+      const inbox = APPROVALSVIEW.inboxScreen({ persona: "manager", device: "mobile", canEdit: true, scopeIds: pend.map(r => r.id) });
+      const decided = DATA.requests.filter(r => r.status !== "pending").slice(0, 3);
+      return { title: inbox.title, body: inbox.body + card("Decided", rowlist(decided.map(r => rowitem({ icon: "check", neutral: 1, title: r.id + " · " + r.detail, sub: r.stage, side: badge(r.status) }))), { icon: "history" }) };
     },
     team() {
       return { title: "Team", body: card("Production Line A", teamBoard("mobile"), { icon: "users" }) };

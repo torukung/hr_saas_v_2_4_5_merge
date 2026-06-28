@@ -18,6 +18,9 @@ window.CALCORE = (function () {
   const esc = (s) => (window.UI && UI.esc) ? UI.esc(s) : String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const icon = (n, c) => (window.UI && UI.icon) ? UI.icon(n, c) : "";
   const SC = () => window.SCHEDULE || null;
+  // v2.4.5 F1 — holiday lens. Reads LEAVECAL.isHoliday(iso) → {date,name,kind}|null at RENDER time
+  // only (never at module load), so node/smoke stays safe and the calendar engine owns no holiday data.
+  const holOf = (dISO) => (typeof window !== "undefined" && window.LEAVECAL && LEAVECAL.isHoliday) ? LEAVECAL.isHoliday(dISO) : null;
 
   /* ---------- date helpers (pure) ---------- */
   const pad = (n) => String(n).padStart(2, "0");
@@ -154,8 +157,10 @@ window.CALCORE = (function () {
           <ul class="cwx-people">${who.map(r => `<li>${esc(sc.empName(r.emp))}${r.status === "planned" ? `<i class="cwx-plan" title="planned — not yet published"></i>` : ""}</li>`).join("")}</ul>
         </div>`;
       }).join("");
-      cols.push(`<div class="cwx-day${dISO === todayISO ? " today" : ""}">
-        <div class="cwx-dhead"><span class="cwx-dow">${dowKey(d)}</span><span class="cwx-dnum num">${d.getDate()}</span></div>
+      const whol = holOf(dISO);                                    // v2.4.5 F1 — holiday tint in the inline week expand
+      const wholSR = whol ? `<span class="sr-only">${esc(whol.name)} · ${esc(whol.kind)} holiday</span>` : "";
+      cols.push(`<div class="cwx-day${dISO === todayISO ? " today" : ""}${whol ? " holiday" : ""}"${whol ? ` title="${esc(whol.name)}"` : ""}>
+        <div class="cwx-dhead"><span class="cwx-dow">${dowKey(d)}</span><span class="cwx-dnum num">${d.getDate()}</span>${wholSR}</div>
         <div class="cwx-shifts">${shifts || `<div class="cwx-none">—</div>`}</div>
       </div>`);
     }
@@ -189,8 +194,12 @@ window.CALCORE = (function () {
         const sgs = [...new Set(rows.map(r => r.sg))];
         const chips = sgs.map(id => chip(id, c.iso, state)).join("");
         const dropAttr = edit ? `ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'${c.iso}','')"` : "";
-        return `<div class="cal-day ${c.inMonth ? "" : "muted"} ${c.today ? "today" : ""}" data-iso="${c.iso}" ${dropAttr}>
-          <div class="cd-num">${c.day}</div>
+        const hol = holOf(c.iso);                                  // v2.4.5 F1 — holiday dot + blocking wash (visual; drops stay live in v1)
+        const holCls = hol ? ` holiday holiday-${hol.kind === "public" ? "public" : "company"}` : "";
+        const holLbl = hol ? `${esc(hol.name)} · ${esc(hol.kind)} holiday` : "";
+        const holDot = hol ? `<span class="cd-hol" role="img" title="${holLbl}" aria-label="${holLbl}"></span>` : "";  // role+aria-label so SR/keyboard get the name+kind (month shows no visible holiday text)
+        return `<div class="cal-day ${c.inMonth ? "" : "muted"} ${c.today ? "today" : ""}${holCls}" data-iso="${c.iso}" ${dropAttr}>
+          <div class="cd-num">${c.day}</div>${holDot}
           <div class="cd-chips">${chips || (c.inMonth ? "" : "")}</div>
         </div>`;
       }).join("");
@@ -254,8 +263,10 @@ window.CALCORE = (function () {
     const wkNo = weekNumber(monday);
     const cols = days.map(d => {
       const dISO = iso(d);
-      return `<div class="cal-daycol">
-        <div class="cdc-head"><span class="cdc-dow">${dowKey(d)}</span><span class="cdc-num num">${d.getDate()}</span></div>
+      const hol = holOf(dISO);                                     // v2.4.5 F1 — holiday header marker (dot + name)
+      const holName = hol ? `<span class="cdc-hol" title="${esc(hol.name)} · ${esc(hol.kind)} holiday">${esc(hol.name)}</span>` : "";
+      return `<div class="cal-daycol${hol ? " holiday" : ""}">
+        <div class="cdc-head${hol ? " holiday" : ""}"><span class="cdc-dow">${dowKey(d)}</span><span class="cdc-num num">${d.getDate()}</span>${holName}</div>
         <div class="cdc-lanes">${laneFor(dISO, state)}</div>
       </div>`;
     }).join("");
@@ -275,10 +286,12 @@ window.CALCORE = (function () {
     const sc = SC(); if (!sc) return "";
     const dISO = state.dateISO || iso(new Date());
     const d = parseISO(dISO);
+    const hol = holOf(dISO);                                       // v2.4.5 F1 — holiday banner note in the day header
+    const holNote = hol ? `<span class="cal-holnote">${icon("sun")} ${esc(hol.name)} · ${esc(hol.kind)}</span>` : "";
     return `<div class="calwrap cal-week cal-day" data-perspective="day">
       ${quickStrip({ ...state, dateISO: dISO })}
       <div class="cal-head"><div class="cal-title">${dowKey(d)} · ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}</div>
-        <div class="cal-sub">${pad(H_START)}:00–${pad(H_END)}:00</div></div>
+        <div class="cal-sub">${pad(H_START)}:00–${pad(H_END)}:00 ${holNote}</div></div>
       <div class="tablewrap"><div class="cal-weekgrid">
         ${hourAxis()}
         <div class="cal-daycols"><div class="cal-daycol wide"><div class="cdc-lanes">${laneFor(dISO, state)}</div></div></div>

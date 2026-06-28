@@ -885,3 +885,53 @@ textarea.input.mono{ font-family:var(--mono); font-size:12.5px; }
 .meter-lbl{ font:600 11px/1.2 var(--font); color:var(--muted); }
 .meter-track{ height:8px; border-radius:99px; background:var(--line-2); overflow:hidden; }
 .meter-track span{ display:block; height:100%; min-width:3px; border-radius:99px; transition:width var(--t); }
+
+/* ============================================================
+   v2.4.5 T1 — Unified inbox (APPROVALSVIEW.inboxScreen)
+   First-class bucketed decision surface · Manager (L1) + HR.
+   Persona-toned via --acc; protective flags stay --warn (never --bad).
+   ============================================================ */
+.inbox-stage{ display:flex; flex-direction:column; gap:14px; min-width:0; margin-top:16px; }
+
+/* sticky summary bar — total · flagged · per-bucket counts */
+.inbox-bar{ position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:10px 14px; padding:9px 14px; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-sm); box-shadow:var(--sh-sm); }
+.inbox-barL{ display:flex; align-items:baseline; gap:8px; min-width:0; }
+.inbox-total{ font:500 22px/1 var(--display); letter-spacing:-.03em; color:var(--ink); font-variant-numeric:tabular-nums; }
+.inbox-totlbl{ font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.inbox-flagcount{ display:inline-flex; align-items:center; gap:5px; margin-left:4px; padding:3px 9px; border-radius:99px;
+  font:700 10.5px/1 var(--font); background:var(--warn-bg); color:var(--warn-text); }
+.inbox-flagcount svg{ width:13px; height:13px; }
+.inbox-jump{ display:flex; flex-wrap:wrap; gap:6px; min-width:0; }
+.inbox-jchip{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:99px;
+  border:1px solid var(--line); background:var(--surface-2); font:600 11px/1 var(--font); color:var(--ink-2); }
+.inbox-jchip .num{ color:var(--acc-d); font-weight:800; }
+.inbox-jchip .ij-dot{ width:8px; height:8px; border-radius:99px; background:var(--muted-2); flex:none; }
+/* fixed per-bucket hues — NOT --acc, so the four dots stay mutually distinct under every
+   persona (under [data-persona=manager], --acc resolves to --mgr and would collide with shift) */
+.ij-dot.cat-shift{ background:var(--mgr); }
+.ij-dot.cat-overtime{ background:var(--sys); }
+.ij-dot.cat-leave{ background:var(--warn); }
+.ij-dot.cat-others{ background:var(--muted-2); }
+/* web scrolls the WINDOW under the sticky 58px topbar (z-index 60); offset the bar so it
+   parks just beneath it instead of behind it. Mobile (#ab is the scroll root) keeps top:0. */
+.workspace .inbox-bar{ top:58px; }
+
+/* a bucket section (shift · overtime · leave · others) */
+.inbox-sec{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--sh-sm);
+  padding:6px 8px 8px; min-width:0; }
+.inbox-sechead{ display:flex; align-items:center; gap:9px; padding:9px 6px 8px; border-bottom:1px solid var(--line-2); }
+.inbox-secicon{ width:26px; height:26px; border-radius:8px; display:grid; place-items:center;
+  background:var(--acc-bg); color:var(--acc-d); flex:none; }
+.inbox-secicon svg{ width:15px; height:15px; }
+.inbox-seclabel{ font:700 13px/1 var(--font); color:var(--ink); }
+.inbox-count{ font:800 11px/1 var(--mono); background:var(--acc-bg); color:var(--acc-d); border:1px solid var(--acc-ln);
+  border-radius:99px; padding:3px 8px; }
+.inbox-secflag{ margin-left:auto; display:inline-flex; align-items:center; font:700 10px/1 var(--font);
+  text-transform:uppercase; letter-spacing:.05em; background:var(--warn-bg); color:var(--warn-text);
+  border-radius:99px; padding:4px 9px; }
+.inbox-sec .rowlist{ margin-top:4px; }
+
+/* visually-hidden but exposed to screen readers — accessible name for icon/dot-only markers */
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }

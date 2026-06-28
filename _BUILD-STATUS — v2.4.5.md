@@ -8,15 +8,16 @@ Scope: **A1·A3·B1·B2·B3·B4·C1·C2·C3·D1·D2·E1·F1** (A2 excluded). Sin
 
 **WAVE 1 ✅ · WAVE 2 ✅ · Close-out ✅ · Backup/Restore ✅ · T8 deploy KIT ✅ (push + CF config pending).**
 
-### T8 · DEPLOY KIT — PREPPED in-folder (no CF resources created yet)
-- `wrangler.toml` — Worker `adeptio-hr-v245` + **D1** (DB) / **KV** (SESSIONS) / **R2** (BACKUPS) bindings (ids = placeholders).
+### T8 · DEPLOY KIT — PREPPED in-folder · **D1 LIVE + MIGRATED (2026-06-28)**
+- `wrangler.toml` — Worker `adeptio-hr-v245` + **D1** (DB, id `e077a89e…`, **migrated**) / **KV** (SESSIONS, live id) / **R2** (BACKUPS) bindings.
+- ✅ **D1 DONE (2026-06-28)**: `0001_init.sql` applied to live D1 (APAC/SIN) — `store_blob` (15 stores seeded · `db_identity` sensitive=1 · `dw_reports` derived=1) + `backups` + `sessions` + `audit`. Verified via CF D1 query. Client sync already rewired to the edge (commit 28dcf3f, local-first + 30s replication).
 - `worker/src/v245.js` — D1 module Worker: `/api/health`, `/api/sync[/:store]` (push/pull, **db_identity rejected**), `/api/backup` + `/api/restore/:id` (D1 + R2 dated folders), `/mail` · `/webhook/:ch` · `/punch` (stubs).
 - `migrations/0001_init.sql` — `store_blob` (15 seeded stores) + `backups` + `sessions` + `audit`.
 - `.github/workflows/deploy.yml` — smoke gate → `wrangler deploy`. `package.json` — wrangler + `d1:init`/`deploy` scripts. `DEPLOY.md` — full runbook.
 - Verified: Worker ESM ok · package.json ok · client smoke **294** green (kit doesn't touch the app).
-- **Next:** YOU push to `hr_saas_v_2_4_5_merge` + set secrets + connect CF Pages → THEN I configure Cloudflare (create D1/KV/R2, run migration, fill ids, deploy Worker) via my CF tools → client sync rewiring in Claude Code.
+- **Next (your-machine `wrangler`):** `wrangler deploy` (Worker) + `wrangler secret put` (PEPPER · SMTP_APP_PASSWORD · LINE/WA/SMS) + create the R2 bucket `adeptio-hr-backups` + connect CF Pages. D1 create/migrate is **done**. These remaining steps need the authenticated CLI on your machine — they can't run from the sandbox.
 
-### Wave-2 CLOSE-OUT — DONE (smoke 294): HR Communication channel chips now lit by `MAIL.ready` (Email·Push always; SMS·LINE·WhatsApp light when owner enables+configures, else greyed "set up in Platform Settings"); Staff "Me" reuses the PROFILE sections (read-only, sealed masked); Staff "Me" gained a Time-off panel (balances + upcoming holidays). ⚠️ remaining: calendar-core holiday-column visual blocking (data surfaced, render dot pending).
+### Wave-2 CLOSE-OUT — DONE (smoke 294): HR Communication channel chips now lit by `MAIL.ready` (Email·Push always; SMS·LINE·WhatsApp light when owner enables+configures, else greyed "set up in Platform Settings"); Staff "Me" reuses the PROFILE sections (read-only, sealed masked); Staff "Me" gained a Time-off panel (balances + upcoming holidays). ✅ **DONE 2026-06-28 — calendar-core holiday-column render**: month cells draw a corner dot (public = filled · company = ring, on a soft `--hol` plum wash) + week/day headers show the holiday name + day-view note; node-safe via a render-time `LEAVECAL.isHoliday` guard; dot/ring use `--hol-d` (WCAG 1.4.11 ≥3:1) and carry a `role="img"` aria-label.
 
 ### DB BACKUP / RESTORE — DONE (full-split · local-now · Cloudflare-ready · NO CF integration)
 - DB is the **15-store split catalog** (registry + per-store policies + backup ladder). `DB.backups.now()` snapshots **real table data** (restore-capable).
@@ -73,7 +74,7 @@ New folder (252 files) · NS `adeptio.v245.` · SEED 12 · titles/README → v2.
 | T0 topbar | The Essential/Pro tier chip + set-tier buttons still render while licensing is OFF (cosmetic only — they no-op visibly). Hide them behind `LICENSE.enabled`. | low |
 | T0 mobile | Nav-hide filter applied to **web rail**; mobile **tabs** not yet filtered by `hiddenScreens`. | low |
 | T0 persist | FLAGS/LICENSE state is in-memory (resets on reload). Persist to `db_platform` for durability. | med |
-| T1 inbox UI | The **unified bucketed inbox screen** (Manager + HR) is NOT built yet — the engine exists but the existing per-tab L1/L2 approval screens still drive the UI. Add an inbox view that renders `APPROVALS.buckets()` and calls `APPROVALS.decide`. | **high** |
+| T1 inbox UI | ✅ **DONE 2026-06-28** — `APPROVALSVIEW.inboxScreen()` is now the first-class bucketed decision surface (sticky summary bar + shift·overtime·leave·others sections), wired into Manager (L1-scoped) and HR (unified) web + mobile `approvals`/`queue`. Reuses the existing `approve:`/`return:` seam (delegates to the same engine path as `APPROVALS.decide`). The per-type tab queue + `l2queue` were retired; HR KPI/nav badge reconciled to `APPROVALS.pending()`; cross-module actions kept as read-only context. | ~~high~~ done |
 | webShell | `webShell`/`topbar` are NOT exercised by `tools/smoke.js` (it calls screen builders directly). Verify the rail/nav-filter in a browser before deploy. | med |
 
 ---

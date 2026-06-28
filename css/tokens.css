@@ -26,6 +26,10 @@
   --warn:#C28A4A; --warn-bg:#F4E8D6; --warn-text:#8F6020;
   --bad:#B5675C; --bad-bg:#F3E1DE; --bad-text:#94503F;
 
+  /* Holiday channel (v2.4.5 F1) — soft plum, deliberately pinker than --ceo (#9279B8)
+     and unrelated to --warn amber, so a calendar holiday never reads as a warning or a ceo chip */
+  --hol:#B07CA8; --hol-d:#7C4E72; --hol-bg:#F3E3EF; --hol-ln:#E6CFE0;
+
   /* Active persona accent — set by [data-persona] on <body> */
   --acc:var(--brand); --acc-d:var(--brand-deep); --acc-bg:var(--brand-bg); --acc-ln:var(--line);
 

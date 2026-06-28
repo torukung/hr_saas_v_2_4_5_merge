@@ -285,3 +285,34 @@
   .cal-weekexpand{ animation:none; }
   .clg-x{ transition:none; }
 }
+
+/* ============================================================
+   v2.4.5 F1 — holiday column (CALCORE reads LEAVECAL.isHoliday)
+   Soft --hol plum wash + a corner dot: PUBLIC = filled, COMPANY = ring.
+   Visual blocking only — the .today acc ring always wins the day pill.
+   ============================================================ */
+.cal-day.holiday{ position:relative; background:var(--hol-bg); box-shadow:inset 3px 0 0 var(--hol-ln); }
+.cal-day.muted.holiday{ background:var(--hol-bg); opacity:.72; }
+.cal-day.today.holiday{ box-shadow:inset 0 0 0 1px var(--acc-ln), inset 3px 0 0 var(--hol-ln); }
+/* dot/ring use --hol-d (5.3:1 on --hol-bg) so the public-fill vs company-ring shape channel
+   clears WCAG 1.4.11 non-text contrast — --hol alone was only 2.7:1 and read as invisible */
+.cal-day.holiday .cd-hol{ position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:99px; flex:none; }
+.cal-day.holiday-public  .cd-hol{ background:var(--hol-d); }
+.cal-day.holiday-company .cd-hol{ background:transparent; box-shadow:inset 0 0 0 1.5px var(--hol-d); }
+
+/* week / day column headers — dot + holiday name */
+.cdc-head.holiday .cdc-num{ color:var(--hol-d); }
+.cdc-hol{ display:inline-flex; align-items:center; gap:5px; min-width:0; max-width:100%;
+  font:600 10px/1.2 var(--font); color:var(--hol-d); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cdc-hol::before{ content:""; width:6px; height:6px; border-radius:99px; background:var(--hol-d); flex:none; }
+.cal-daycol.holiday .cdc-head{ border-bottom:1px solid var(--hol-ln); }
+
+/* day view — a calm holiday note in the header line */
+.cal-holnote{ display:inline-flex; align-items:center; gap:5px; margin-left:6px; vertical-align:middle;
+  font:600 11px/1 var(--font); color:var(--hol-d); background:var(--hol-bg); border:1px solid var(--hol-ln);
+  border-radius:99px; padding:4px 10px; }
+.cal-holnote svg{ width:13px; height:13px; }
+
+/* month inline week-expand — compact wash + corner dot */
+.cwx-day.holiday{ position:relative; background:var(--hol-bg); border-color:var(--hol-ln); }
+.cwx-day.holiday::after{ content:""; position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:99px; background:var(--hol-d); }
