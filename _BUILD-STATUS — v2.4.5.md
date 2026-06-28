@@ -18,6 +18,19 @@ Scope: **A1·A3·B1·B2·B3·B4·C1·C2·C3·D1·D2·E1·F1** (A2 excluded). Sin
 - **G14 · webShell verification** — accepted: the standing Playwright `menu-flow.mjs` run is the rail/topbar verification smoke.js doesn't cover (102/102 menus OK).
 - Report synced: `tools/e2e/menu-flow.mjs` `DOCUMENTED_GAPS` — the 7 mediums (+ the 3 highs G1/G2/G13) marked **Done**.
 
+### LOW GAPS CLOSED — 2026-06-28 (smoke stays 302; no new screens)
+**Built (5):**
+- **G10** — mobile tab bar now filters by `FLAGS.hiddenScreens(persona)` (mirrors the web rail). Defensive/forward-safe — no shipped flag hides a top-level tab today.
+- **G11** — the Essential/Pro tier chip + set-tier buttons are now gated behind `LICENSE.enabled`, so they vanish while licensing ships OFF (re-appear when an owner enables licensing).
+- **G7** — HR **Cashbook quick-entry** form (kind · category · note · amount) posts a real movement via `LEDGER.post` (`cash-post` action). Money-cockpit M3 rebuild **deferred** (Cost & benefit already serves that role live).
+- **S0** — Staff "Me → Request time off" now navigates to the Leave request form (was a guidance toast).
+- **S3** — HR "Leave → Holiday calendar" now opens the live Holidays screen (was a stale build-phase toast).
+
+**Accepted by-design (no code) — intentional build-phase / Worker-dependent stubs:**
+- **G12** message over-the-wire send — in-app comms log writes real `db_comms`; gateway dispatch awaits the keyed Worker (now deployed — set secrets).
+- **S2** Duplicate week · **S4** payslip delivery dispatch · **S6/S7/S8** sched-connector seams (external calendar · capture-actuals · third-party rostering) · **S9** CEO "Delivery schedule" (read-only persona — must NOT become actionable) · **S10** channel fallback editor · **S11** integration catalog. **S1** (manager auto-approve) was already removed by the unified inbox.
+- Report synced: G7/G10/G11 → **Done**; G12 reframed as accepted; S0/S3/S5 toasts removed so they drop off the next menu-flow run.
+
 ### T8 · DEPLOY KIT — PREPPED in-folder · **D1 LIVE + MIGRATED (2026-06-28)**
 - `wrangler.toml` — Worker `adeptio-hr-v245` + **D1** (DB, id `e077a89e…`, **migrated**) / **KV** (SESSIONS, live id) / **R2** (BACKUPS) bindings.
 - ✅ **D1 DONE (2026-06-28)**: `0001_init.sql` applied to live D1 (APAC/SIN) — `store_blob` (15 stores seeded · `db_identity` sensitive=1 · `dw_reports` derived=1) + `backups` + `sessions` + `audit`. Verified via CF D1 query. Client sync already rewired to the edge (commit 28dcf3f, local-first + 30s replication).

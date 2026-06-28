@@ -372,7 +372,7 @@
     leave() {
       return {
         title: "Leave & Absence", sub: "Configurable types and accrual — wired to the calendar and payroll.",
-        actions: `<button class="btn soft soon" title="Build-phase feature — not wired in this UI preview" data-act="toast:Holiday calendar is a build-phase feature — localizable per country at build time">${icon("calendar")} Holiday calendar</button>`,
+        actions: `<button class="btn soft" data-go="hr/web/holidays">${icon("calendar")} Holiday calendar</button>`,
         body: `
         <div class="grid cols-4">
           ${kpi("On leave today", "5", "2.0% of org", { hero: 1 })}
@@ -895,7 +895,6 @@
     ] }));
     return {
       title: "Cashbook", sub: "Every cash movement in one book. Staff cost posts here automatically when a payroll run closes (T3).",
-      actions: `<button class="btn ghost soon" title="Build-phase — quick entry lands with the Worker" data-act="toast:Quick cash entry is a build-phase stub in this preview">${icon("plus")} Quick entry</button>`,
       body: `
         <div class="grid cols-4">
           ${kpi("Revenue (MTD)", kip(roll.revenue), "in", { hero: 1 })}
@@ -903,6 +902,7 @@
           ${kpi("Staff cost", kip(roll.staff), "from payroll")}
           ${kpi("Result", kip(roll.result), (roll.margin * 100).toFixed(0) + "% margin")}
         </div>
+        ${card("Quick cash entry", `<div id="cash-form" class="pv-form" style="max-width:560px"><div class="field"><label>Kind</label><select class="input" data-f="kind"><option value="expense">Expense</option><option value="revenue">Revenue</option></select></div><div class="field"><label>Category</label><input class="input" data-f="cat" placeholder="e.g. Utilities · Supplies · Sales"></div><div class="field"><label>Note</label><input class="input" data-f="note" placeholder="What was this for?"></div><div class="field"><label>Amount (₭)</label><input class="input" data-f="amount" inputmode="numeric" placeholder="e.g. 1500000"></div></div><div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" data-act="cash-post">${icon("plus")} Post to cashbook</button></div>`, { icon: "plus" })}
         ${card("Cashbook", table([{ h: "ID" }, { h: "Date" }, { h: "Kind" }, { h: "Category" }, { h: "Note" }, { h: "Amount", r: 1 }], rows), { icon: "book" })}`
     };
   };

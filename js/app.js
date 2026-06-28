@@ -123,10 +123,10 @@
       <span class="ver">v2.4.5${ess ? " · essential" : " · pro"}${AUTH.portalOn() ? " · portal" : ""}${AUTH.authMode() === "remote" ? " · edge" : ""}</span>
       <nav class="persona-switch" aria-label="Persona">${chips}</nav>
       <span class="spacer"></span>
-      <div class="seg tier" role="group" aria-label="License tier" title="R4 — flags, not forks: one codebase, tier-gated">
+      ${(window.LICENSE && LICENSE.enabled) ? `<div class="seg tier" role="group" aria-label="License tier" title="R4 — flags, not forks: one codebase, tier-gated">
         <button aria-pressed="${ess}" data-act="set-tier:essential">Essential ≤50</button>
         <button aria-pressed="${!ess}" data-act="set-tier:professional">Pro ≤250</button>
-      </div>
+      </div>` : ""}
       ${onApp ? `<div class="seg" role="group" aria-label="Device">
         <button aria-pressed="${r.device === "web"}" data-go="${r.persona}/web/${webEquiv(r)}">${icon("globe")} ${t("nav.web")}</button>
         <button aria-pressed="${r.device === "mobile"}" data-go="${r.persona}/mobile/${mobileEquiv(r)}">${icon("phone")} ${t("nav.mobile")}</button>
@@ -257,7 +257,8 @@
     const P = PERSONAS[r.persona];
     const def = P.mobile[r.screen](r.param);
     const activeTab = (P.tabParent && P.tabParent[r.screen]) || r.screen;
-    const tabs = P.tabs.map(tb => {
+    const hidden = (window.FLAGS && FLAGS.hiddenScreens) ? FLAGS.hiddenScreens(r.persona) : new Set(); // v2.4.5 G10 — flag-off ⇒ hide the mobile tab too (mirrors the web rail)
+    const tabs = P.tabs.filter(tb => !hidden.has(tb.id)).map(tb => {
       const locked = tb.lock && !DATA.has(tb.lock);
       if (locked) return `<button class="tab locked" data-act="${UI.lockMsg(tb.label, DATA.unlockLabel(tb.lock))}">
         ${icon("lock")}<span>${tb.label}</span><span class="tdot"></span></button>`;
@@ -381,6 +382,19 @@
         if (!res || !res.ok) { toast((res && res.err) || "Could not save the profile", "warn"); break; }
         toast(`${id} profile updated — ${res.changed} field(s) saved to db_people`);
         go("hr/web/profile-view");
+        break;
+      }
+      case "cash-post": { // G7 — HR posts a quick cash movement to the cashbook (db_ledger)
+        const box = document.getElementById("cash-form"); if (!box) break;
+        const g = (k) => { const el = box.querySelector(`[data-f="${k}"]`); return el ? String(el.value).trim() : ""; };
+        const kind = g("kind") === "revenue" ? "revenue" : "expense";
+        const amount = Number(g("amount").replace(/[^\d]/g, ""));
+        const cat = g("cat"), note = g("note");
+        if (!amount || amount <= 0) { toast("Enter an amount to post", "warn"); break; }
+        if (!cat) { toast("Give the entry a category", "warn"); break; }
+        const row = LEDGER.post({ kind, cat, note: note || (kind === "revenue" ? "Cash received" : "Cash paid"), amount }, "Thip N.");
+        toast(`${row.id} · ${kind} · ${UI.kip(amount)} posted to the cashbook`);
+        DATA.pulse();
         break;
       }
       case "flag": { // T0 — toggle a feature flag (scope by acting persona)
