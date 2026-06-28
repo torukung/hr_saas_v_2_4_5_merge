@@ -8,7 +8,7 @@
    so one account can prove itself by local password, LDAP/AD bind
    or RADIUS, switchable both ways, with file-import + delta-sync
    provisioning. Credential custody flips server-authoritative
-   (the edge Worker owns Argon2id hashes in Turso adeptio-hr-v241);
+   (the edge Worker owns Argon2id hashes in Cloudflare D1 (adeptio-hr-v245));
    the directory simulator never leaves the device.
    - 11 logical stores, one writer each (R1)
    - every write → fact on the audit ledger (§05 sync path)
@@ -41,7 +41,7 @@ window.DB = (function () {
     { id: "db_audit",    name: "Audit Ledger",         layer: "L-OP → L-CU",   profile: "immutable",           writer: "Event bus",     icon: "lock",      priority: 1, tables: ["events"], append: true,               protection: "Append-only · daily export to WORM (object-lock) bucket — even we cannot rewrite history." },
     { id: "dw_reports",  name: "Reporting Warehouse",  layer: "L-DR",          profile: "derived",             writer: "Projector",     icon: "chart",     priority: 5, tables: ["org_snapshots", "series", "generated"], derived: true, protection: "Rebuilt from the event ledger on demand — backup is a convenience, replay is the guarantee." },
     { id: "db_platform", name: "Platform Registry",    layer: "L-OP · global", profile: "control plane",       writer: "Kernel",        icon: "settings",  priority: 1, tables: ["registry", "backup_policies", "drills", "flags"], global: true, protection: "The one global DB — longest PITR window + export every 6 h; it is the map to everything else." },
-    { id: "db_identity", name: "Identity & Access",    layer: "L-OP",          profile: "credentials · sensitive", writer: "Identity cell", icon: "key",   priority: 1, tables: ["accounts", "sessions", "tokens", "policies", "providers", "import_jobs", "sync_runs", "directory"], sensitive: true, protection: "Store 11 (v2.5 §3 · v2.4.1 edge) — encrypted snapshots; sessions, tokens & the directory simulator are EXCLUDED from every restore and from cloud sync (sensitive custody). Credential hashes are server-authoritative on the edge Worker (Turso adeptio-hr-v241); the browser never pushes db_identity to the cloud — the custody flip." },
+    { id: "db_identity", name: "Identity & Access",    layer: "L-OP",          profile: "credentials · sensitive", writer: "Identity cell", icon: "key",   priority: 1, tables: ["accounts", "sessions", "tokens", "policies", "providers", "import_jobs", "sync_runs", "directory"], sensitive: true, protection: "Store 11 (v2.5 §3 · v2.4.1 edge) — encrypted snapshots; sessions, tokens & the directory simulator are EXCLUDED from every restore and from cloud sync (sensitive custody). Credential hashes are server-authoritative on the edge Worker (Cloudflare D1 (adeptio-hr-v245)); the browser never pushes db_identity to the cloud — the custody flip." },
     { id: "db_devices",  name: "Devices & Capture",    layer: "L-OP",          profile: "edge · telemetry",    writer: "Devices cell", icon: "grid",      priority: 3, tables: ["devices", "gates", "groups", "events"], protection: "Store 12 (v2.4.2) — biometric & gate connectors, capture groups and rolling telemetry. Connection facts only; device passwords/API keys are vault refs (never stored). Punches land in db_time — this store holds the registry, not the truth of attendance." },
     { id: "db_overtime", name: "Overtime & Quota",     layer: "L-OP",          profile: "transactional",       writer: "OT cell",       icon: "clock",     priority: 2, tables: ["quotas", "policy"],                 protection: "Store 13 (v2.4.3) — per-division OT quota limits (monthly/yearly), used & remaining hours, and the OT-rate policy. Approving an OT request decrements the live quota; the payroll OT line reads from here." },
     { id: "db_schedule", name: "Job Schedule & Shifts", layer: "L-OP",         profile: "transactional",       writer: "Schedule cell", icon: "calendar",  priority: 2, tables: ["shift_periods", "groups", "shift_groups", "roster", "views"], protection: "Store 14 (v2.4.4) — shift period definitions (Mon–Sun × 24h / 30-min), people groups (position·division·individual·manual), shift-group bindings, the published roster, and saved per-account calendar views. The calendar core reads db_time / db_leave / db_overtime / db_people as a lens — only the roster lives here. Approving a Swap (SW) request updates the roster; nothing else is duplicated." },
@@ -323,7 +323,7 @@ window.DB = (function () {
         // v2.4.1: LDAP/AD + RADIUS un-grey to BUILT (Pro); SSO/SCIM stay roadmap (Ent).
         flags: [
           { key: "auth_portal", label: "Login portal (auth_portal)", on: true, note: "off = persona menu · on = the portal" },
-          { key: "auth_mode",   label: "Identity authority (auth_mode)", on: false, mode: "local", note: "local = in-browser directory simulator (demo, offline-safe) · remote = edge Worker owns LDAP/AD bind, RADIUS & Argon2id, Turso-authoritative (B1)" },
+          { key: "auth_mode",   label: "Identity authority (auth_mode)", on: false, mode: "local", note: "local = in-browser directory simulator (demo, offline-safe) · remote = edge Worker owns LDAP/AD bind, RADIUS & Argon2id, D1-authoritative (B1)" },
           { key: "auth.local",  label: "Local passwords",                          state: "live",    tier: null,           note: "e-mail is the username · salted hashes in db_identity (Argon2id on the edge Worker)" },
           { key: "auth.ldap",   label: "LDAP / AD — company directory bind",       state: "built",   tier: "professional", configure: "sysadmin/web/providers", note: "verify pass-through, never stored · LDAPS 636 via Worker connect() · outage: fail-closed + break-glass (D2), cached-grace off" },
           { key: "auth.radius", label: "RADIUS — network credentials",             state: "built",   tier: "professional", configure: "sysadmin/web/providers", note: "Access-Request pass-through · RadSec 2083 (RFC 6614) via Worker connect() · plain-UDP RADIUS uses the site agent" },
@@ -383,7 +383,7 @@ window.DB = (function () {
         /* ---------- the directory SIMULATOR — device-local, NEVER synced or restored ----------
            Stands in for the company AD/RADIUS so the whole edge flow demos in the browser with no
            server. simPw is a FAKE directory secret (demo only); it never reaches db_audit, never
-           syncs to Turso, never restores from a backup. Real binds (auth_mode=remote) bypass this
+           syncs to Cloudflare D1, never restores from a backup. Real binds (auth_mode=remote) bypass this
            table entirely and hit the Worker. Members below are employees WITHOUT a portal account,
            so a sync proposes "create"; the conflict row shows the email-belongs-to-another guard. */
         directory: [
@@ -532,9 +532,9 @@ window.DB = (function () {
   function key(id) { return NS + "db." + TENANT + "-" + id; }
   function persist(id) {
     try { LS.setItem(key(id), JSON.stringify({ v: SEED_VERSION, t: Date.now(), tables: data[id] })); } catch (e) { /* quota — demo keeps running in-memory */ }
-    try { if (window.TURSO && window.TURSO.enqueue) window.TURSO.enqueue(id); } catch (e) { /* cloud sync is optional */ }
+    try { if (window.SYNC && window.SYNC.enqueue) window.SYNC.enqueue(id); } catch (e) { /* cloud sync is optional */ }
   }
-  /* cloud-sync hooks (js/turso-sync.js) — no-ops unless Turso is configured */
+  /* cloud-sync hooks (js/d1-sync.js) — no-ops unless API_CONFIG.base (the D1 Worker) is set */
   function localMeta(id) { try { const p = JSON.parse(LS.getItem(key(id)) || "null"); return p ? { v: p.v, t: p.t } : null; } catch (e) { return null; } }
   function raw(id) { return data[id]; }
   function hydrate(id, tables, t) {

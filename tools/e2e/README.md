@@ -6,7 +6,7 @@ It complements the existing **structural** smoke tests in `../`:
 | Test | Engine | Covers |
 |------|--------|--------|
 | `../smoke.js` | Node, no browser (`eval`s the screen modules) | renders every screen string, validates routing graph, DB CRUD/backup/report invariants |
-| `../sync-smoke.js` | Node + mock libsql | hybrid Turso sync contract |
+| `../sync-smoke.js` | Node + mock D1 Worker | local-first → Cloudflare D1 sync contract (js/d1-sync.js) |
 | **`e2e.mjs` (this)** | **Real Chromium** | console errors, broken `data-go` links in the live DOM, **persistence across a real page reload**, click-driven user flows, bad-route/cold-deep-link robustness, responsive overflow |
 
 `e2e.mjs` deliberately **extends, not duplicates** `smoke.js`: it reuses the same
