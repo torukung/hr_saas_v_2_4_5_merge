@@ -1,0 +1,1893 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.4.4 fine-tune — visual QA</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Lao:wght@400;600;700&display=swap" rel="stylesheet">
+<style>/* ============================================================
+   ADEPTIO ADAPTIVE HR · Platform UI v2.3
+   Design tokens — Atelier Pastel, elevated
+   Source of truth: Structure Blueprint v2.3 (§01 persona accents)
+   ============================================================ */
+
+:root{
+  /* Brand */
+  --brand:#5C6493; --brand-deep:#404668; --brand-bg:#E8E9F1;
+
+  /* Neutrals — warm cream canvas
+     --muted darkened in v2.3.1 (#8C887F → #7C786F) for 4.5:1 small-label contrast */
+  --ink:#222127; --ink-2:#4A4954; --muted:#7C786F; --muted-2:#AFABA1;
+  --line:#E7E3DA; --line-2:#F0EDE6;
+  --canvas:#F2F1EC; --surface:#FFFFFF; --surface-2:#FBFAF7;
+
+  /* Persona accents — hard-firm pastel (do not drift) */
+  --staff:#C28A4A; --staff-d:#7E5722; --staff-bg:#F4E8D6; --staff-ln:#E9D6B8;
+  --mgr:#6E9A6E;   --mgr-d:#3F623F;   --mgr-bg:#DEEBDD;   --mgr-ln:#C6DCC4;
+  --hr:#6E8FC0;    --hr-d:#3C567F;    --hr-bg:#E0E8F5;    --hr-ln:#C8D6EE;
+  --ceo:#9279B8;   --ceo-d:#5A4282;   --ceo-bg:#EAE2F3;   --ceo-ln:#D9CCEC;
+  --sys:#5E91A0;   --sys-d:#345661;   --sys-bg:#DDEAEE;   --sys-ln:#C2DBE2;
+
+  /* Status (-text variants are AA-safe for small type on white) */
+  --ok:#5E8C63; --ok-bg:#E2EEE3; --ok-text:#3F6244;
+  --warn:#C28A4A; --warn-bg:#F4E8D6; --warn-text:#8F6020;
+  --bad:#B5675C; --bad-bg:#F3E1DE; --bad-text:#94503F;
+
+  /* Active persona accent — set by [data-persona] on <body> */
+  --acc:var(--brand); --acc-d:var(--brand-deep); --acc-bg:var(--brand-bg); --acc-ln:var(--line);
+
+  /* Geometry */
+  --r:16px; --r-sm:11px; --r-lg:22px; --r-xl:30px;
+  --sh:0 1px 1px rgba(40,38,33,.03), 0 12px 34px -20px rgba(40,38,33,.20);
+  --sh-sm:0 1px 2px rgba(40,38,33,.04);
+  --sh-lg:0 2px 4px rgba(40,38,33,.04), 0 30px 70px -30px rgba(40,38,33,.30);
+  --maxw:1180px;
+
+  /* Type — Manrope + Noto Sans Lao staged for ລາວ */
+  --font:"Manrope","Noto Sans Lao",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+  --display:"Manrope","Noto Sans Lao",-apple-system,"SF Pro Display","Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+
+  /* Motion */
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --t:160ms var(--ease);
+}
+
+/* Persona accent switching — one attribute drives the whole shell */
+body[data-persona="staff"]  { --acc:var(--staff); --acc-d:var(--staff-d); --acc-bg:var(--staff-bg); --acc-ln:var(--staff-ln); }
+body[data-persona="manager"]{ --acc:var(--mgr);   --acc-d:var(--mgr-d);   --acc-bg:var(--mgr-bg);   --acc-ln:var(--mgr-ln); }
+body[data-persona="hr"]     { --acc:var(--hr);    --acc-d:var(--hr-d);    --acc-bg:var(--hr-bg);    --acc-ln:var(--hr-ln); }
+body[data-persona="ceo"]    { --acc:var(--ceo);   --acc-d:var(--ceo-d);   --acc-bg:var(--ceo-bg);   --acc-ln:var(--ceo-ln); }
+body[data-persona="sysadmin"]{--acc:var(--sys);   --acc-d:var(--sys-d);   --acc-bg:var(--sys-bg);   --acc-ln:var(--sys-ln); }
+
+/* ============================================================
+   ADEPTIO ADAPTIVE HR · Platform UI v2.3 — application styles
+   Sections:
+   01 base & typography      05 components (cards, kpi, table…)
+   02 topbar                 06 forms & buttons
+   03 launcher (persona hub) 07 mobile frame
+   04 web shell (rail)       08 toast · misc
+
+   Responsiveness (v2.4.0): CONTAINER QUERIES + NO-MEDIA-QUERY
+   LAYOUTS — zero viewport layout breakpoints. Named containers:
+   topbar · shell · stage · content (workspace-inner, app-body,
+   landing-auth) · panel (login-card); cards stay anonymous
+   containers. Everything else is intrinsic: auto-fit grids with
+   minmax(min(100%,…)), clamp() fluid type/space, flex-wrap,
+   overflow-safe centering. Components now respond to the space
+   they're IN — the same .grid collapses inside the 384px phone
+   frame while staying 4-up on the desktop workspace beside it.
+   (The only @media left is prefers-reduced-motion — a11y, not layout.)
+   ============================================================ */
+
+/* ---------- 01 · base & typography ---------- */
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  font-family:var(--font); color:var(--ink); background:var(--canvas);
+  font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  min-height:100vh; font-kerning:normal; font-feature-settings:"kern","liga";
+  text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{ font-family:var(--display); margin:0; font-weight:600; letter-spacing:-.02em; text-wrap:balance; }
+
+/* thin, quiet scrollbars everywhere */
+*{ scrollbar-width:thin; scrollbar-color:var(--muted-2) transparent; }
+*::-webkit-scrollbar{ width:9px; height:9px; }
+*::-webkit-scrollbar-thumb{ background:var(--line); border-radius:99px; border:2.5px solid var(--canvas); }
+*::-webkit-scrollbar-thumb:hover{ background:var(--muted-2); }
+*::-webkit-scrollbar-track{ background:transparent; }
+p{ margin:0; }
+a{ color:var(--acc-d); text-decoration:none; }
+button{ font-family:var(--font); cursor:pointer; }
+:focus-visible{ outline:2px solid var(--acc); outline-offset:2px; border-radius:4px; }
+::selection{ background:var(--acc-bg); color:var(--acc-d); }
+
+.mono{ font-family:var(--mono); font-size:.86em; letter-spacing:0; }
+.eyebrow{
+  font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--muted);
+}
+.eyebrow.acc{ color:var(--acc-d); }
+.num{ font-variant-numeric:tabular-nums; }
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
+
+/* ---------- 02 · topbar ---------- */
+.topbar{
+  container:topbar / inline-size;
+  position:sticky; top:0; z-index:60; min-height:58px;
+  display:flex; align-items:center; flex-wrap:wrap; row-gap:6px;
+  gap:clamp(8px, 1.2cqi, 14px); padding:6px clamp(10px, 2.2vw, 22px);
+  background:color-mix(in srgb, var(--canvas) 86%, transparent);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  transition:box-shadow .25s var(--ease);
+}
+body[data-scrolled="true"] .topbar{ box-shadow:0 8px 24px -18px rgba(40,38,33,.35); }
+.topbar .logo{ display:flex; align-items:center; gap:10px; cursor:pointer; background:none; border:0; padding:4px 6px 4px 2px; border-radius:10px; }
+.logo-mark{
+  width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+  background:linear-gradient(135deg,var(--brand) 0%,var(--brand-deep) 100%);
+  color:#fff; font-family:var(--display); font-weight:700; font-size:15px;
+  box-shadow:var(--sh-sm);
+}
+.logo-word{ font-family:var(--display); font-weight:700; font-size:15.5px; letter-spacing:-.01em; color:var(--ink); }
+.logo-sub{ font-size:10.5px; color:var(--muted); font-weight:600; letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+.topbar .ver{
+  font-family:var(--mono); font-size:10.5px; color:var(--muted);
+  border:1px solid var(--line); border-radius:99px; padding:3px 9px; background:var(--surface);
+  white-space:nowrap;
+}
+
+.persona-switch{ display:flex; gap:4px; margin-left:8px; padding:4px; background:var(--line-2); border-radius:99px; }
+.pchip{
+  display:flex; align-items:center; gap:7px; border:1px solid transparent; background:transparent;
+  border-radius:99px; padding:5px 12px; font-size:12.5px; font-weight:600; color:var(--ink-2);
+  transition:background var(--t), color var(--t), border-color var(--t); white-space:nowrap;
+}
+.pchip .dot{ width:8px; height:8px; border-radius:99px; background:var(--pc,#999); flex:none; }
+.pchip:hover{ background:var(--surface); }
+.pchip[aria-pressed="true"]{ background:var(--surface); border-color:var(--pl,var(--line)); color:var(--pd,var(--ink)); box-shadow:var(--sh-sm); }
+
+.topbar .spacer{ flex:1; }
+
+.seg{ display:flex; padding:3px; background:var(--line-2); border-radius:99px; }
+.seg button{
+  border:0; background:transparent; border-radius:99px; padding:5px 14px;
+  font-size:12px; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:6px;
+  transition:background var(--t), color var(--t);
+}
+.seg button[aria-pressed="true"]{ background:var(--surface); color:var(--ink); box-shadow:var(--sh-sm); }
+.seg.lang button[aria-pressed="true"]{ color:var(--acc-d); }
+.seg button svg{ width:14px; height:14px; }
+
+.topbar .avatar-btn{ border:0; background:none; padding:0; }
+
+/* the bar responds to its own width — not the viewport */
+@container topbar (max-width: 1060px){
+  .topbar .ver{ display:none; }
+}
+@container topbar (max-width: 940px){
+  .persona-switch .pchip span.pl{ display:none; }
+  .pchip{ padding:5px 9px; }
+}
+
+/* ---------- 03 · launcher ---------- */
+.launcher{ max-width:var(--maxw); margin:0 auto; padding:clamp(36px,6vw,64px) clamp(18px,3.4vw,32px) clamp(56px,8vw,90px); position:relative; }
+.launcher::before{ /* ambient brand wash — depth without noise */
+  content:""; position:absolute; top:-140px; right:-80px; width:560px; height:560px;
+  background:radial-gradient(closest-side, var(--brand-bg) 0%, transparent 72%);
+  opacity:.7; pointer-events:none;
+}
+.launcher > *{ position:relative; }
+.launcher .hero{ max-width:780px; margin-bottom:54px; }
+.launcher h1{
+  font-size:clamp(38px,5.2vw,62px); line-height:1.04; font-weight:600; letter-spacing:-.035em;
+  margin:18px 0 20px;
+}
+.launcher h1 em{ font-style:normal; color:var(--muted-2); }
+.launcher .lede{ font-size:16.5px; line-height:1.65; color:var(--ink-2); max-width:620px; }
+.launcher .lede strong{ font-weight:700; }
+
+.hub-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,206px),1fr)); gap:14px; margin-top:clamp(26px,4vw,42px); }
+.hub-card{
+  position:relative; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+  padding:22px 20px 18px; display:flex; flex-direction:column; gap:0; min-height:300px;
+  transition:transform .22s var(--ease), box-shadow .22s var(--ease), border-color .22s var(--ease);
+  cursor:pointer;
+}
+.hub-card:hover{ transform:translateY(-4px); box-shadow:var(--sh-lg); border-color:var(--pl); }
+.hub-card:hover .swatch{ transform:scale(1.06) rotate(-3deg); }
+.hub-card .swatch{ transition:transform .22s var(--ease); }
+.hub-card .swatch{ width:34px; height:34px; border-radius:11px; background:var(--pb); border:1px solid var(--pl); display:grid; place-items:center; color:var(--pd); margin-bottom:14px; }
+.hub-card .swatch svg{ width:17px; height:17px; }
+.hub-card .who{ font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--pd); }
+.hub-card h3{ font-size:18.5px; margin:5px 0 3px; }
+.hub-card .tag{ font-size:12.5px; color:var(--muted); margin-bottom:13px; }
+.hub-card ul{ list-style:none; margin:0 0 16px; padding:0; display:flex; flex-direction:column; gap:6px; }
+.hub-card li{ font-size:12.5px; color:var(--ink-2); padding-left:15px; position:relative; }
+.hub-card li::before{ content:""; position:absolute; left:0; top:7.5px; width:5px; height:5px; border-radius:99px; background:var(--pc); }
+.hub-card .enter{ margin-top:auto; display:flex; gap:8px; }
+.hub-card .enter button{
+  flex:1; border:1px solid var(--pl); background:var(--pb); color:var(--pd);
+  border-radius:10px; padding:8px 10px; font-size:12.5px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  transition:filter var(--t), transform var(--t);
+}
+.hub-card .enter button.ghosted{ background:var(--surface); border-color:var(--line); color:var(--ink-2); flex:0 0 auto; padding:8px 12px; }
+.hub-card .enter button:hover{ filter:brightness(.97); }
+.hub-card .enter svg{ width:14px; height:14px; }
+
+.launch-meta{
+  margin-top:46px; display:flex; flex-wrap:wrap; gap:10px 28px; padding-top:22px; border-top:1px solid var(--line);
+  font-size:12.5px; color:var(--muted);
+}
+.launch-meta b{ color:var(--ink-2); font-weight:700; }
+
+/* ---------- 04 · web shell ---------- */
+.shell{ display:flex; min-height:calc(100vh - 58px); container:shell / inline-size; }
+
+/* rail folds to icon-width when the SHELL narrows (was @media 1024px) */
+@container shell (max-width: 1024px){
+  .rail{ width:74px; padding:18px 10px; }
+  .rail .group, .rail-head .t, .rail-head .s, .nav-item span.lbl, .rail-foot .note, .tier-chip span{ display:none; }
+  .rail-head{ justify-content:center; padding:6px 0 12px; }
+  .nav-item{ justify-content:center; padding:10px; }
+  .nav-item .count{ position:absolute; top:3px; right:3px; margin:0; padding:1px 5px; min-width:16px; }
+}
+.rail{
+  width:242px; flex:none; border-right:1px solid var(--line);
+  padding:20px 14px 18px; display:flex; flex-direction:column; gap:4px;
+  position:sticky; top:58px; height:calc(100vh - 58px); overflow-y:auto;
+  background:color-mix(in srgb, var(--surface) 38%, var(--canvas));
+}
+.rail-head{
+  display:flex; align-items:center; gap:10px; padding:10px 10px 14px; margin-bottom:6px;
+  border-bottom:1px solid var(--line-2);
+}
+.rail-head .pin{ width:34px; height:34px; border-radius:11px; background:var(--acc-bg); border:1px solid var(--acc-ln); display:grid; place-items:center; color:var(--acc-d); flex:none; }
+.rail-head .pin svg{ width:16px; height:16px; }
+.rail-head .t{ font-size:13.5px; font-weight:700; letter-spacing:-.01em; }
+.rail-head .s{ font-size:11px; color:var(--muted); margin-top:1px; }
+
+.rail .group{ margin:14px 4px 5px; }
+.nav-item{
+  display:flex; align-items:center; gap:11px; width:100%;
+  border:0; background:transparent; text-align:left;
+  padding:8.5px 11px; border-radius:11px; font-size:13.2px; font-weight:600; color:var(--ink-2);
+  position:relative; transition:background var(--t), color var(--t);
+}
+.nav-item svg{ width:17px; height:17px; flex:none; opacity:.78; }
+.nav-item:hover{ background:var(--line-2); color:var(--ink); }
+.nav-item[aria-current="true"]{ background:var(--acc-bg); color:var(--acc-d); }
+.nav-item[aria-current="true"] svg{ opacity:1; }
+.nav-item[aria-current="true"]::before{
+  content:""; position:absolute; left:-14px; top:8px; bottom:8px; width:3px; border-radius:0 3px 3px 0; background:var(--acc);
+}
+.nav-item .count{
+  margin-left:auto; font-size:10.5px; font-weight:700; font-family:var(--mono);
+  background:var(--acc); color:#fff; padding:1.5px 7px; border-radius:99px; min-width:20px; text-align:center;
+}
+.nav-item:not([aria-current="true"]) .count{ background:var(--line); color:var(--ink-2); }
+
+.rail-foot{ margin-top:auto; padding:14px 10px 4px; border-top:1px solid var(--line-2); display:flex; flex-direction:column; gap:9px; }
+.tier-chip{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--ink-2); font-weight:600; }
+.tier-chip .led{ width:7px; height:7px; border-radius:99px; background:var(--ok); box-shadow:0 0 0 3px var(--ok-bg); }
+.rail-foot .note{ font-size:10.5px; color:var(--muted); line-height:1.5; }
+
+.workspace{ flex:1; min-width:0; padding:clamp(24px, 3.2vw, 36px) clamp(22px, 3.8vw, 44px) 88px; }
+.workspace-inner{ max-width:1080px; margin:0 auto; container:content / inline-size; }
+
+/* Entrance: one brief container fade only.
+   Per-child staggers were dropped — throttled/background tabs freeze CSS animations
+   at their from-state, which held content at opacity:0. Never hold content invisible. */
+body[data-anim="off"] .screen-fade{ animation:none; } /* same-route ledger re-renders repaint without replaying */
+
+/* screen header */
+.crumbs{ display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--muted); font-weight:600; margin-bottom:10px; min-height:18px; flex-wrap:wrap; }
+.crumbs a{ color:var(--muted); }
+.crumbs a:hover{ color:var(--acc-d); }
+.crumbs svg{ width:11px; height:11px; opacity:.6; }
+.crumbs .here{ color:var(--acc-d); }
+.screen-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:30px; flex-wrap:wrap; }
+.screen-head h1{ font-size:clamp(21px, 4cqi, 28px); letter-spacing:-.03em; }
+.screen-head .sub{ font-size:13px; color:var(--muted); margin-top:6px; max-width:640px; text-wrap:pretty; }
+.screen-head .actions{ display:flex; gap:9px; flex:none; flex-wrap:wrap; }
+
+/* ---------- 05 · components ---------- */
+.grid{ display:grid; gap:clamp(10px, 1.8cqi, 16px); }
+.cols-2{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.cols-3{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+.cols-4{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+.span-2{ grid-column:span 2; }
+
+/* grids respond to their CONTENT container (workspace, phone body,
+   landing panel) — the same markup is 4-up on desktop, 2-up inside
+   the 384px phone frame, 1-up in a truly narrow pane. */
+@container content (max-width: 1020px){
+  .cols-4{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@container content (max-width: 760px){
+  .cols-3{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@container content (max-width: 560px){
+  .cols-3{ grid-template-columns:minmax(0,1fr); }
+  .span-2{ grid-column:auto; }
+  .la-session .btn{ flex:1 1 auto; justify-content:center; }
+}
+@container content (max-width: 460px){
+  .cols-4{ grid-template-columns:minmax(0,1fr); }
+}
+@container content (max-width: 320px){
+  .cols-2{ grid-template-columns:minmax(0,1fr); }
+}
+
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  padding:22px; box-shadow:var(--sh-sm); min-width:0;
+  container-type:inline-size;
+}
+.card.tinted{ background:linear-gradient(160deg, var(--acc-bg) 0%, var(--surface) 70%); border-color:var(--acc-ln); }
+.card-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+.card-head .t{ font-size:13px; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:8px; min-width:0; }
+.card-head .t svg{ width:15px; height:15px; color:var(--acc-d); flex:none; }
+.card-head .link{ font-size:12px; font-weight:700; color:var(--acc-d); background:none; border:0; padding:2px 4px; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+.card-head .link svg{ width:12px; height:12px; }
+.card-head .link:hover{ text-decoration:underline; }
+
+.kpi{ display:flex; flex-direction:column; gap:6px; padding:19px 22px; min-width:0; }
+.kpi .k-label{ font-size:10.8px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); }
+.kpi .k-value{ font-family:var(--display); font-size:32px; font-weight:500; letter-spacing:-.035em; line-height:1.08; font-variant-numeric:tabular-nums; }
+.kpi .k-value small{ font-size:15px; font-weight:600; color:var(--muted); letter-spacing:0; }
+.kpi .k-sub{ font-size:11.5px; color:var(--muted); display:flex; align-items:center; gap:6px; }
+.kpi .k-sub .up{ color:var(--ok-text); font-weight:700; }
+.kpi .k-sub .down{ color:var(--bad-text); font-weight:700; }
+.kpi.hero .k-value{ color:var(--acc-d); }
+
+.badge{
+  display:inline-flex; align-items:center; gap:5px; border-radius:99px; padding:2.5px 9px;
+  font-size:10.8px; font-weight:700; letter-spacing:.02em; white-space:nowrap;
+  background:var(--line-2); color:var(--ink-2);
+}
+.badge::before{ content:""; width:5px; height:5px; border-radius:99px; background:currentColor; opacity:.75; }
+.badge.ok{ background:var(--ok-bg); color:var(--ok-text); }
+.badge.warn{ background:var(--warn-bg); color:var(--warn-text); }
+.badge.bad{ background:var(--bad-bg); color:var(--bad-text); }
+.badge.acc{ background:var(--acc-bg); color:var(--acc-d); }
+.badge.plain::before{ display:none; }
+
+.idtag{ font-family:var(--mono); font-size:11px; font-weight:600; color:var(--ink-2); background:var(--line-2); border-radius:6px; padding:2px 7px; white-space:nowrap; }
+
+/* list rows */
+.rowlist{ display:flex; flex-direction:column; }
+.rowitem{
+  display:flex; align-items:center; gap:13px; padding:11.5px 2px; border-top:1px solid var(--line-2);
+  min-width:0;
+}
+.rowitem:first-child{ border-top:0; }
+.rowitem .ric{ width:34px; height:34px; border-radius:10px; flex:none; display:grid; place-items:center; background:var(--acc-bg); color:var(--acc-d); }
+.rowitem .ric.n{ background:var(--line-2); color:var(--ink-2); }
+.rowitem .ric svg{ width:16px; height:16px; }
+.rowitem .rmain{ flex:1; min-width:0; }
+.rowitem .rt{ font-size:13px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rowitem .rs{ font-size:11.5px; color:var(--muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rowitem .rside{ flex:none; display:flex; align-items:center; gap:8px; text-align:right; }
+.rowitem.click{ cursor:pointer; border-radius:10px; margin:0 -8px; padding:11.5px 10px; transition:background var(--t); }
+.rowitem.click:hover{ background:var(--surface-2); }
+
+/* table */
+.tablewrap{ overflow-x:auto; }
+table.tbl{ width:100%; border-collapse:collapse; font-size:12.8px; }
+.tbl th{
+  text-align:left; font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); padding:8px 12px; border-bottom:1px solid var(--line); white-space:nowrap;
+}
+.tbl td{ padding:10.5px 12px; border-bottom:1px solid var(--line-2); vertical-align:middle; }
+.tbl tr:last-child td{ border-bottom:0; }
+.tbl tr.click{ cursor:pointer; transition:background var(--t); }
+.tbl tr.click:hover{ background:var(--surface-2); }
+.tbl td.r, .tbl th.r{ text-align:right; }
+.tbl .strong{ font-weight:700; }
+
+/* approval queue row */
+.qrow{
+  display:flex; align-items:center; gap:14px; padding:13px 16px; border:1px solid var(--line);
+  border-radius:14px; background:var(--surface); margin-bottom:10px; min-width:0;
+  transition:border-color var(--t), box-shadow var(--t), transform var(--t);
+}
+.qrow:hover{ border-color:var(--acc-ln); box-shadow:var(--sh-sm); transform:translateY(-1px); }
+.qrow .qmain{ flex:1; min-width:0; cursor:pointer; }
+.qrow .qt{ font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.qrow .qs{ font-size:12px; color:var(--muted); margin-top:2px; }
+.qrow .qact{ display:flex; gap:7px; flex:none; }
+.qrow .sla, .sla{ font-size:10.5px; font-weight:700; font-family:var(--mono); color:var(--warn-text); }
+
+/* avatar */
+.avatar{
+  width:32px; height:32px; border-radius:99px; background:var(--acc-bg); color:var(--acc-d);
+  display:grid; place-items:center; font-size:11.5px; font-weight:800; flex:none;
+  border:1.5px solid var(--acc-ln);
+}
+.avatar.lg{ width:52px; height:52px; font-size:17px; border-radius:16px; }
+
+/* progress steps (payroll run, flows) — stacks vertically in narrow cards (container query) */
+.steps{ display:flex; gap:0; margin:6px 0 2px; flex-wrap:wrap; row-gap:14px; }
+.step{ flex:1; min-width:120px; position:relative; padding:0 14px 0 0; }
+.step::before{ content:""; position:absolute; top:13px; left:26px; right:2px; height:2px; background:var(--line); border-radius:2px; }
+.step:last-child::before{ display:none; }
+@container (max-width: 360px){
+  .steps{ flex-direction:column; row-gap:0; }
+  .step{ min-width:0; display:grid; grid-template-columns:26px 1fr; column-gap:12px; align-items:start; padding:0 0 16px; }
+  .step .sdot{ margin-bottom:0; grid-row:1 / span 2; }
+  .step .st{ padding-top:4px; }
+  .step .ss{ grid-column:2; }
+  .step::before{ top:30px; left:12px; right:auto; bottom:2px; width:2px; height:auto; }
+}
+.step .sdot{
+  width:26px; height:26px; border-radius:99px; border:2px solid var(--line); background:var(--surface);
+  display:grid; place-items:center; font-size:11px; font-weight:800; color:var(--muted); margin-bottom:8px;
+}
+.step.done .sdot{ background:var(--acc); border-color:var(--acc); color:#fff; }
+.step.done::before{ background:var(--acc); }
+.step.now .sdot{ border-color:var(--acc); color:var(--acc-d); box-shadow:0 0 0 4px var(--acc-bg); }
+.step .st{ font-size:12px; font-weight:700; }
+.step .ss{ font-size:11px; color:var(--muted); margin-top:1px; }
+.step.now .st{ color:var(--acc-d); }
+
+/* charts */
+.chart{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--muted); font-weight:600; margin-top:10px; }
+.legend i{ width:9px; height:9px; border-radius:3px; display:inline-block; margin-right:6px; vertical-align:-1px; }
+
+/* heat calendar */
+.heatcal{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.heatcal .hc{ aspect-ratio:1; border-radius:6px; background:var(--line-2); display:grid; place-items:center; font-size:9.5px; color:var(--muted); font-weight:600; }
+.heatcal .hc.l1{ background:var(--acc-bg); color:var(--acc-d); }
+.heatcal .hc.l2{ background:var(--acc-ln); color:var(--acc-d); }
+.heatcal .hc.l3{ background:var(--acc); color:#fff; }
+.heatcal .hc.off{ background:transparent; border:1px dashed var(--line); }
+.heatcal .hc.bad{ background:var(--bad-bg); color:var(--bad-text); }
+.heatcal .dow{ background:none; color:var(--muted-2); font-size:9px; aspect-ratio:auto; padding-bottom:2px; }
+
+/* empty state */
+.empty{ text-align:center; padding:36px 20px; color:var(--muted); }
+.empty svg{ width:30px; height:30px; opacity:.4; margin-bottom:10px; }
+.empty .et{ font-size:13px; font-weight:600; color:var(--ink-2); }
+.empty .es{ font-size:12px; margin-top:3px; }
+
+/* read-only ribbon (CEO) */
+.ro-chip{
+  display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:800; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ceo-d); background:var(--ceo-bg); border:1px solid var(--ceo-ln);
+  border-radius:99px; padding:4px 11px;
+}
+.ro-chip svg{ width:12px; height:12px; }
+
+/* ---------- 06 · forms & buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  border:1px solid var(--acc); background:var(--acc); color:#fff;
+  border-radius:10px; padding:8.5px 16px; font-size:12.8px; font-weight:700; letter-spacing:.01em;
+  transition:filter var(--t), transform var(--t), box-shadow var(--t); white-space:nowrap;
+}
+.btn:not(.ghost):not(.danger):hover{ box-shadow:0 6px 16px -8px var(--acc); }
+.btn:hover{ filter:brightness(.94); }
+.btn:active{ transform:translateY(1px); }
+.btn svg{ width:14px; height:14px; }
+.btn.ghost{ background:var(--surface); border-color:var(--line); color:var(--ink-2); }
+.btn.ghost:hover{ border-color:var(--muted-2); filter:none; color:var(--ink); }
+.btn.soft{ background:var(--acc-bg); border-color:var(--acc-ln); color:var(--acc-d); }
+.btn.ok{ background:var(--ok); border-color:var(--ok); }
+.btn.danger{ background:var(--surface); border-color:var(--line); color:var(--bad); }
+.btn.danger:hover{ border-color:var(--bad); filter:none; }
+.btn.sm{ padding:6px 12px; font-size:12px; border-radius:9px; }
+.btn.xs{ padding:4.5px 10px; font-size:11.3px; border-radius:8px; }
+.btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+.field{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; min-width:0; }
+.field label{ font-size:11.5px; font-weight:700; color:var(--ink-2); letter-spacing:.02em; }
+.field .hint{ font-size:11px; color:var(--muted); }
+.input, select.input, textarea.input{
+  width:100%; border:1px solid var(--line); border-radius:10px; background:var(--surface);
+  padding:9px 12px; font-size:13px; font-family:var(--font); color:var(--ink);
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.input:focus{ outline:none; border-color:var(--acc); box-shadow:0 0 0 3px var(--acc-bg); }
+textarea.input{ resize:vertical; min-height:74px; }
+
+.choice-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.choice{
+  border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:8px 13px;
+  font-size:12.3px; font-weight:600; color:var(--ink-2); display:flex; align-items:center; gap:7px;
+  transition:all var(--t);
+}
+.choice svg{ width:14px; height:14px; }
+.choice[aria-pressed="true"]{ background:var(--acc-bg); border-color:var(--acc); color:var(--acc-d); }
+
+.switch{ position:relative; width:34px; height:20px; border-radius:99px; background:var(--line); border:0; transition:background var(--t); flex:none; }
+.switch::after{ content:""; position:absolute; top:2.5px; left:2.5px; width:15px; height:15px; border-radius:99px; background:#fff; box-shadow:var(--sh-sm); transition:transform var(--t); }
+.switch[aria-checked="true"]{ background:var(--acc); }
+.switch[aria-checked="true"]::after{ transform:translateX(14px); }
+
+/* ---------- 07 · mobile frame ---------- */
+.mobile-stage{
+  min-height:calc(100vh - 58px); display:flex; align-items:flex-start; justify-content:center;
+  padding:clamp(18px,3.4vw,34px) 20px 60px; gap:clamp(22px,3.6vw,44px);
+  container:stage / inline-size;
+}
+/* the aside yields, then the phone eases down, as the STAGE narrows */
+@container stage (max-width: 1180px){ .stage-aside{ display:none; } }
+@container stage (max-width: 680px){ .phone{ transform:scale(.92); transform-origin:top center; } }
+.phone{
+  width:min(384px, 100%); flex:none; background:#101012; border-radius:54px; padding:11px;
+  box-shadow:var(--sh-lg), inset 0 0 0 1.5px #2a2a2e;
+  position:relative;
+}
+/* hardware: volume (left) + power (right) */
+.phone::before, .phone::after{ content:""; position:absolute; width:3.5px; background:#222226; border-radius:3px; }
+.phone::before{ left:-3.5px; top:132px; height:64px; box-shadow:0 84px 0 #222226; }
+.phone::after{ right:-3.5px; top:172px; height:88px; }
+.phone-screen{
+  position:relative; background:var(--canvas); border-radius:44px; overflow:hidden;
+  height:clamp(600px, calc(100vh - 158px), 780px); display:flex; flex-direction:column;
+}
+.statusbar{
+  flex:none; display:flex; justify-content:space-between; align-items:center;
+  padding:14px 26px 6px; font-size:12.5px; font-weight:700; font-family:var(--display);
+}
+.statusbar .icons{ display:flex; gap:5px; align-items:center; }
+.statusbar svg{ width:15px; height:15px; }
+.island{ position:absolute; top:11px; left:50%; transform:translateX(-50%); width:112px; height:30px; border-radius:99px; background:#101012; z-index:5; }
+
+.app-head{
+  flex:none; padding:14px 20px 12px; display:flex; align-items:center; gap:11px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(165deg, var(--acc-bg) 0%, var(--canvas) 90%);
+}
+.app-head .ah-t{ font-size:15.5px; font-weight:800; letter-spacing:-.02em; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.app-head .ah-s{ font-size:10.5px; color:var(--muted); font-weight:600; }
+.app-head .bell{ position:relative; border:0; background:var(--surface); border:1px solid var(--line); width:32px; height:32px; border-radius:99px; display:grid; place-items:center; color:var(--ink-2); }
+.app-head .bell svg{ width:15px; height:15px; }
+.app-head .bell .ping{ position:absolute; top:7px; right:8px; width:7px; height:7px; border-radius:99px; background:var(--bad); border:1.5px solid var(--surface); }
+.app-head .back{ border:0; background:var(--surface); border:1px solid var(--line); width:32px; height:32px; border-radius:99px; display:grid; place-items:center; color:var(--ink-2); flex:none; }
+.app-head .back svg{ width:15px; height:15px; }
+
+.app-body{ flex:1; overflow-y:auto; padding:16px 16px 20px; display:flex; flex-direction:column; gap:12px; scrollbar-width:thin; container:content / inline-size; }
+.app-body > *{ flex:0 0 auto; } /* scroll container: children must never flex-shrink (clock-hero has overflow:hidden → would collapse) */
+.app-body .card{ padding:16px; border-radius:15px; }
+.app-body .kpi{ padding:13px 15px; }
+.app-body .kpi .k-value{ font-size:24px; }
+.app-body .screen-title{ font-size:20px; font-weight:700; letter-spacing:-.02em; margin:4px 2px 0; }
+
+.tabbar{
+  flex:none; display:flex; border-top:1px solid var(--line); background:color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter:blur(10px); padding:8px 10px 6px;
+}
+.tab{
+  flex:1; border:0; background:none; display:flex; flex-direction:column; align-items:center; gap:3px;
+  font-size:9.8px; font-weight:700; color:var(--muted); padding:5px 2px; border-radius:10px;
+  transition:color var(--t);
+}
+.tab svg{ width:20px; height:20px; }
+.tab[aria-current="true"]{ color:var(--acc-d); }
+.tab .tdot{ width:4px; height:4px; border-radius:99px; background:transparent; }
+.tab[aria-current="true"] .tdot{ background:var(--acc); }
+.homebar{ flex:none; height:18px; display:grid; place-items:center; }
+.homebar i{ width:120px; height:4.5px; border-radius:99px; background:#1b1b1f; opacity:.85; }
+
+/* big clock-in hero (staff mobile) */
+.clock-hero{
+  border-radius:18px; padding:18px; color:#fff; position:relative; overflow:hidden;
+  background:linear-gradient(150deg, var(--acc) 0%, var(--acc-d) 115%);
+  box-shadow:var(--sh);
+}
+.clock-hero .ch-line{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.clock-hero .ch-time{ font-family:var(--display); font-size:30px; font-weight:600; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+.clock-hero .ch-sub{ font-size:11.5px; opacity:.82; font-weight:600; }
+.clock-hero .ch-btn{
+  border:0; border-radius:13px; background:rgba(255,255,255,.95); color:var(--acc-d);
+  font-size:13px; font-weight:800; padding:11px 18px; display:flex; align-items:center; gap:8px;
+  box-shadow:0 6px 18px -8px rgba(0,0,0,.4); transition:transform var(--t); white-space:nowrap; flex:none;
+}
+.clock-hero .ch-btn:active{ transform:scale(.97); }
+.clock-hero .geo{ display:flex; align-items:center; gap:6px; font-size:10.5px; opacity:.85; margin-top:12px; font-weight:600; }
+.clock-hero .geo svg{ width:12px; height:12px; }
+
+/* phone side panel (context) */
+.stage-aside{ width:300px; padding-top:14px; display:flex; flex-direction:column; gap:14px; }
+.stage-aside .card{ padding:16px 18px; }
+.stage-aside h4{ font-size:12.5px; margin-bottom:6px; }
+.stage-aside p{ font-size:12px; color:var(--muted); line-height:1.6; }
+
+/* ---------- 08 · toast · misc · responsive ---------- */
+/* ---------- tier locks (v2.3.1.essential) — grey + key-locked ---------- */
+svg.lk{ width:12px; height:12px; vertical-align:-2px; flex:none; } /* inline lock glyphs anywhere */
+.footer-note svg{ width:13px; height:13px; flex:none; }
+.rail-foot .note svg{ width:11px; height:11px; vertical-align:-2px; }
+.locked, .locked *{ cursor:not-allowed !important; }
+button.locked, .choice.locked{
+  opacity:.55; filter:grayscale(.5);
+  background:var(--surface-2) !important; border-color:var(--line) !important; color:var(--muted) !important;
+  box-shadow:none !important;
+}
+button.locked:hover, .choice.locked:hover{ transform:none !important; filter:grayscale(.5); }
+.badge.lock{ background:var(--line-2); color:var(--muted); gap:4px; }
+.badge.lock::before{ display:none; }
+.badge.lock svg{ width:10px; height:10px; }
+.nav-item.locked{ opacity:.5; }
+.nav-item.locked:hover{ background:transparent; color:var(--ink-2); }
+.nav-item.locked .lk{ margin-left:auto; width:13px; height:13px; opacity:.8; flex:none; }
+.tab.locked{ opacity:.45; }
+.pchip.locked{ opacity:.55; }
+.pchip.locked .dot{ display:none; }
+.pchip .lk{ width:11px; height:11px; opacity:.75; flex:none; }
+/* ---------- build-phase features — greyed "soon" affordance (no backing data yet, ≠ tier-lock) ---------- */
+.soon, .soon *{ cursor:not-allowed !important; }
+button.soon, .choice.soon{ opacity:.5; filter:grayscale(.45); box-shadow:none !important; }
+button.soon:hover, .choice.soon:hover{ transform:none !important; filter:grayscale(.45); }
+.hub-card.locked .swatch{ filter:grayscale(.85); opacity:.55; }
+.hub-card.locked .who, .hub-card.locked h3, .hub-card.locked .tag, .hub-card.locked li{ color:var(--muted); }
+.hub-card.locked li::before{ background:var(--muted-2); }
+.hub-card.locked:hover{ transform:translateY(-2px); box-shadow:var(--sh-sm); }
+.hub-card.locked .enter button{ cursor:pointer !important; opacity:1; filter:none; }
+.hub-lock{
+  position:absolute; top:16px; right:16px; display:inline-flex; align-items:center; gap:5px;
+  font-size:9.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+  background:var(--line-2); color:var(--muted); border-radius:99px; padding:4px 9px;
+}
+.hub-lock svg{ width:10px; height:10px; }
+.row-locked{ opacity:.55; filter:grayscale(.4); }
+.seg.tier button[aria-pressed="true"]{ color:var(--brand-deep); }
+
+.toast-wrap{ position:fixed; bottom:26px; right:26px; z-index:200; display:flex; flex-direction:column; gap:8px; }
+.toast{
+  display:flex; align-items:center; gap:10px; background:var(--ink); color:#fff;
+  border-radius:13px; padding:11px 16px; font-size:12.8px; font-weight:600; box-shadow:var(--sh-lg);
+  animation:toast-in .28s var(--ease);
+  max-width:340px;
+}
+.toast svg{ width:15px; height:15px; color:#9FCBA4; flex:none; }
+.toast.warn svg{ color:#E9C588; }
+@keyframes toast-in{ from{ opacity:0; transform:translateY(10px) scale(.97);} to{ opacity:1; transform:none;} }
+.toast.out{ opacity:0; transition:opacity .3s; }
+
+.screen-fade{ animation:fade-in .24s var(--ease); }
+@keyframes fade-in{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+
+.hr-sep{ height:1px; background:var(--line-2); border:0; margin:14px 0; }
+.muted{ color:var(--muted); }
+.small{ font-size:12px; }
+
+.footer-note{
+  max-width:var(--maxw); margin:0 auto; padding:26px 32px 40px; font-size:11.5px; color:var(--muted);
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+}
+
+/* (viewport layout breakpoints removed — container queries above +
+   intrinsic auto-fit/minmax/clamp layouts carry all responsiveness) */
+
+/* ============================================================
+   v2.3.2.db additions — Database Studio · Backup Center
+   ============================================================ */
+.hint{ display:block; font-size:11px; color:var(--muted); margin-top:8px; line-height:1.55; }
+.input.sm{ padding:7px 10px; font-size:12px; }
+
+/* store cards */
+.dbgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+.dbgrid .stcard{ padding:14px 14px 12px; cursor:default; }
+.dbgrid .stcard[data-go]{ cursor:pointer; }
+.dbgrid .stcard[data-go]:hover{ border-color:var(--acc); transform:translateY(-1px); }
+.stcard .st-top{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.stcard .st-top svg{ width:16px; height:16px; color:var(--acc-d); flex:none; }
+.stcard .st-name{ font-size:13.5px; font-weight:800; margin:0 0 3px; display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+.stcard .st-stats{ display:flex; gap:14px; margin-top:10px; padding-top:9px; border-top:1px dashed var(--line); font-size:11px; color:var(--muted); align-items:baseline; flex-wrap:wrap; }
+.stcard .st-stats .num{ color:var(--ink); font-size:13px; }
+.stcard.off{ opacity:.55; filter:grayscale(.4); }
+.stcard.off:hover{ transform:none; }
+
+/* inline add-row form */
+.dbform{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center; }
+.dbform .input{ flex:1 1 110px; min-width:90px; }
+.dbform .btn{ flex:none; }
+.btn.ghost-d{ background:transparent; border-color:transparent; }
+.btn.ghost-d:hover{ border-color:var(--bad); background:var(--bad-bg); }
+
+/* backup center */
+.bk-pick{ display:flex; gap:8px; flex-wrap:wrap; }
+.bk-chip{ display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border:1px solid var(--line);
+  border-radius:999px; background:var(--surface); font-size:12px; font-weight:650; cursor:pointer; user-select:none; }
+.bk-chip:hover{ border-color:var(--acc); }
+.bk-chip input{ accent-color:var(--acc-d); margin:0; }
+.bk-chip span{ display:inline-flex; align-items:center; gap:6px; }
+.bk-chip svg{ width:13px; height:13px; color:var(--acc-d); }
+.bk-chip.off{ opacity:.5; cursor:not-allowed; }
+.sc-on{ accent-color:var(--acc-d); width:15px; height:15px; }
+select.sc-freq{ min-width:110px; }
+
+/* registry block */
+.reg{ background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:12px; line-height:1.8; white-space:pre-wrap; word-break:break-word; }
+
+/* ============================================================
+   v2.4.0.db.auth — the portal & identity surfaces (clean pastel)
+   ============================================================ */
+body[data-portal="1"]{overflow:hidden}
+.login-stage{position:fixed;inset:0;z-index:40;overflow:auto;background:
+  radial-gradient(880px 600px at 10% -10%, var(--hr-bg) 0%, transparent 58%),
+  radial-gradient(760px 520px at 106% 18%, var(--ceo-bg) 0%, transparent 58%),
+  radial-gradient(900px 680px at 46% 116%, var(--mgr-bg) 0%, transparent 60%),
+  radial-gradient(620px 420px at 88% 96%, var(--staff-bg) 0%, transparent 55%),
+  var(--canvas)}
+
+/* card — paper over the pastel wash */
+.login-wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:14px;padding:clamp(16px,3vh,26px) clamp(12px,2.6vw,18px)}
+.login-card{width:min(880px,100%);container:panel / inline-size;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.9);outline:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-lg);padding:clamp(15px,2.6cqi,22px) clamp(13px,2.6cqi,22px) clamp(13px,2.2cqi,18px)}
+.login-card.narrow{width:min(430px,100%)}
+.lg-head{display:flex;align-items:center;gap:11px;margin-bottom:14px;flex-wrap:wrap}
+.lg-head .spacer{flex:1}
+.logo-mark.lg{width:38px;height:38px;border-radius:11px;font-size:19px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--brand);color:#fff;font-weight:800;box-shadow:0 6px 16px -8px var(--brand)}
+.lg-word{font:800 16.5px/1.15 var(--display);color:var(--ink)}
+.lg-word span{font-weight:600;color:var(--brand);font-size:13px}
+.lg-sub{font-size:10.8px;color:var(--muted);font-weight:600;margin-top:1px}
+.lg-note{display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:9px 11px;font-size:11.8px;font-weight:600;margin-bottom:12px}
+.lg-note svg{width:15px;height:15px;flex:none;margin-top:1px}
+.lg-note.bad{background:var(--bad-bg);color:var(--bad-text)}
+.lg-note.ok{background:var(--ok-bg);color:var(--ok-text)}
+.input.lg{height:42px;font-size:13.5px}
+.btn.lgbtn{width:100%;height:42px;font-size:13px;justify-content:center;margin-top:2px}
+.lg-links{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:11px;flex-wrap:wrap}
+.lf-link{border:0;background:none;font:600 11.5px var(--font);color:var(--brand-deep);cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:3px 4px;border-radius:7px}
+.lf-link:hover{background:var(--brand-bg)}
+.lf-link svg{width:13px;height:13px}
+.lg-who{display:flex;align-items:center;gap:11px;margin-bottom:13px;flex-wrap:wrap}
+.lg-who b{font-size:13.5px}
+.lg-scope{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.lp-hint{font-size:11.5px;font-weight:600;color:var(--muted);margin:0 0 13px}
+
+/* persona frames — demo account + password pre-filled, one click in */
+.lp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,196px),1fr));gap:12px}
+.lp-frame{position:relative;border:1px solid var(--pl);background:linear-gradient(180deg, var(--pb) 0%, var(--surface) 86%);
+  border-radius:16px;padding:13px 13px 12px;display:flex;flex-direction:column;transition:var(--t)}
+.lp-frame:hover{box-shadow:var(--sh)}
+.lp-frame.focus{outline:2px solid var(--pc);outline-offset:1px;box-shadow:var(--sh)}
+.lp-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.lp-head .swatch{width:30px;height:30px;border-radius:9px;background:var(--pc);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none;box-shadow:0 5px 12px -6px var(--pc)}
+.lp-head .swatch svg{width:16px;height:16px}
+.lp-head b{display:block;font-size:13px;color:var(--pd)}
+.lp-head span{display:block;font-size:9.8px;color:var(--muted);font-weight:600;margin-top:1px}
+.lp-lock{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font:700 9.5px var(--font);color:var(--muted);
+  border:1px dashed var(--line);background:var(--surface-2);border-radius:999px;padding:3px 8px}
+.lp-lock svg{width:11px;height:11px}
+.lp-l{font:700 9.8px var(--font);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:7px 0 4px;display:block}
+.lp-frame .input{height:33px;font-size:11.5px;width:100%}
+.lp-frame select.input{font-family:var(--mono);font-size:10.8px}
+.btn.lp-go{width:100%;justify-content:center;margin-top:11px;height:34px;font-size:12px;background:var(--pc);border-color:var(--pc)}
+.btn.lp-go:hover{background:var(--pd);border-color:var(--pd)}
+
+/* printed seed passwords (D4) + portal footer */
+.login-foot{width:min(880px,100%);display:flex;flex-direction:column;gap:9px;align-items:center}
+.seed-strip{width:100%;background:rgba(255,255,255,.8);border:1px dashed var(--line);border-radius:14px;padding:9px 13px;font-size:11px}
+.seed-strip summary{cursor:pointer;font-weight:700;color:var(--ink-2);display:flex;align-items:center;gap:6px;list-style:none}
+.seed-strip summary::-webkit-details-marker{display:none}
+.seed-strip summary svg{width:13px;height:13px}
+.seed-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:9px}
+.seed-grid b{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.seed-grid .mono{font-size:10.3px;color:var(--ink-2);margin-top:2px}
+.seed-grid .pwd{color:var(--brand-deep);font-weight:700;background:var(--brand-bg);border-radius:5px;padding:0 4px}
+.lf-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+  background:rgba(255,255,255,.78);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.lf-ver{font-size:9.8px;color:var(--muted);text-align:center}
+.seg.sm button{padding:3px 9px;font-size:10.3px}
+.lg-outbox{display:flex;flex-direction:column;gap:7px;max-height:52vh;overflow:auto;margin-bottom:12px}
+.mailrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--surface)}
+.mailrow .rt{font-size:12px;font-weight:700}
+.mailrow .rs{font-size:10.3px;color:var(--muted)}
+
+/* password meter — live policy feedback (D3 min 8) */
+.pw-meter{display:flex;align-items:center;gap:4px;margin-top:7px}
+.pw-meter i{height:4px;flex:1;border-radius:3px;background:var(--line-2);transition:var(--t)}
+.pw-meter span{font-size:10.3px;font-weight:600;color:var(--muted);margin-left:6px;white-space:nowrap}
+.pw-meter[data-lv="1"] i:nth-child(-n+1){background:var(--bad)}
+.pw-meter[data-lv="2"] i:nth-child(-n+2){background:var(--warn)}
+.pw-meter[data-lv="3"] i:nth-child(-n+3){background:var(--ok)}
+.pw-meter[data-lv="4"] i:nth-child(-n+4){background:var(--ok)}
+.pw-meter[data-ok="false"] span{color:var(--bad-text)}
+
+/* identity console & shared auth surfaces */
+.row-acts{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}
+.mailbody{font:500 11.5px/1.65 var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;
+  padding:12px 14px;white-space:pre-wrap;word-break:break-word;margin:0 0 8px}
+.mailbody.lo{font-family:"Noto Sans Lao",var(--font);border-style:dashed}
+.badge.scope-staff{background:var(--staff-bg);color:var(--staff-d)}
+.badge.scope-manager{background:var(--mgr-bg);color:var(--mgr-d)}
+.badge.scope-hr{background:var(--hr-bg);color:var(--hr-d)}
+.badge.scope-ceo{background:var(--ceo-bg);color:var(--ceo-d)}
+.badge.scope-sysadmin{background:var(--sys-bg);color:var(--sys-d)}
+.avatar-btn.session{outline:2px solid var(--brand);outline-offset:1px}
+.seg-logout{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;
+  border:1px solid var(--line);background:var(--surface);color:var(--bad);cursor:pointer;transition:var(--t)}
+.seg-logout svg{width:15px;height:15px}
+.seg-logout:hover{border-color:var(--bad);background:var(--bad-bg)}
+.seg-login{display:inline-flex;align-items:center;gap:6px;height:30px;border-radius:9px;padding:0 11px;
+  border:1px solid var(--brand);background:var(--brand);color:#fff;font:600 11.5px var(--font);cursor:pointer;transition:var(--t)}
+.seg-login svg{width:13px;height:13px}
+.seg-login:hover{background:var(--brand-deep);border-color:var(--brand-deep)}
+
+/* frames thin their chrome when the PANEL narrows (no viewport involved) */
+@container panel (max-width: 560px){
+  .lp-frame{ padding:11px 11px 10px; }
+  .lg-head .spacer{ flex:1 1 100%; height:0; }
+}
+
+/* landing-page sign-in section — the portal frames, below the persona cards */
+.landing-auth{margin-top:30px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--sh);padding:clamp(14px,2.4cqi,20px) clamp(12px,2.4cqi,20px) clamp(11px,2cqi,16px);container:content / inline-size}
+.la-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.la-head h2{font:700 17px/1.2 var(--display);color:var(--ink);margin:2px 0 0;letter-spacing:-.01em}
+.la-head .eyebrow{display:block;margin-bottom:2px}
+.la-links{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.landing-auth .seed-strip{background:var(--surface-2)}
+.la-session{display:flex;align-items:center;gap:13px;flex-wrap:wrap;border:1px solid var(--line);
+  border-radius:14px;padding:13px 15px;background:var(--surface-2)}
+.la-session b{font-size:13.5px}
+.la-session .spacer{flex:1}
+/* (narrow behaviour handled by the @container content rules above) */
+
+/* front-door mode controls — visible wherever you are */
+.seg.mode button[aria-pressed="true"]{ color:var(--brand-deep); }
+.seg-login.off{ background:var(--surface); border:1px dashed var(--muted-2); color:var(--muted); }
+.seg-login.off:hover{ background:var(--brand-bg); border-color:var(--brand); color:var(--brand-deep); }
+.la-off{ display:flex; align-items:center; gap:13px; flex-wrap:wrap; border:1px dashed var(--line);
+  border-radius:14px; padding:13px 15px; background:var(--surface-2); }
+.la-off > svg{ width:22px; height:22px; color:var(--muted); flex:none; }
+.la-off p{ flex:1 1 320px; min-width:0; line-height:1.6; }
+.la-off .spacer{ flex:0; }
+.la-foot{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px; padding-top:11px; border-top:1px dashed var(--line-2); }
+.launch-meta .meta-act{ cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px; }
+.launch-meta .meta-act:hover{ color:var(--brand-deep); }
+
+/* ============================================================
+   v2.4.1.edge.auth — credential modes · providers · sync · import
+   Atelier Pastel: soft hairlines, pastel tints, light weights.
+   Layout uses the existing container queries (.grid cols-*) — no
+   new viewport breakpoints are introduced.
+   ============================================================ */
+
+/* credential-mode pill (local · ldap · radius) */
+.cred-pill{ display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px;
+  font:600 11px/1 var(--font); border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2); white-space:nowrap; }
+.cred-pill svg{ width:13px; height:13px; }
+.cred-pill.local{ color:var(--brand-deep); background:var(--brand-bg); border-color:transparent; }
+.cred-pill.ldap{ color:var(--hr-d); background:var(--hr-bg); border-color:transparent; }
+.cred-pill.radius{ color:var(--sys-d); background:var(--sys-bg); border-color:transparent; }
+
+/* the Sign-in method switcher on a person's Access card */
+.cred-block{ margin:2px 0 4px; padding:11px 13px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-2); }
+.cred-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+.cm-row{ display:flex; gap:7px; flex-wrap:wrap; }
+.cm-opt{ flex:1 1 96px; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:8px 10px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface);
+  color:var(--ink-2); font:600 12px/1 var(--font); cursor:pointer; transition:var(--t); white-space:nowrap; }
+.cm-opt svg{ width:14px; height:14px; }
+.cm-opt:hover:not([disabled]){ border-color:var(--acc-ln); background:var(--acc-bg); color:var(--acc-d); }
+.cm-opt.on{ border-color:var(--acc); background:var(--acc-bg); color:var(--acc-d); box-shadow:inset 0 0 0 1px var(--acc); }
+.cm-opt[disabled]{ opacity:.42; cursor:not-allowed; }
+
+/* provider cards + directory simulator */
+.prov-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+
+/* directory sync — the review queue */
+.sync-queue{ display:flex; flex-direction:column; gap:8px; }
+.sync-item{ display:flex; align-items:center; gap:11px; padding:9px 11px; border:1px solid var(--line);
+  border-left-width:3px; border-radius:var(--r-sm); background:var(--surface); }
+.sync-item .rmain{ flex:1 1 auto; min-width:0; }
+.sync-item .rt{ font-weight:600; font-size:13px; color:var(--ink); }
+.sync-item .rs{ font-size:11.5px; color:var(--muted); line-height:1.45; }
+.sync-item .rside{ flex:none; }
+.sync-item.lvl-ok{ border-left-color:var(--ok); }
+.sync-item.lvl-warn{ border-left-color:var(--warn); }
+.sync-item.lvl-bad{ border-left-color:var(--bad); background:var(--bad-bg); }
+
+/* tiny inline seg (approve / skip per queue row) */
+.seg.xs{ border-radius:9px; }
+.seg.xs button{ padding:4px 9px; font-size:10.5px; }
+
+/* import wizard textarea — keep the mono input on-brand */
+textarea.input{ font-family:var(--font); line-height:1.55; padding:11px 13px; min-height:84px; }
+textarea.input.mono{ font-family:var(--mono); font-size:12.5px; }
+
+/* editable provider config form — one clean column (DNs/hosts read full-width) */
+.pv-form{ display:flex; flex-direction:column; gap:10px; }
+.pv-field{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.pv-field label{ font:600 11px/1.2 var(--font); color:var(--ink-2); }
+.pv-field .input{ font-size:12.5px; padding:8px 10px; }
+.pv-field .input.mono{ font-family:var(--mono); }
+.pv-hint{ font:400 10.5px/1.3 var(--font); color:var(--muted); }
+.pv-worker{ margin-top:11px; border-top:1px dashed var(--line-2); padding-top:10px; }
+.pv-worker summary{ cursor:pointer; font:600 12px/1 var(--font); color:var(--acc-d); list-style:none; display:flex; align-items:center; gap:7px; }
+.pv-worker summary svg{ width:15px; height:15px; }
+.pv-worker summary::-webkit-details-marker{ display:none; }
+.pv-snippet{ margin:8px 0; padding:10px 12px; background:var(--ink); color:#E8E9F1; border-radius:var(--r-sm);
+  font:500 11.5px/1.6 var(--mono); white-space:pre-wrap; overflow-x:auto; }
+
+/* ============================================================
+   v2.4.2 — BioMetric & Gate integration (devices)
+   ============================================================ */
+.pill{ display:inline-flex; align-items:center; gap:4px; font:600 10.5px/1 var(--font);
+  padding:3px 7px; border-radius:99px; background:var(--surface-2); color:var(--ink-2);
+  border:1px solid var(--line); white-space:nowrap; }
+.pill.on{ background:var(--ok-bg); color:var(--ok-text); border-color:transparent; }
+.sec-h{ font:700 13px/1.3 var(--font); color:var(--ink); letter-spacing:.01em;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.swrow{ display:flex; align-items:center; gap:8px; }
+.swrow input{ width:auto; }
+/* connectivity status dot */
+.cdot{ width:10px; height:10px; border-radius:99px; display:inline-block; flex:0 0 auto;
+  box-shadow:0 0 0 3px color-mix(in srgb, currentColor 18%, transparent); }
+/* method-picker tiles (HR group methodology) */
+.methgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr)); gap:10px; }
+.methtile{ border:1px solid var(--line); border-radius:var(--r-sm); padding:11px 13px; background:var(--surface);
+  display:flex; flex-direction:column; gap:3px; cursor:pointer; transition:border-color .12s, background .12s; }
+.methtile:hover{ border-color:var(--acc-ln); }
+.methtile[aria-pressed="true"]{ border-color:var(--acc); background:var(--acc-bg); }
+.methtile .mt-h{ display:flex; align-items:center; gap:7px; font:650 12.5px/1.2 var(--font); color:var(--ink); }
+.methtile .mt-h svg{ width:15px; height:15px; color:var(--acc-d); }
+.methtile .mt-s{ font:400 11px/1.4 var(--font); color:var(--muted); }
+.methtile .mt-tag{ font:700 9.5px/1 var(--font); text-transform:uppercase; letter-spacing:.06em; color:var(--acc-d); }
+
+/* ============================================================
+   v2.4.3 — Overtime quota meter (Bio & Gate & OT)
+   ============================================================ */
+.meter{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.meter-lbl{ font:600 11px/1.2 var(--font); color:var(--muted); }
+.meter-track{ height:8px; border-radius:99px; background:var(--line-2); overflow:hidden; }
+.meter-track span{ display:block; height:100%; min-width:3px; border-radius:99px; transition:width var(--t); }
+
+/* ============================================================
+   ADEPTIO · v2.4.4 — Job Schedule & shifts  (calendar core styles)
+   Atelier-Pastel, elevated. Pairs with css/tokens.css + css/app.css.
+   Rules of the house, kept here too:
+     · tokens only — colours via var(--…); no raw hex (alpha overlays
+       use color-mix on tokens, never a literal #).
+     · adaptive via @container on the existing `content` / `workspace`
+       containers — the ONLY @media is prefers-reduced-motion.
+     · overlap-safe everywhere — every flex/grid text child gets
+       min-width:0; long names ellipsis; the month grid uses
+       minmax(0,1fr); week/hour rows scroll-x inside .tablewrap.
+   ============================================================ */
+
+/* ---------- shell ---------- */
+.calwrap{ display:flex; flex-direction:column; gap:clamp(10px,1.8cqi,16px); min-width:0; container-type:inline-size; }
+.cal-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; min-width:0; }
+.cal-title{ font:600 clamp(15px,2.6cqi,19px)/1.15 var(--display); letter-spacing:-.02em; color:var(--ink); min-width:0; }
+.cal-sub{ font-size:11.5px; color:var(--muted); font-weight:600; min-width:0; }
+
+/* ---------- quick-view strip (total · Active · Leave · Available) ---------- */
+.cal-quick{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:clamp(8px,1.4cqi,12px); }
+.qv-cell{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm);
+  padding:clamp(9px,1.4cqi,13px) clamp(10px,1.6cqi,15px); display:flex; flex-direction:column; gap:3px; min-width:0; box-shadow:var(--sh-sm); }
+.qv-cell .qv-n{ font:500 clamp(18px,3cqi,24px)/1 var(--display); letter-spacing:-.03em; color:var(--ink); font-variant-numeric:tabular-nums; }
+.qv-cell .qv-l{ font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.qv-cell.ok .qv-n{ color:var(--ok-text); }
+.qv-cell.warn .qv-n{ color:var(--warn-text); }
+.qv-cell.acc .qv-n{ color:var(--acc-d); }
+
+/* ---------- MONTH grid ---------- */
+.cal-dows{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; flex:1 1 320px; min-width:0; }
+.cal-dows span{ font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-2);
+  text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.cal-weekrail{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.cal-weekrow{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px; align-items:stretch; min-width:0; }
+.cal-wk{ display:flex; align-items:center; justify-content:center; width:clamp(30px,4cqi,42px);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm);
+  font:700 10.5px/1 var(--mono); color:var(--muted); cursor:pointer; transition:background var(--t),color var(--t); }
+.cal-wk:hover{ background:var(--acc-bg); color:var(--acc-d); border-color:var(--acc-ln); }
+.cal-week7{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; min-width:0; }
+
+.cal-day{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm);
+  padding:clamp(5px,1cqi,8px); min-height:clamp(64px,9cqi,104px); min-width:0;
+  display:flex; flex-direction:column; gap:5px; transition:outline-color var(--t),background var(--t); outline:2px solid transparent; outline-offset:-2px; }
+.cal-day.muted{ background:var(--surface-2); }
+.cal-day.muted .cd-num{ color:var(--muted-2); }
+.cal-day.today{ border-color:var(--acc-ln); box-shadow:inset 0 0 0 1px var(--acc-ln); }
+.cal-day.today .cd-num{ color:#fff; background:var(--acc); }
+.cal-day .cd-num{ font:700 11px/1 var(--font); color:var(--ink-2); align-self:flex-start;
+  min-width:19px; height:19px; padding:0 5px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; font-variant-numeric:tabular-nums; }
+.cd-chips{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+/* drop affordance — uses --acc, kept off the static border so layout never shifts */
+.cal-day.drop-hot{ outline-color:var(--acc); background:var(--acc-bg); }
+
+/* ---------- shift chip (pastel · persona-toned) ---------- */
+.shiftchip{ display:flex; align-items:center; gap:6px; min-width:0;
+  padding:4px 7px; border-radius:8px; font-size:10.8px; font-weight:600; line-height:1.2;
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2); }
+.shiftchip .sc-name{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.shiftchip .sc-cap{ flex:none; font:700 9.5px/1 var(--mono); font-variant-numeric:tabular-nums; opacity:.85; }
+.shiftchip.is-hr{ background:var(--hr-bg); border-color:var(--hr-ln); color:var(--hr-d); }
+.shiftchip.is-mgr{ background:var(--mgr-bg); border-color:var(--mgr-ln); color:var(--mgr-d); }
+.shiftchip.is-staff{ background:var(--staff-bg); border-color:var(--staff-ln); color:var(--staff-d); }
+.shiftchip.is-ceo{ background:var(--ceo-bg); border-color:var(--ceo-ln); color:var(--ceo-d); }
+/* cap exceeded → warn tone, regardless of persona colour */
+.shiftchip.over{ background:var(--bad-bg); border-color:var(--bad); color:var(--bad-text); }
+.shiftchip[draggable="true"]{ cursor:grab; }
+.shiftchip[draggable="true"]:active,.shiftchip.dragging{ cursor:grabbing; opacity:.6; }
+
+/* ---------- WEEK / DAY (hour-split lanes) ---------- */
+.cal-weekgrid{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:8px; min-width:560px; }
+.cal-hours{ display:flex; flex-direction:column; padding-top:30px; }
+.cal-hour{ flex:1 1 0; min-height:34px; position:relative; }
+.cal-hour span{ position:absolute; top:-6px; right:6px; font:600 9.5px/1 var(--mono); color:var(--muted-2); }
+.cal-daycols{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(120px,1fr); gap:8px; min-width:0; }
+.cal-daycol{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.cal-daycol.wide{ grid-column:1 / -1; }
+.cdc-head{ display:flex; align-items:baseline; gap:6px; min-width:0; padding:0 2px 2px; }
+.cdc-head .cdc-dow{ font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.cdc-head .cdc-num{ font:600 13px/1 var(--display); color:var(--ink); font-variant-numeric:tabular-nums; }
+.cdc-lanes{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+
+.cal-lane{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); padding:6px; min-width:0;
+  transition:outline-color var(--t),background var(--t); outline:2px solid transparent; outline-offset:-2px; }
+.cal-lane.drop-hot{ outline-color:var(--acc); background:var(--acc-bg); }
+.cal-lane.empty{ opacity:.7; }
+.cl-head{ font-size:10.5px; font-weight:700; color:var(--ink-2); margin-bottom:5px; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cl-grid{ position:relative; min-height:calc(34px * 4); border-radius:8px; overflow:hidden; min-width:0;
+  background:linear-gradient(var(--line-2) 1px, transparent 1px); background-size:100% calc(100% / 8); }
+.cl-hr{ display:none; }
+.cal-block{ position:absolute; left:3px; right:3px; min-width:0; border-radius:7px; padding:4px 6px;
+  display:flex; flex-direction:column; gap:1px; overflow:hidden; box-shadow:var(--sh-sm);
+  border:1px solid var(--line); background:var(--surface-2); }
+.cal-block .cb-t{ font-size:10px; font-weight:700; line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cal-block .cb-w{ font-size:9.5px; line-height:1.15; opacity:.8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cal-block.is-hr{ background:var(--hr-bg); border-color:var(--hr-ln); color:var(--hr-d); }
+.cal-block.is-mgr{ background:var(--mgr-bg); border-color:var(--mgr-ln); color:var(--mgr-d); }
+.cal-block.is-staff{ background:var(--staff-bg); border-color:var(--staff-ln); color:var(--staff-d); }
+.cal-block.is-ceo{ background:var(--ceo-bg); border-color:var(--ceo-ln); color:var(--ceo-d); }
+
+/* ---------- Shift-CAP meter ---------- */
+.shift-cap{ display:flex; align-items:center; gap:8px; min-width:0; }
+.shift-cap .sc-track{ flex:1 1 auto; min-width:0; height:7px; border-radius:99px; background:var(--line-2); overflow:hidden; }
+.shift-cap .sc-track span{ display:block; height:100%; min-width:3px; border-radius:99px; background:var(--ok); transition:width var(--t); }
+.shift-cap.warn .sc-track span{ background:var(--warn); }
+.shift-cap.bad .sc-track span{ background:var(--bad); }
+.shift-cap .sc-figs{ flex:none; font:700 10.5px/1 var(--mono); color:var(--ink-2); font-variant-numeric:tabular-nums; }
+
+/* ---------- status filter (multi-status pills) ---------- */
+.statusfilter{ display:flex; flex-wrap:wrap; gap:8px; min-width:0; }
+.statusfilter .sf-pill{ display:inline-flex; align-items:center; gap:6px; min-width:0;
+  padding:5px 11px; border-radius:99px; border:1px solid var(--line); background:var(--surface);
+  font-size:11.5px; font-weight:600; color:var(--ink-2); cursor:pointer; transition:background var(--t),border-color var(--t); }
+.statusfilter .sf-pill i{ width:8px; height:8px; border-radius:99px; background:var(--muted-2); flex:none; }
+.statusfilter .sf-pill:hover{ border-color:var(--acc-ln); }
+.statusfilter .sf-pill[aria-pressed="true"]{ background:var(--acc-bg); border-color:var(--acc-ln); color:var(--acc-d); }
+.statusfilter .sf-pill.on-active i{ background:var(--ok); }
+.statusfilter .sf-pill.on-leave i{ background:var(--warn); }
+.statusfilter .sf-pill.on-ot i{ background:var(--acc); }
+
+/* ---------- legend ---------- */
+.cal-legend{ display:flex; flex-wrap:wrap; gap:14px; font-size:11px; color:var(--muted); font-weight:600; min-width:0; }
+.cal-legend span{ display:inline-flex; align-items:center; gap:6px; min-width:0; }
+.cal-legend i{ width:10px; height:10px; border-radius:3px; flex:none; }
+.cal-legend i.is-hr{ background:var(--hr); }
+.cal-legend i.is-mgr{ background:var(--mgr); }
+.cal-legend i.is-staff{ background:var(--staff); }
+.cal-legend i.is-ceo{ background:var(--ceo); }
+
+/* ---------- adaptive — drive off the `content` container (app.css names it) ---------- */
+@container content (max-width: 760px){
+  .cal-quick{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@container content (max-width: 560px){
+  .cal-quick{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cal-wk{ width:26px; }
+  .cal-day{ min-height:clamp(54px,18cqi,84px); }
+  .shiftchip .sc-cap{ display:none; }            /* keep the name; drop figures when very tight */
+}
+@container content (max-width: 420px){
+  .cal-quick{ grid-template-columns:minmax(0,1fr); }
+}
+/* the month week-grid never overflows; the hour grid scrolls inside .tablewrap (set in app.css) */
+
+@media (prefers-reduced-motion:reduce){
+  .cal-day,.cal-lane,.shiftchip,.shift-cap .sc-track span,.cal-wk,.statusfilter .sf-pill{ transition:none; }
+}
+
+/* ---------- day-of-week picker pills (Shift Period form) ---------- */
+.checkpill{ display:inline-flex; align-items:center; gap:6px; min-width:0; padding:6px 11px; border:1px solid var(--line);
+  border-radius:999px; background:var(--surface); font-size:12.5px; color:var(--ink-2); cursor:pointer; user-select:none;
+  transition:background var(--t,160ms), border-color var(--t,160ms); }
+.checkpill:hover{ border-color:var(--acc-ln); background:var(--surface-2); }
+.checkpill input{ accent-color:var(--acc); margin:0; }
+.checkpill:has(input:checked){ background:var(--acc-bg); border-color:var(--acc); color:var(--acc-d); font-weight:600; }
+.checkrow{ display:flex; flex-wrap:wrap; gap:7px; min-width:0; }
+
+/* ============================================================
+   v2.4.4 fine-tune (2026-06-28)
+   Task 1 change log · Task 2 inline week expand ·
+   Task 3 roster separation · Task 4 shift-control split summary
+   tokens only · @container adaptive · only @media = reduced-motion
+   ============================================================ */
+
+/* ---------- Task 1 · change log (planned moves, review before publish) ---------- */
+.cal-changelog{ background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--acc);
+  border-radius:var(--r-sm); padding:clamp(9px,1.4cqi,13px) clamp(11px,1.6cqi,15px);
+  display:flex; flex-direction:column; gap:9px; min-width:0; box-shadow:var(--sh-sm); }
+.clg-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; min-width:0; }
+.clg-title{ display:inline-flex; align-items:center; gap:7px; font:700 12px/1 var(--font); letter-spacing:.02em; color:var(--ink); min-width:0; }
+.clg-title svg{ width:15px; height:15px; color:var(--acc-d); flex:none; }
+.clg-count{ font:700 10px/1 var(--mono); background:var(--acc-bg); color:var(--acc-d); border:1px solid var(--acc-ln);
+  border-radius:99px; padding:3px 7px; font-variant-numeric:tabular-nums; flex:none; }
+.clg-actions{ display:inline-flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:0; }
+.clg-note{ font-size:11px; color:var(--muted); font-weight:600; min-width:0; }
+.clg-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; min-width:0; }
+.clg-row{ display:flex; align-items:center; gap:9px; padding:6px 9px; border:1px solid var(--line-2);
+  border-radius:8px; background:var(--surface-2); min-width:0; }
+.clg-dot{ width:9px; height:9px; border-radius:3px; flex:none; }
+.clg-dot.is-hr{ background:var(--hr); } .clg-dot.is-mgr{ background:var(--mgr); }
+.clg-dot.is-staff{ background:var(--staff); } .clg-dot.is-ceo{ background:var(--ceo); }
+.clg-date{ font:600 11px/1 var(--mono); color:var(--ink-2); font-variant-numeric:tabular-nums; flex:none; }
+.clg-sg{ flex:1 1 42%; min-width:0; font-size:11.5px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.clg-time{ color:var(--muted); font-weight:500; }
+.clg-emp{ flex:1 1 28%; min-width:0; font-size:11.5px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.clg-badge{ margin-left:auto; flex:none; font:700 9px/1 var(--mono); text-transform:uppercase; letter-spacing:.06em;
+  color:var(--warn-text); background:var(--warn-bg); border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);
+  border-radius:99px; padding:3px 7px; }
+.clg-x{ flex:none; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; cursor:pointer;
+  border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--muted);
+  transition:background var(--t),color var(--t),border-color var(--t); }
+.clg-x svg{ width:12px; height:12px; }
+.clg-x:hover{ background:var(--bad-bg); color:var(--bad-text); border-color:var(--bad); }
+.clg-empty{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--muted); font-weight:600; padding:2px; min-width:0; }
+.clg-empty svg{ width:15px; height:15px; color:var(--ok); flex:none; }
+
+/* ---------- Task 2 · inline week expand ---------- */
+.cal-wk.open{ background:var(--acc); color:#fff; border-color:var(--acc); }
+.cal-wk.open:hover{ background:var(--acc-d); color:#fff; border-color:var(--acc-d); }
+.cal-weekexpand{ grid-column:1 / -1; margin:1px 0 4px; background:var(--surface-2); border:1px solid var(--acc-ln);
+  border-radius:var(--r-sm); padding:clamp(9px,1.4cqi,13px); display:flex; flex-direction:column; gap:9px; min-width:0;
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--acc) 8%,transparent), var(--sh-sm);
+  transform-origin:top center; animation:schedExpand .26s var(--ease,cubic-bezier(.2,.7,.2,1)); }
+.cwx-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; min-width:0; }
+.cwx-title{ font:700 11.5px/1 var(--font); letter-spacing:.02em; color:var(--acc-d); min-width:0; }
+.cwx-days{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; min-width:0; }
+.cwx-day{ display:flex; flex-direction:column; gap:5px; background:var(--surface); border:1px solid var(--line);
+  border-radius:8px; padding:6px; min-width:0; }
+.cwx-day.today{ border-color:var(--acc-ln); box-shadow:inset 0 0 0 1px var(--acc-ln); }
+.cwx-dhead{ display:flex; align-items:baseline; justify-content:space-between; gap:5px; min-width:0; }
+.cwx-dow{ font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.cwx-dnum{ font:600 12px/1 var(--display); color:var(--ink); font-variant-numeric:tabular-nums; }
+.cwx-shifts{ display:flex; flex-direction:column; gap:5px; min-width:0; }
+.cwx-shift{ border:1px solid var(--line); border-radius:7px; padding:4px 6px; background:var(--surface-2); min-width:0; }
+.cwx-shift.is-hr{ background:var(--hr-bg); border-color:var(--hr-ln); } .cwx-shift.is-mgr{ background:var(--mgr-bg); border-color:var(--mgr-ln); }
+.cwx-shift.is-staff{ background:var(--staff-bg); border-color:var(--staff-ln); } .cwx-shift.is-ceo{ background:var(--ceo-bg); border-color:var(--ceo-ln); }
+.cwx-shead{ display:flex; align-items:center; justify-content:space-between; gap:5px; min-width:0; }
+.cwx-slabel{ font-size:10px; font-weight:700; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.cwx-scap{ font:700 9px/1 var(--mono); color:var(--ink-2); font-variant-numeric:tabular-nums; flex:none; }
+.cwx-stime{ font:600 9px/1 var(--mono); color:var(--muted); margin-top:2px; }
+.cwx-people{ list-style:none; margin:4px 0 0; padding:0; display:flex; flex-direction:column; gap:2px; min-width:0; }
+.cwx-people li{ font-size:10px; color:var(--ink-2); display:flex; align-items:center; gap:4px; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cwx-plan{ width:5px; height:5px; border-radius:99px; background:var(--warn); flex:none; }
+.cwx-none{ font-size:10px; color:var(--muted-2); text-align:center; padding:4px 0; }
+.cwx-empty{ font-size:11px; color:var(--muted); font-weight:600; text-align:center; padding:4px; }
+@keyframes schedExpand{ from{ opacity:0; transform:translateY(-6px) scaleY(.97); } to{ opacity:1; transform:none; } }
+
+/* ---------- Task 3 · roster separation ---------- */
+.sched-divider{ display:flex; align-items:center; gap:12px; margin:8px 0 2px; min-width:0; }
+.sched-divider::before,.sched-divider::after{ content:""; height:1px; background:var(--line); flex:1 1 auto; min-width:0; }
+.sched-divider span{ flex:none; font:700 10px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2); }
+
+/* ---------- Task 4 · shift-control summary — one frame per shift period (refined 2026-06-28) ---------- */
+.ssum2{ display:flex; flex-direction:column; gap:10px; min-width:0; }
+.ssum2-cols,.ssum2-frame{ display:grid; grid-template-columns:minmax(160px,1fr) minmax(0,1.95fr); gap:clamp(10px,1.8cqi,18px); min-width:0; }
+.ssum2-head{ padding:0 4px 1px; }
+.ssum2-frame{ align-items:start; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-2); padding:11px 13px; }
+.ssum2-period{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.ssum2-groups{ display:flex; flex-direction:column; gap:9px; min-width:0; border-left:1px solid var(--line); padding-left:clamp(10px,1.8cqi,18px); }
+.ssum-gitem{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.ssum-gitem + .ssum-gitem{ border-top:1px dashed var(--line); padding-top:9px; }
+.ssum-eyebrow{ display:inline-flex; align-items:center; gap:6px; font:700 10px/1 var(--mono); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); min-width:0; }
+.ssum-eyebrow svg{ width:13px; height:13px; color:var(--acc-d); flex:none; }
+.ssum-item{ border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-2);
+  padding:9px 11px; display:flex; flex-direction:column; gap:6px; min-width:0; }
+.ssum-itop{ display:flex; align-items:center; gap:7px; min-width:0; }
+.ssum-dot{ width:9px; height:9px; border-radius:3px; flex:none; }
+.ssum-dot.is-hr{ background:var(--hr); } .ssum-dot.is-mgr{ background:var(--mgr); }
+.ssum-dot.is-staff{ background:var(--staff); } .ssum-dot.is-ceo{ background:var(--ceo); }
+.ssum-name{ flex:1 1 auto; min-width:0; font:700 12.5px/1.1 var(--font); color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ssum-kind{ flex:none; font:600 10px/1 var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+.ssum-meta{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:11px; color:var(--muted); min-width:0; }
+.ssum-hours{ font:600 11.5px/1 var(--mono); color:var(--ink-2); font-variant-numeric:tabular-nums; }
+.ssum-sub{ color:var(--ink-2); font-weight:600; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ssum-sep{ color:var(--muted-2); flex:none; }
+.ssum-divs{ display:flex; flex-direction:column; gap:6px; min-width:0; border-top:1px dashed var(--line); padding-top:6px; }
+.ssum-div{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.ssum-divhead{ display:flex; align-items:center; justify-content:space-between; gap:6px; min-width:0; }
+.ssum-divname{ font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-2);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.ssum-divn{ flex:none; font:700 10px/1 var(--mono); color:var(--acc-d); background:var(--acc-bg);
+  border-radius:99px; padding:2px 7px; font-variant-numeric:tabular-nums; }
+.ssum-names{ display:flex; flex-wrap:wrap; gap:4px; min-width:0; }
+.ssum-chip{ font-size:10.5px; color:var(--ink-2); background:var(--surface); border:1px solid var(--line);
+  border-radius:99px; padding:2px 8px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ssum-none,.ssum-empty{ font-size:11px; color:var(--muted-2); font-weight:600; padding:4px 0; }
+
+/* ---------- adaptive (drive off the `content` container) ---------- */
+@container content (max-width: 760px){
+  .ssum2-head{ display:none; }
+  .ssum2-frame{ grid-template-columns:minmax(0,1fr); gap:10px; }
+  .ssum2-groups{ border-left:0; padding-left:0; border-top:1px solid var(--line); padding-top:10px; }
+  .cwx-days{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@container content (max-width: 520px){
+  .cwx-days{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .clg-sg{ flex-basis:100%; }
+}
+@media (prefers-reduced-motion:reduce){
+  .cal-weekexpand{ animation:none; }
+  .clg-x{ transition:none; }
+}
+
+body{background:var(--canvas);color:var(--ink);font-family:var(--font);margin:0;}
+.prev-banner{position:sticky;top:0;z-index:10;background:var(--brand-deep);color:#fff;padding:11px 22px;font:600 13px/1.4 var(--font);}
+.prev-screen{max-width:1180px;margin:0 auto;padding:8px 22px 30px;}
+.content{container-type:inline-size;container-name:content;}
+.prev-label{max-width:1180px;margin:22px auto 0;padding:10px 22px 0;font:700 12px/1 var(--mono);color:var(--brand-deep);text-transform:uppercase;letter-spacing:.08em;border-top:8px solid var(--line-2);}
+.workspace-inner{padding-top:6px;}
+.screen-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.screen-head h1{font:600 22px/1.1 var(--display);margin:0;color:var(--ink);}
+.screen-sub{font-size:13px;color:var(--muted);margin:4px 0 0;max-width:70ch;}
+.screen-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+</style></head><body data-persona="hr">
+<div class="prev-banner"><b>Adeptio v2.4.4 — Bio &amp; Gate &amp; OT &amp; Shift · fine-tune visual QA</b> &nbsp;·&nbsp; Tasks 1–4 (real tokens.css + app.css + schedule.css)</div>
+<div class="prev-label">Task 1 + 3 · Calendar (month) — Change log on the green line + Roster separation</div>
+<section data-persona="hr" class="prev-screen"><div class="workspace"><div class="content"><div class="workspace-inner">
+<div class="screen-head"><div><h1>Calendar</h1><p class="screen-sub">Drag a shift chip onto a day to roster the next free person; open a week for the hour grid. Status filters lens the same read-only roster.</p></div><div class="screen-actions"><div class="seg sm" role="tablist" aria-label="Calendar perspective"><button role="tab" aria-pressed="true" data-go="hr/web/sched-cal/month">Month</button><button role="tab" aria-pressed="false" data-go="hr/web/sched-cal/week">Week</button><button role="tab" aria-pressed="false" data-go="hr/web/sched-cal/people">People</button><button role="tab" aria-pressed="false" data-go="hr/web/sched-cal/shift">Shift</button></div><button class="btn soft" data-act="sched-publish-month"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.8v3.4M15.5 3.8v3.4"/><path d="m9 14.2 2 2 4-4"/></svg> Publish planned</button></div></div>
+
+        <div class="statusfilter">
+      <button class="sf-pill on-active" aria-pressed="false" data-act="sched-flag:on-active"><i></i>Active</button>
+      <button class="sf-pill on-leave" aria-pressed="false" data-act="sched-flag:on-leave"><i></i>Leave <b class="num">1</b></button>
+      <button class="sf-pill on-ot" aria-pressed="false" data-act="sched-flag:on-ot"><i></i>OT <b class="num">22</b></button>
+      <button class="sf-pill on-sick" aria-pressed="false" data-act="sched-flag:on-sick"><i></i>Sick</button>
+      <select class="input sf-scope" data-sched-scope="hr/web/sched-cal/month" aria-label="Filter by division">
+      <option value="all" selected>All divisions</option>
+      <option value="Production">Production</option><option value="Sales">Sales</option><option value="Logistics">Logistics</option><option value="Finance">Finance</option><option value="Admin">Admin</option>
+    </select>
+    </div>
+        <div class="calwrap cal-month" data-perspective="month">
+      <div class="cal-quick sched-summary">
+      <div class="qv-cell "><span class="qv-n num">32</span><span class="qv-l">Total staff</span></div>
+      <div class="qv-cell ok"><span class="qv-n num">30</span><span class="qv-l">Active</span></div>
+      <div class="qv-cell warn"><span class="qv-n num">1</span><span class="qv-l">Leave</span></div>
+      <div class="qv-cell acc"><span class="qv-n num">30</span><span class="qv-l">Available</span></div>
+      <div class="qv-cell "><span class="qv-n num">0</span><span class="qv-l">On shift</span></div>
+    </div>
+      <section class="cal-changelog" aria-label="Change log — planned shifts to review"><div class="clg-head">
+      <div class="clg-title"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12a7.5 7.5 0 1 1 2.2 5.3"/><path d="M5 13v-3.5h3.5"/><path d="M12 8.5V12l2.5 1.5"/></svg><span>Change log</span><b class="clg-count">1</b></div>
+      <div class="clg-actions">
+        <span class="clg-note">Review these moves, then publish the plan.</span>
+        <button class="btn xs" data-act="sched-publish-month"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.8v3.4M15.5 3.8v3.4"/><path d="m9 14.2 2 2 4-4"/></svg> Publish plan</button>
+      </div>
+    </div><ul class="clg-list"><li class="clg-row">
+        <span class="clg-dot is-staff"></span>
+        <span class="clg-date num">2026-06-11</span>
+        <span class="clg-sg">Line A · Afternoon<span class="clg-time"> · 14:00–22:00</span></span>
+        <span class="clg-emp">Manysone Vongphachanh</span>
+        <span class="clg-badge">planned</span>
+        <button class="clg-x" title="Remove this planned shift" data-act="sched-unassign:R-0009"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </li></ul></section>
+      <div class="cal-head"><div class="cal-title">June 2026</div>
+      <div class="cal-dows"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div></div>
+      <div class="cal-weekrail"><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-01" aria-expanded="false" title="Open week 23">W23</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-01" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-01','')">
+          <div class="cd-num">1</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-02" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-02','')">
+          <div class="cd-num">2</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-03" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-03','')">
+          <div class="cd-num">3</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-04" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-04','')">
+          <div class="cd-num">4</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-05" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-05','')">
+          <div class="cd-num">5</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-06" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-06','')">
+          <div class="cd-num">6</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-07" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-07','')">
+          <div class="cd-num">7</div>
+          <div class="cd-chips"></div>
+        </div></div></div><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-08" aria-expanded="false" title="Open week 24">W24</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-08" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-08','')">
+          <div class="cd-num">8</div>
+          <div class="cd-chips"><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-M','2026-06-08')" title="Line A · Morning · 06:00–14:00">
+      <span class="sc-name">Line A · Morning</span>
+      <span class="sc-cap">2/6</span>
+    </div><div class="shiftchip is-staff" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-A','2026-06-08')" title="Line A · Afternoon · 14:00–22:00">
+      <span class="sc-name">Line A · Afternoon</span>
+      <span class="sc-cap">1/6</span>
+    </div><div class="shiftchip is-ceo" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PB-N','2026-06-08')" title="Line B · Night · 22:00–06:00">
+      <span class="sc-name">Line B · Night</span>
+      <span class="sc-cap">1/4</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-09" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-09','')">
+          <div class="cd-num">9</div>
+          <div class="cd-chips"><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-M','2026-06-09')" title="Line A · Morning · 06:00–14:00">
+      <span class="sc-name">Line A · Morning</span>
+      <span class="sc-cap">1/6</span>
+    </div><div class="shiftchip is-staff" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-A','2026-06-09')" title="Line A · Afternoon · 14:00–22:00">
+      <span class="sc-name">Line A · Afternoon</span>
+      <span class="sc-cap">1/6</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-10" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-10','')">
+          <div class="cd-num">10</div>
+          <div class="cd-chips"><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-M','2026-06-10')" title="Line A · Morning · 06:00–14:00">
+      <span class="sc-name">Line A · Morning</span>
+      <span class="sc-cap">1/6</span>
+    </div><div class="shiftchip is-hr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-OFF','2026-06-10')" title="Office · Full-day · 08:00–17:00">
+      <span class="sc-name">Office · Full-day</span>
+      <span class="sc-cap">1/4</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-11" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-11','')">
+          <div class="cd-num">11</div>
+          <div class="cd-chips"><div class="shiftchip is-staff" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-A','2026-06-11')" title="Line A · Afternoon · 14:00–22:00">
+      <span class="sc-name">Line A · Afternoon</span>
+      <span class="sc-cap">1/6</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-12" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-12','')">
+          <div class="cd-num">12</div>
+          <div class="cd-chips"><div class="shiftchip is-staff" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-A','2026-06-12')" title="Line A · Afternoon · 14:00–22:00">
+      <span class="sc-name">Line A · Afternoon</span>
+      <span class="sc-cap">1/6</span>
+    </div><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-WH-M','2026-06-12')" title="Warehouse · Morning · 06:00–14:00">
+      <span class="sc-name">Warehouse · Morning</span>
+      <span class="sc-cap">1/3</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-13" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-13','')">
+          <div class="cd-num">13</div>
+          <div class="cd-chips"><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PB-M','2026-06-13')" title="Line B · Morning · 06:00–14:00">
+      <span class="sc-name">Line B · Morning</span>
+      <span class="sc-cap">1/5</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-14" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-14','')">
+          <div class="cd-num">14</div>
+          <div class="cd-chips"></div>
+        </div></div></div><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-15" aria-expanded="false" title="Open week 25">W25</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-15" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-15','')">
+          <div class="cd-num">15</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-16" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-16','')">
+          <div class="cd-num">16</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-17" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-17','')">
+          <div class="cd-num">17</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-18" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-18','')">
+          <div class="cd-num">18</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-19" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-19','')">
+          <div class="cd-num">19</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-20" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-20','')">
+          <div class="cd-num">20</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-21" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-21','')">
+          <div class="cd-num">21</div>
+          <div class="cd-chips"></div>
+        </div></div></div><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-22" aria-expanded="false" title="Open week 26">W26</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-22" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-22','')">
+          <div class="cd-num">22</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-23" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-23','')">
+          <div class="cd-num">23</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-24" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-24','')">
+          <div class="cd-num">24</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-25" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-25','')">
+          <div class="cd-num">25</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-26" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-26','')">
+          <div class="cd-num">26</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-27" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-27','')">
+          <div class="cd-num">27</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  today" data-iso="2026-06-28" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-28','')">
+          <div class="cd-num">28</div>
+          <div class="cd-chips"></div>
+        </div></div></div><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-29" aria-expanded="false" title="Open week 27">W27</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-29" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-29','')">
+          <div class="cd-num">29</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-30" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-30','')">
+          <div class="cd-num">30</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-01" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-01','')">
+          <div class="cd-num">1</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-02" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-02','')">
+          <div class="cd-num">2</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-03" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-03','')">
+          <div class="cd-num">3</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-04" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-04','')">
+          <div class="cd-num">4</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-05" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-05','')">
+          <div class="cd-num">5</div>
+          <div class="cd-chips"></div>
+        </div></div></div></div>
+    </div>
+        <div class="cal-legend">
+      <span><i class="is-hr"></i>Office / full-day</span>
+      <span><i class="is-mgr"></i>Morning</span>
+      <span><i class="is-staff"></i>Afternoon</span>
+      <span><i class="is-ceo"></i>Night</span>
+    </div>
+        <div class="sched-divider"><span>Roster a shift</span></div><div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Assign to roster</span>
+        
+        
+      </div><div id="sched-assignf" class="pv-form" style="max-width:560px">
+      <div class="field"><label>Date</label><input class="input" data-f="date" type="date" value="2026-06-08" min="2026-06-01" max="2026-06-30"></div>
+      <div class="field"><label>Shift group</label><select class="input" data-f="sg"><option value="SG-PA-M">Line A · Morning · cap 6</option><option value="SG-PA-A">Line A · Afternoon · cap 6</option><option value="SG-PB-M">Line B · Morning · cap 5</option><option value="SG-PB-N">Line B · Night · cap 4</option><option value="SG-OFF">Office · Full-day · cap 4</option><option value="SG-WH-M">Warehouse · Morning · cap 3</option></select></div>
+      <div class="field"><label>Person</label><select class="input" data-f="emp"><option value="EMP-0214">Souksavanh Phommachanh · Production</option><option value="EMP-0231">Manysone Vongphachanh · Production</option><option value="EMP-0188">Noy Keomany · Production</option><option value="EMP-0205">Bounmy Latsavong · Production</option><option value="EMP-0226">Phetsamone Douangta · Production</option><option value="EMP-0240">Chanthala Phimmasone · Production</option><option value="EMP-0218">Khampheng Vilaysack · Production</option><option value="EMP-0222">Outhai Sengsouvanh · Production</option><option value="EMP-0237">Viengsavanh Phrachanh · Production</option><option value="EMP-0210">Sengphet Chanthavixay · Production</option><option value="EMP-0185">Daosavanh Inthirath · Production</option><option value="EMP-0021">Vilayvanh Chanthavong · Admin</option><option value="EMP-0089">Bountheung Sayasone · Admin</option><option value="EMP-0177">Noulak Chanthachone · Admin</option><option value="EMP-0233">Vansana Keomixay · Admin</option><option value="EMP-0203">Khamsing Phialath · Logistics</option><option value="EMP-0219">Phonepadith Luanglath · Logistics</option><option value="EMP-0235">Somchai Douangdara · Logistics</option></select></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <button class="btn" data-act="sched-assign"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Assign to roster</button>
+      </div>
+      <p class="small muted" style="margin-top:8px">A person can hold one slot per shift-group per day. New rows land as <b>planned</b> until you publish.</p></div></div></div></div></section>
+<div class="prev-label">Task 2 · Calendar — click W24 → inline week expand (open in place)</div>
+<section data-persona="hr" class="prev-screen"><div class="workspace"><div class="content"><div class="workspace-inner">
+<div class="screen-head"><div><h1>Calendar</h1><p class="screen-sub">Drag a shift chip onto a day to roster the next free person; open a week for the hour grid. Status filters lens the same read-only roster.</p></div><div class="screen-actions"><div class="seg sm" role="tablist" aria-label="Calendar perspective"><button role="tab" aria-pressed="true" data-go="hr/web/sched-cal/month">Month</button><button role="tab" aria-pressed="false" data-go="hr/web/sched-cal/week.2026-06-08">Week</button><button role="tab" aria-pressed="false" data-go="hr/web/sched-cal/people.2026-06-08">People</button><button role="tab" aria-pressed="false" data-go="hr/web/sched-cal/shift.2026-06-08">Shift</button></div><button class="btn soft" data-act="sched-publish-month"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.8v3.4M15.5 3.8v3.4"/><path d="m9 14.2 2 2 4-4"/></svg> Publish planned</button></div></div>
+
+        <div class="statusfilter">
+      <button class="sf-pill on-active" aria-pressed="false" data-act="sched-flag:on-active"><i></i>Active</button>
+      <button class="sf-pill on-leave" aria-pressed="false" data-act="sched-flag:on-leave"><i></i>Leave <b class="num">1</b></button>
+      <button class="sf-pill on-ot" aria-pressed="false" data-act="sched-flag:on-ot"><i></i>OT <b class="num">22</b></button>
+      <button class="sf-pill on-sick" aria-pressed="false" data-act="sched-flag:on-sick"><i></i>Sick</button>
+      <select class="input sf-scope" data-sched-scope="hr/web/sched-cal/month" aria-label="Filter by division">
+      <option value="all" selected>All divisions</option>
+      <option value="Production">Production</option><option value="Sales">Sales</option><option value="Logistics">Logistics</option><option value="Finance">Finance</option><option value="Admin">Admin</option>
+    </select>
+    </div>
+        <div class="calwrap cal-month" data-perspective="month">
+      <div class="cal-quick sched-summary">
+      <div class="qv-cell "><span class="qv-n num">32</span><span class="qv-l">Total staff</span></div>
+      <div class="qv-cell ok"><span class="qv-n num">30</span><span class="qv-l">Active</span></div>
+      <div class="qv-cell warn"><span class="qv-n num">1</span><span class="qv-l">Leave</span></div>
+      <div class="qv-cell acc"><span class="qv-n num">26</span><span class="qv-l">Available</span></div>
+      <div class="qv-cell "><span class="qv-n num">4</span><span class="qv-l">On shift</span></div>
+    </div>
+      <section class="cal-changelog" aria-label="Change log — planned shifts to review"><div class="clg-head">
+      <div class="clg-title"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12a7.5 7.5 0 1 1 2.2 5.3"/><path d="M5 13v-3.5h3.5"/><path d="M12 8.5V12l2.5 1.5"/></svg><span>Change log</span><b class="clg-count">1</b></div>
+      <div class="clg-actions">
+        <span class="clg-note">Review these moves, then publish the plan.</span>
+        <button class="btn xs" data-act="sched-publish-month"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.8v3.4M15.5 3.8v3.4"/><path d="m9 14.2 2 2 4-4"/></svg> Publish plan</button>
+      </div>
+    </div><ul class="clg-list"><li class="clg-row">
+        <span class="clg-dot is-staff"></span>
+        <span class="clg-date num">2026-06-11</span>
+        <span class="clg-sg">Line A · Afternoon<span class="clg-time"> · 14:00–22:00</span></span>
+        <span class="clg-emp">Manysone Vongphachanh</span>
+        <span class="clg-badge">planned</span>
+        <button class="clg-x" title="Remove this planned shift" data-act="sched-unassign:R-0009"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </li></ul></section>
+      <div class="cal-head"><div class="cal-title">June 2026</div>
+      <div class="cal-dows"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div></div>
+      <div class="cal-weekrail"><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-01" aria-expanded="false" title="Open week 23">W23</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-01" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-01','')">
+          <div class="cd-num">1</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-02" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-02','')">
+          <div class="cd-num">2</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-03" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-03','')">
+          <div class="cd-num">3</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-04" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-04','')">
+          <div class="cd-num">4</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-05" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-05','')">
+          <div class="cd-num">5</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-06" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-06','')">
+          <div class="cd-num">6</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-07" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-07','')">
+          <div class="cd-num">7</div>
+          <div class="cd-chips"></div>
+        </div></div></div><div class="cal-weekrow open"><button class="cal-wk open" data-sched-week="2026-06-08" aria-expanded="true" title="Collapse week 24">W24</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-08" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-08','')">
+          <div class="cd-num">8</div>
+          <div class="cd-chips"><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-M','2026-06-08')" title="Line A · Morning · 06:00–14:00">
+      <span class="sc-name">Line A · Morning</span>
+      <span class="sc-cap">2/6</span>
+    </div><div class="shiftchip is-staff" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-A','2026-06-08')" title="Line A · Afternoon · 14:00–22:00">
+      <span class="sc-name">Line A · Afternoon</span>
+      <span class="sc-cap">1/6</span>
+    </div><div class="shiftchip is-ceo" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PB-N','2026-06-08')" title="Line B · Night · 22:00–06:00">
+      <span class="sc-name">Line B · Night</span>
+      <span class="sc-cap">1/4</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-09" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-09','')">
+          <div class="cd-num">9</div>
+          <div class="cd-chips"><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-M','2026-06-09')" title="Line A · Morning · 06:00–14:00">
+      <span class="sc-name">Line A · Morning</span>
+      <span class="sc-cap">1/6</span>
+    </div><div class="shiftchip is-staff" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-A','2026-06-09')" title="Line A · Afternoon · 14:00–22:00">
+      <span class="sc-name">Line A · Afternoon</span>
+      <span class="sc-cap">1/6</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-10" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-10','')">
+          <div class="cd-num">10</div>
+          <div class="cd-chips"><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-M','2026-06-10')" title="Line A · Morning · 06:00–14:00">
+      <span class="sc-name">Line A · Morning</span>
+      <span class="sc-cap">1/6</span>
+    </div><div class="shiftchip is-hr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-OFF','2026-06-10')" title="Office · Full-day · 08:00–17:00">
+      <span class="sc-name">Office · Full-day</span>
+      <span class="sc-cap">1/4</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-11" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-11','')">
+          <div class="cd-num">11</div>
+          <div class="cd-chips"><div class="shiftchip is-staff" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-A','2026-06-11')" title="Line A · Afternoon · 14:00–22:00">
+      <span class="sc-name">Line A · Afternoon</span>
+      <span class="sc-cap">1/6</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-12" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-12','')">
+          <div class="cd-num">12</div>
+          <div class="cd-chips"><div class="shiftchip is-staff" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PA-A','2026-06-12')" title="Line A · Afternoon · 14:00–22:00">
+      <span class="sc-name">Line A · Afternoon</span>
+      <span class="sc-cap">1/6</span>
+    </div><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-WH-M','2026-06-12')" title="Warehouse · Morning · 06:00–14:00">
+      <span class="sc-name">Warehouse · Morning</span>
+      <span class="sc-cap">1/3</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-13" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-13','')">
+          <div class="cd-num">13</div>
+          <div class="cd-chips"><div class="shiftchip is-mgr" draggable="true" ondragstart="CALCORE.dragStart(event,'SG-PB-M','2026-06-13')" title="Line B · Morning · 06:00–14:00">
+      <span class="sc-name">Line B · Morning</span>
+      <span class="sc-cap">1/5</span>
+    </div></div>
+        </div><div class="cal-day  " data-iso="2026-06-14" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-14','')">
+          <div class="cd-num">14</div>
+          <div class="cd-chips"></div>
+        </div></div></div><div class="cal-weekexpand" data-week="2026-06-08">
+      <div class="cwx-head"><span class="cwx-title">Week 24 · plan</span><button class="btn xs ghost" data-go="hr/web/sched-cal/week.2026-06-08"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.8v3.4M15.5 3.8v3.4"/></svg> Hour grid</button></div>
+      <div class="cwx-days"><div class="cwx-day">
+        <div class="cwx-dhead"><span class="cwx-dow">Mon</span><span class="cwx-dnum num">8</span></div>
+        <div class="cwx-shifts"><div class="cwx-shift is-mgr">
+          <div class="cwx-shead"><span class="cwx-slabel">Line A · Morning</span><span class="cwx-scap num">2/6</span></div>
+          <div class="cwx-stime">06:00–14:00</div>
+          <ul class="cwx-people"><li>Souksavanh Phommachanh</li><li>Manysone Vongphachanh</li></ul>
+        </div><div class="cwx-shift is-staff">
+          <div class="cwx-shead"><span class="cwx-slabel">Line A · Afternoon</span><span class="cwx-scap num">1/6</span></div>
+          <div class="cwx-stime">14:00–22:00</div>
+          <ul class="cwx-people"><li>Bounmy Latsavong</li></ul>
+        </div><div class="cwx-shift is-ceo">
+          <div class="cwx-shead"><span class="cwx-slabel">Line B · Night</span><span class="cwx-scap num">1/4</span></div>
+          <div class="cwx-stime">22:00–06:00</div>
+          <ul class="cwx-people"><li>Sengphet Chanthavixay</li></ul>
+        </div></div>
+      </div><div class="cwx-day">
+        <div class="cwx-dhead"><span class="cwx-dow">Tue</span><span class="cwx-dnum num">9</span></div>
+        <div class="cwx-shifts"><div class="cwx-shift is-mgr">
+          <div class="cwx-shead"><span class="cwx-slabel">Line A · Morning</span><span class="cwx-scap num">1/6</span></div>
+          <div class="cwx-stime">06:00–14:00</div>
+          <ul class="cwx-people"><li>Souksavanh Phommachanh</li></ul>
+        </div><div class="cwx-shift is-staff">
+          <div class="cwx-shead"><span class="cwx-slabel">Line A · Afternoon</span><span class="cwx-scap num">1/6</span></div>
+          <div class="cwx-stime">14:00–22:00</div>
+          <ul class="cwx-people"><li>Phetsamone Douangta</li></ul>
+        </div></div>
+      </div><div class="cwx-day">
+        <div class="cwx-dhead"><span class="cwx-dow">Wed</span><span class="cwx-dnum num">10</span></div>
+        <div class="cwx-shifts"><div class="cwx-shift is-mgr">
+          <div class="cwx-shead"><span class="cwx-slabel">Line A · Morning</span><span class="cwx-scap num">1/6</span></div>
+          <div class="cwx-stime">06:00–14:00</div>
+          <ul class="cwx-people"><li>Souksavanh Phommachanh</li></ul>
+        </div><div class="cwx-shift is-hr">
+          <div class="cwx-shead"><span class="cwx-slabel">Office · Full-day</span><span class="cwx-scap num">1/4</span></div>
+          <div class="cwx-stime">08:00–17:00</div>
+          <ul class="cwx-people"><li>Vilayvanh Chanthavong</li></ul>
+        </div></div>
+      </div><div class="cwx-day">
+        <div class="cwx-dhead"><span class="cwx-dow">Thu</span><span class="cwx-dnum num">11</span></div>
+        <div class="cwx-shifts"><div class="cwx-shift is-staff">
+          <div class="cwx-shead"><span class="cwx-slabel">Line A · Afternoon</span><span class="cwx-scap num">1/6</span></div>
+          <div class="cwx-stime">14:00–22:00</div>
+          <ul class="cwx-people"><li>Manysone Vongphachanh<i class="cwx-plan" title="planned — not yet published"></i></li></ul>
+        </div></div>
+      </div><div class="cwx-day">
+        <div class="cwx-dhead"><span class="cwx-dow">Fri</span><span class="cwx-dnum num">12</span></div>
+        <div class="cwx-shifts"><div class="cwx-shift is-staff">
+          <div class="cwx-shead"><span class="cwx-slabel">Line A · Afternoon</span><span class="cwx-scap num">1/6</span></div>
+          <div class="cwx-stime">14:00–22:00</div>
+          <ul class="cwx-people"><li>Manysone Vongphachanh</li></ul>
+        </div><div class="cwx-shift is-mgr">
+          <div class="cwx-shead"><span class="cwx-slabel">Warehouse · Morning</span><span class="cwx-scap num">1/3</span></div>
+          <div class="cwx-stime">06:00–14:00</div>
+          <ul class="cwx-people"><li>Khamsing Phialath</li></ul>
+        </div></div>
+      </div><div class="cwx-day">
+        <div class="cwx-dhead"><span class="cwx-dow">Sat</span><span class="cwx-dnum num">13</span></div>
+        <div class="cwx-shifts"><div class="cwx-shift is-mgr">
+          <div class="cwx-shead"><span class="cwx-slabel">Line B · Morning</span><span class="cwx-scap num">1/5</span></div>
+          <div class="cwx-stime">06:00–14:00</div>
+          <ul class="cwx-people"><li>Khampheng Vilaysack</li></ul>
+        </div></div>
+      </div><div class="cwx-day">
+        <div class="cwx-dhead"><span class="cwx-dow">Sun</span><span class="cwx-dnum num">14</span></div>
+        <div class="cwx-shifts"><div class="cwx-none">—</div></div>
+      </div></div>
+      
+    </div><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-15" aria-expanded="false" title="Open week 25">W25</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-15" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-15','')">
+          <div class="cd-num">15</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-16" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-16','')">
+          <div class="cd-num">16</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-17" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-17','')">
+          <div class="cd-num">17</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-18" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-18','')">
+          <div class="cd-num">18</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-19" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-19','')">
+          <div class="cd-num">19</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-20" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-20','')">
+          <div class="cd-num">20</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-21" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-21','')">
+          <div class="cd-num">21</div>
+          <div class="cd-chips"></div>
+        </div></div></div><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-22" aria-expanded="false" title="Open week 26">W26</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-22" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-22','')">
+          <div class="cd-num">22</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-23" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-23','')">
+          <div class="cd-num">23</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-24" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-24','')">
+          <div class="cd-num">24</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-25" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-25','')">
+          <div class="cd-num">25</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-26" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-26','')">
+          <div class="cd-num">26</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-27" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-27','')">
+          <div class="cd-num">27</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  today" data-iso="2026-06-28" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-28','')">
+          <div class="cd-num">28</div>
+          <div class="cd-chips"></div>
+        </div></div></div><div class="cal-weekrow"><button class="cal-wk" data-sched-week="2026-06-29" aria-expanded="false" title="Open week 27">W27</button><div class="cal-week7"><div class="cal-day  " data-iso="2026-06-29" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-29','')">
+          <div class="cd-num">29</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day  " data-iso="2026-06-30" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-06-30','')">
+          <div class="cd-num">30</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-01" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-01','')">
+          <div class="cd-num">1</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-02" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-02','')">
+          <div class="cd-num">2</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-03" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-03','')">
+          <div class="cd-num">3</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-04" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-04','')">
+          <div class="cd-num">4</div>
+          <div class="cd-chips"></div>
+        </div><div class="cal-day muted " data-iso="2026-07-05" ondragover="CALCORE.allow(event)" ondrop="CALCORE.drop(event,'2026-07-05','')">
+          <div class="cd-num">5</div>
+          <div class="cd-chips"></div>
+        </div></div></div></div>
+    </div>
+        <div class="cal-legend">
+      <span><i class="is-hr"></i>Office / full-day</span>
+      <span><i class="is-mgr"></i>Morning</span>
+      <span><i class="is-staff"></i>Afternoon</span>
+      <span><i class="is-ceo"></i>Night</span>
+    </div>
+        <div class="sched-divider"><span>Roster a shift</span></div><div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Assign to roster</span>
+        
+        
+      </div><div id="sched-assignf" class="pv-form" style="max-width:560px">
+      <div class="field"><label>Date</label><input class="input" data-f="date" type="date" value="2026-06-08" min="2026-06-01" max="2026-06-30"></div>
+      <div class="field"><label>Shift group</label><select class="input" data-f="sg"><option value="SG-PA-M">Line A · Morning · cap 6</option><option value="SG-PA-A">Line A · Afternoon · cap 6</option><option value="SG-PB-M">Line B · Morning · cap 5</option><option value="SG-PB-N">Line B · Night · cap 4</option><option value="SG-OFF">Office · Full-day · cap 4</option><option value="SG-WH-M">Warehouse · Morning · cap 3</option></select></div>
+      <div class="field"><label>Person</label><select class="input" data-f="emp"><option value="EMP-0214">Souksavanh Phommachanh · Production</option><option value="EMP-0231">Manysone Vongphachanh · Production</option><option value="EMP-0188">Noy Keomany · Production</option><option value="EMP-0205">Bounmy Latsavong · Production</option><option value="EMP-0226">Phetsamone Douangta · Production</option><option value="EMP-0240">Chanthala Phimmasone · Production</option><option value="EMP-0218">Khampheng Vilaysack · Production</option><option value="EMP-0222">Outhai Sengsouvanh · Production</option><option value="EMP-0237">Viengsavanh Phrachanh · Production</option><option value="EMP-0210">Sengphet Chanthavixay · Production</option><option value="EMP-0185">Daosavanh Inthirath · Production</option><option value="EMP-0021">Vilayvanh Chanthavong · Admin</option><option value="EMP-0089">Bountheung Sayasone · Admin</option><option value="EMP-0177">Noulak Chanthachone · Admin</option><option value="EMP-0233">Vansana Keomixay · Admin</option><option value="EMP-0203">Khamsing Phialath · Logistics</option><option value="EMP-0219">Phonepadith Luanglath · Logistics</option><option value="EMP-0235">Somchai Douangdara · Logistics</option></select></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <button class="btn" data-act="sched-assign"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Assign to roster</button>
+      </div>
+      <p class="small muted" style="margin-top:8px">A person can hold one slot per shift-group per day. New rows land as <b>planned</b> until you publish.</p></div></div></div></div></section>
+<div class="prev-label">Task 4 · Shift control — split summary on the green line (period + group/division/people)</div>
+<section data-persona="hr" class="prev-screen"><div class="workspace"><div class="content"><div class="workspace-inner">
+<div class="screen-head"><div><h1>Shift control</h1><p class="screen-sub">Define the building blocks: shift periods (Mon–Sun × 24h), people groups, and the shift-group bindings you roster against.</p></div><div class="screen-actions"></div></div>
+
+        
+        <div class="grid cols-4">
+          <div class="card kpi hero">
+      <span class="k-label">Shift periods</span>
+      <span class="k-value num">4</span>
+      <span class="k-sub">Mon–Sun × 24h</span>
+    </div>
+          <div class="card kpi ">
+      <span class="k-label">People groups</span>
+      <span class="k-value num">4</span>
+      <span class="k-sub">position · division · manual</span>
+    </div>
+          <div class="card kpi ">
+      <span class="k-label">Shift groups</span>
+      <span class="k-value num">6</span>
+      <span class="k-sub">period × group × cap</span>
+    </div>
+          <div class="card kpi ">
+      <span class="k-label">Rostered slots</span>
+      <span class="k-value num">12</span>
+      <span class="k-sub">across the month</span>
+    </div>
+        </div>
+        <div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12h4l2-5.5 4 11 2.2-5.5h4.8"/></svg>Shift summary</span>
+        
+        
+      </div><div class="ssum2">
+      <div class="ssum2-cols ssum2-head">
+        <div class="ssum-eyebrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg> Shift period</div>
+        <div class="ssum-eyebrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c1-2.8 3-4.2 5.5-4.2s4.5 1.4 5.5 4.2"/><path d="M15.5 6.2a3 3 0 0 1 0 5.7M17 14.9c1.8.5 3 1.8 3.6 3.8"/></svg> Shift group · division &amp; people</div>
+      </div>
+      <div class="ssum2-frame">
+        <div class="ssum2-period">
+        <div class="ssum-itop"><span class="ssum-dot is-hr"></span><span class="ssum-name">Office full-day</span><span class="ssum-kind">full-day</span></div>
+        <div class="ssum-meta"><span class="ssum-hours num">08:00–17:00</span><span class="ssum-sep">·</span><span class="ssum-sub">Mon Tue Wed Thu Fri</span></div>
+      </div>
+        <div class="ssum2-groups"><div class="ssum-gitem">
+          <div class="ssum-itop"><span class="ssum-name">Office · Full-day</span><span class="ssum-kind num">cap 4</span></div>
+          <div class="ssum-meta"><span class="ssum-sub">Office &amp; Admin</span><span class="ssum-sep">·</span><span class="ssum-sub">4 people</span></div>
+          <div class="ssum-divs">
+          <div class="ssum-div">
+            <div class="ssum-divhead"><span class="ssum-divname">Admin</span><span class="ssum-divn num">4</span></div>
+            <div class="ssum-names"><span class="ssum-chip">Vilayvanh Chanthavong</span><span class="ssum-chip">Bountheung Sayasone</span><span class="ssum-chip">Noulak Chanthachone</span><span class="ssum-chip">Vansana Keomixay</span></div>
+          </div></div>
+        </div></div>
+      </div><div class="ssum2-frame">
+        <div class="ssum2-period">
+        <div class="ssum-itop"><span class="ssum-dot is-mgr"></span><span class="ssum-name">Morning</span><span class="ssum-kind">shift</span></div>
+        <div class="ssum-meta"><span class="ssum-hours num">06:00–14:00</span><span class="ssum-sep">·</span><span class="ssum-sub">Mon Tue Wed Thu Fri Sat</span></div>
+      </div>
+        <div class="ssum2-groups"><div class="ssum-gitem">
+          <div class="ssum-itop"><span class="ssum-name">Line A · Morning</span><span class="ssum-kind num">cap 6</span></div>
+          <div class="ssum-meta"><span class="ssum-sub">Production · Line A</span><span class="ssum-sep">·</span><span class="ssum-sub">6 people</span></div>
+          <div class="ssum-divs">
+          <div class="ssum-div">
+            <div class="ssum-divhead"><span class="ssum-divname">Production</span><span class="ssum-divn num">6</span></div>
+            <div class="ssum-names"><span class="ssum-chip">Souksavanh Phommachanh</span><span class="ssum-chip">Manysone Vongphachanh</span><span class="ssum-chip">Noy Keomany</span><span class="ssum-chip">Bounmy Latsavong</span><span class="ssum-chip">Phetsamone Douangta</span><span class="ssum-chip">Chanthala Phimmasone</span></div>
+          </div></div>
+        </div><div class="ssum-gitem">
+          <div class="ssum-itop"><span class="ssum-name">Line B · Morning</span><span class="ssum-kind num">cap 5</span></div>
+          <div class="ssum-meta"><span class="ssum-sub">Production · Line B</span><span class="ssum-sep">·</span><span class="ssum-sub">5 people</span></div>
+          <div class="ssum-divs">
+          <div class="ssum-div">
+            <div class="ssum-divhead"><span class="ssum-divname">Production</span><span class="ssum-divn num">5</span></div>
+            <div class="ssum-names"><span class="ssum-chip">Khampheng Vilaysack</span><span class="ssum-chip">Outhai Sengsouvanh</span><span class="ssum-chip">Viengsavanh Phrachanh</span><span class="ssum-chip">Sengphet Chanthavixay</span><span class="ssum-chip">Daosavanh Inthirath</span></div>
+          </div></div>
+        </div><div class="ssum-gitem">
+          <div class="ssum-itop"><span class="ssum-name">Warehouse · Morning</span><span class="ssum-kind num">cap 3</span></div>
+          <div class="ssum-meta"><span class="ssum-sub">Warehouse crew</span><span class="ssum-sep">·</span><span class="ssum-sub">3 people</span></div>
+          <div class="ssum-divs">
+          <div class="ssum-div">
+            <div class="ssum-divhead"><span class="ssum-divname">Logistics</span><span class="ssum-divn num">3</span></div>
+            <div class="ssum-names"><span class="ssum-chip">Khamsing Phialath</span><span class="ssum-chip">Phonepadith Luanglath</span><span class="ssum-chip">Somchai Douangdara</span></div>
+          </div></div>
+        </div></div>
+      </div><div class="ssum2-frame">
+        <div class="ssum2-period">
+        <div class="ssum-itop"><span class="ssum-dot is-staff"></span><span class="ssum-name">Afternoon</span><span class="ssum-kind">shift</span></div>
+        <div class="ssum-meta"><span class="ssum-hours num">14:00–22:00</span><span class="ssum-sep">·</span><span class="ssum-sub">Mon Tue Wed Thu Fri Sat</span></div>
+      </div>
+        <div class="ssum2-groups"><div class="ssum-gitem">
+          <div class="ssum-itop"><span class="ssum-name">Line A · Afternoon</span><span class="ssum-kind num">cap 6</span></div>
+          <div class="ssum-meta"><span class="ssum-sub">Production · Line A</span><span class="ssum-sep">·</span><span class="ssum-sub">6 people</span></div>
+          <div class="ssum-divs">
+          <div class="ssum-div">
+            <div class="ssum-divhead"><span class="ssum-divname">Production</span><span class="ssum-divn num">6</span></div>
+            <div class="ssum-names"><span class="ssum-chip">Souksavanh Phommachanh</span><span class="ssum-chip">Manysone Vongphachanh</span><span class="ssum-chip">Noy Keomany</span><span class="ssum-chip">Bounmy Latsavong</span><span class="ssum-chip">Phetsamone Douangta</span><span class="ssum-chip">Chanthala Phimmasone</span></div>
+          </div></div>
+        </div></div>
+      </div><div class="ssum2-frame">
+        <div class="ssum2-period">
+        <div class="ssum-itop"><span class="ssum-dot is-ceo"></span><span class="ssum-name">Night</span><span class="ssum-kind">shift</span></div>
+        <div class="ssum-meta"><span class="ssum-hours num">22:00–06:00</span><span class="ssum-sep">·</span><span class="ssum-sub">Mon Tue Wed Thu Fri</span></div>
+      </div>
+        <div class="ssum2-groups"><div class="ssum-gitem">
+          <div class="ssum-itop"><span class="ssum-name">Line B · Night</span><span class="ssum-kind num">cap 4</span></div>
+          <div class="ssum-meta"><span class="ssum-sub">Production · Line B</span><span class="ssum-sep">·</span><span class="ssum-sub">5 people</span></div>
+          <div class="ssum-divs">
+          <div class="ssum-div">
+            <div class="ssum-divhead"><span class="ssum-divname">Production</span><span class="ssum-divn num">5</span></div>
+            <div class="ssum-names"><span class="ssum-chip">Khampheng Vilaysack</span><span class="ssum-chip">Outhai Sengsouvanh</span><span class="ssum-chip">Viengsavanh Phrachanh</span><span class="ssum-chip">Sengphet Chanthavixay</span><span class="ssum-chip">Daosavanh Inthirath</span></div>
+          </div></div>
+        </div></div>
+      </div>
+    </div></div>
+        <div class="grid cols-3" style="margin-top:4px">
+          <div class="span-2"><div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Shift periods</span>
+        
+        
+      </div><div class="tablewrap"><table class="tbl">
+      <thead><tr><th class="">ID</th><th class="">Name</th><th class="">Hours</th><th class="">Days</th><th class="">Kind</th></tr></thead>
+      <tbody><tr class="" ><td class=""><span class="idtag">SP-FULL</span></td><td class="">Office full-day</td><td class=""><span class="num">08:00–17:00</span></td><td class=""><span class="small">Mon Tue Wed Thu Fri</span></td><td class=""><span class="small muted">full-day</span></td></tr><tr class="" ><td class=""><span class="idtag">SP-MORN</span></td><td class="">Morning</td><td class=""><span class="num">06:00–14:00</span></td><td class=""><span class="small">Mon Tue Wed Thu Fri Sat</span></td><td class=""><span class="small muted">shift</span></td></tr><tr class="" ><td class=""><span class="idtag">SP-AFT</span></td><td class="">Afternoon</td><td class=""><span class="num">14:00–22:00</span></td><td class=""><span class="small">Mon Tue Wed Thu Fri Sat</span></td><td class=""><span class="small muted">shift</span></td></tr><tr class="" ><td class=""><span class="idtag">SP-NIGHT</span></td><td class="">Night</td><td class=""><span class="num">22:00–06:00</span></td><td class=""><span class="small">Mon Tue Wed Thu Fri</span></td><td class=""><span class="small muted">shift</span></td></tr></tbody>
+    </table></div></div></div>
+          <div><div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Create a shift period</span>
+        
+        
+      </div>
+      <div id="sched-periodf" class="pv-form" style="max-width:640px">
+        <div class="field"><label>Name</label><input class="input" data-f="name" placeholder="e.g. Evening · Line C"></div>
+        <div class="field"><label>Days</label><div class="choice-row"><label class="checkpill"><input type="checkbox" data-day="Mon" checked> Mon</label><label class="checkpill"><input type="checkbox" data-day="Tue" checked> Tue</label><label class="checkpill"><input type="checkbox" data-day="Wed" checked> Wed</label><label class="checkpill"><input type="checkbox" data-day="Thu" checked> Thu</label><label class="checkpill"><input type="checkbox" data-day="Fri" checked> Fri</label><label class="checkpill"><input type="checkbox" data-day="Sat"> Sat</label><label class="checkpill"><input type="checkbox" data-day="Sun"> Sun</label></div></div>
+        <div class="grid cols-2" style="gap:12px">
+          <div class="field"><label>Start</label><select class="input" data-f="start"><option value="00:00">00:00</option><option value="00:30">00:30</option><option value="01:00">01:00</option><option value="01:30">01:30</option><option value="02:00">02:00</option><option value="02:30">02:30</option><option value="03:00">03:00</option><option value="03:30">03:30</option><option value="04:00">04:00</option><option value="04:30">04:30</option><option value="05:00">05:00</option><option value="05:30">05:30</option><option value="06:00">06:00</option><option value="06:30">06:30</option><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00" selected>08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option><option value="19:30">19:30</option><option value="20:00">20:00</option><option value="20:30">20:30</option><option value="21:00">21:00</option><option value="21:30">21:30</option><option value="22:00">22:00</option><option value="22:30">22:30</option><option value="23:00">23:00</option><option value="23:30">23:30</option></select></div>
+          <div class="field"><label>End</label><select class="input" data-f="end"><option value="00:00">00:00</option><option value="00:30">00:30</option><option value="01:00">01:00</option><option value="01:30">01:30</option><option value="02:00">02:00</option><option value="02:30">02:30</option><option value="03:00">03:00</option><option value="03:30">03:30</option><option value="04:00">04:00</option><option value="04:30">04:30</option><option value="05:00">05:00</option><option value="05:30">05:30</option><option value="06:00">06:00</option><option value="06:30">06:30</option><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00" selected>17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option><option value="19:30">19:30</option><option value="20:00">20:00</option><option value="20:30">20:30</option><option value="21:00">21:00</option><option value="21:30">21:30</option><option value="22:00">22:00</option><option value="22:30">22:30</option><option value="23:00">23:00</option><option value="23:30">23:30</option></select></div>
+        </div>
+        <div class="field"><label>Kind</label><select class="input" data-f="kind"><option value="full-day">Full-day</option><option value="shift">Shift</option></select></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" data-act="sched-period-add"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Create period</button></div>
+      <p class="small muted" style="margin-top:8px">30-minute granularity over a 24-hour day. An end earlier than the start is treated as overnight.</p></div></div>
+        </div>
+        <div class="grid cols-3">
+          <div class="span-2"><div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c1-2.8 3-4.2 5.5-4.2s4.5 1.4 5.5 4.2"/><path d="M15.5 6.2a3 3 0 0 1 0 5.7M17 14.9c1.8.5 3 1.8 3.6 3.8"/></svg>Groups of people</span>
+        
+        
+      </div><div class="tablewrap"><table class="tbl">
+      <thead><tr><th class="">ID</th><th class="">Name</th><th class="">Kind</th><th class="">Division</th><th class="r">Members</th></tr></thead>
+      <tbody><tr class="" ><td class=""><span class="idtag">G-PRDA</span></td><td class="">Production · Line A</td><td class=""><span class="small muted">division</span></td><td class=""><span class="badge acc plain">Production</span></td><td class="r"><span class="num">6</span></td></tr><tr class="" ><td class=""><span class="idtag">G-PRDB</span></td><td class="">Production · Line B</td><td class=""><span class="small muted">division</span></td><td class=""><span class="badge acc plain">Production</span></td><td class="r"><span class="num">5</span></td></tr><tr class="" ><td class=""><span class="idtag">G-OFFICE</span></td><td class="">Office &amp; Admin</td><td class=""><span class="small muted">division</span></td><td class=""><span class="badge acc plain">Admin</span></td><td class="r"><span class="num">4</span></td></tr><tr class="" ><td class=""><span class="idtag">G-WHSE</span></td><td class="">Warehouse crew</td><td class=""><span class="small muted">manual</span></td><td class=""><span class="badge acc plain">Logistics</span></td><td class="r"><span class="num">3</span></td></tr></tbody>
+    </table></div></div></div>
+          <div><div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c1-2.8 3-4.2 5.5-4.2s4.5 1.4 5.5 4.2"/><path d="M15.5 6.2a3 3 0 0 1 0 5.7M17 14.9c1.8.5 3 1.8 3.6 3.8"/></svg>Create a group of people</span>
+        
+        
+      </div>
+      <div id="sched-groupf" class="pv-form" style="max-width:640px">
+        <div class="field"><label>Group name</label><input class="input" data-f="name" placeholder="e.g. Line C crew"></div>
+        <div class="field"><label>Kind</label><select class="input" data-f="kind"><option value="position">Position</option><option value="division">Division</option><option value="individual">Individual</option><option value="manual" selected>Manual</option></select></div>
+        <div class="field"><label>Division (optional)</label><select class="input" data-f="div"><option value="">—</option><option value="Production">Production</option><option value="Sales">Sales</option><option value="Logistics">Logistics</option><option value="Finance">Finance</option><option value="Admin">Admin</option></select></div>
+        <div class="field"><label>Members</label><select class="input" data-f="members" multiple size="6"><option value="EMP-0214">Souksavanh Phommachanh · Production</option><option value="EMP-0231">Manysone Vongphachanh · Production</option><option value="EMP-0188">Noy Keomany · Production</option><option value="EMP-0205">Bounmy Latsavong · Production</option><option value="EMP-0172">Somphone Inthavong · Production</option><option value="EMP-0226">Phetsamone Douangta · Production</option><option value="EMP-0240">Chanthala Phimmasone · Production</option><option value="EMP-0193">Keo Sayavong · Production</option><option value="EMP-0098">Khamla Sisouphanh · Production</option><option value="EMP-0102">Bouasone Keopaseuth · Production</option><option value="EMP-0218">Khampheng Vilaysack · Production</option><option value="EMP-0222">Outhai Sengsouvanh · Production</option><option value="EMP-0237">Viengsavanh Phrachanh · Production</option><option value="EMP-0210">Sengphet Chanthavixay · Production</option><option value="EMP-0185">Daosavanh Inthirath · Production</option><option value="EMP-0249">Phoutthasone Vongsa · Production</option><option value="EMP-0150">Amphone Thammavong · Production</option><option value="EMP-0134">Anousone Rattanavong · Sales</option><option value="EMP-0244">Davone Phanthavong · Sales</option><option value="EMP-0228">Malisa Phengdy · Sales</option><option value="EMP-0246">Thipphavanh Soulinthone · Sales</option><option value="EMP-0117">Sourioudong Keola · Logistics</option><option value="EMP-0203">Khamsing Phialath · Logistics</option><option value="EMP-0219">Phonepadith Luanglath · Logistics</option><option value="EMP-0235">Somchai Douangdara · Logistics</option><option value="EMP-0156">Latsamy Vorachit · Finance</option><option value="EMP-0142">Chindavone Sisavath · Finance</option><option value="EMP-0167">Ketsana Phommavong · Finance</option><option value="EMP-0021">Vilayvanh Chanthavong · Admin</option><option value="EMP-0089">Bountheung Sayasone · Admin</option><option value="EMP-0177">Noulak Chanthachone · Admin</option><option value="EMP-0233">Vansana Keomixay · Admin</option></select><span class="hint">Cmd/Ctrl-click to pick several.</span></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" data-act="sched-group-add"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Create group</button></div></div></div>
+        </div>
+        <div class="grid cols-3">
+          <div class="span-2"><div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.8v3.4M15.5 3.8v3.4"/></svg>Shift groups</span>
+        
+        
+      </div><div class="tablewrap"><table class="tbl">
+      <thead><tr><th class="">ID</th><th class="">Label</th><th class="">Period</th><th class="">Group</th><th class="r">Cap</th></tr></thead>
+      <tbody><tr class="" ><td class=""><span class="idtag">SG-PA-M</span></td><td class="">Line A · Morning</td><td class=""><span class="small">Morning</span></td><td class=""><span class="small">Production · Line A</span></td><td class="r"><span class="num">6</span></td></tr><tr class="" ><td class=""><span class="idtag">SG-PA-A</span></td><td class="">Line A · Afternoon</td><td class=""><span class="small">Afternoon</span></td><td class=""><span class="small">Production · Line A</span></td><td class="r"><span class="num">6</span></td></tr><tr class="" ><td class=""><span class="idtag">SG-PB-M</span></td><td class="">Line B · Morning</td><td class=""><span class="small">Morning</span></td><td class=""><span class="small">Production · Line B</span></td><td class="r"><span class="num">5</span></td></tr><tr class="" ><td class=""><span class="idtag">SG-PB-N</span></td><td class="">Line B · Night</td><td class=""><span class="small">Night</span></td><td class=""><span class="small">Production · Line B</span></td><td class="r"><span class="num">4</span></td></tr><tr class="" ><td class=""><span class="idtag">SG-OFF</span></td><td class="">Office · Full-day</td><td class=""><span class="small">Office full-day</span></td><td class=""><span class="small">Office &amp; Admin</span></td><td class="r"><span class="num">4</span></td></tr><tr class="" ><td class=""><span class="idtag">SG-WH-M</span></td><td class="">Warehouse · Morning</td><td class=""><span class="small">Morning</span></td><td class=""><span class="small">Warehouse crew</span></td><td class="r"><span class="num">3</span></td></tr></tbody>
+    </table></div></div></div>
+          <div><div class="card " ><div class="card-head">
+        <span class="t"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.8v3.4M15.5 3.8v3.4"/></svg>Bind a shift group</span>
+        
+        
+      </div>
+      <div id="sched-sgf" class="pv-form" style="max-width:640px">
+        <div class="field"><label>Label</label><input class="input" data-f="label" placeholder="e.g. Line C · Evening"></div>
+        <div class="grid cols-2" style="gap:12px">
+          <div class="field"><label>Shift period</label><select class="input" data-f="period"><option value="SP-FULL">Office full-day · 08:00–17:00</option><option value="SP-MORN">Morning · 06:00–14:00</option><option value="SP-AFT">Afternoon · 14:00–22:00</option><option value="SP-NIGHT">Night · 22:00–06:00</option></select></div>
+          <div class="field"><label>Group of people</label><select class="input" data-f="group"><option value="G-PRDA">Production · Line A</option><option value="G-PRDB">Production · Line B</option><option value="G-OFFICE">Office &amp; Admin</option><option value="G-WHSE">Warehouse crew</option></select></div>
+        </div>
+        <div class="field"><label>Capacity</label><input class="input" data-f="cap" type="number" min="1" value="4"></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" data-act="sched-sg-add"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Create shift group</button></div>
+      <p class="small muted" style="margin-top:8px">A shift group binds one period to one people-group with a head-count cap — the unit you roster and the Shift-CAP meter tracks.</p></div></div>
+        </div></div></div></div></section>
+</body></html>
