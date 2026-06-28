@@ -1,0 +1,21 @@
+# Dependencies (never commit — installed via npm/CI)
+node_modules/
+tools/e2e/node_modules/
+
+# OS / editor cruft
+.DS_Store
+*.fuse_hidden*
+err.txt
+
+# Local tooling / secrets — must never be published
+.claude/
+.dev.vars
+.env
+.env.*
+*.pem
+*.key
+
+# Test artifacts (regenerated locally)
+tools/e2e/test-results/
+tools/e2e/screenshots/
+tools/e2e/playwright-report/

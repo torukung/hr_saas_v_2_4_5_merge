@@ -1,8 +1,8 @@
 # ============================================================
 # Adeptio v2.4.5 Merged — Cloudflare Worker config (single-tenant)
 # Deploy:  wrangler deploy           (from repo root)
-# The IDs below are placeholders — I'll fill them when I configure
-# Cloudflare for you after you push to Git (or run the steps in DEPLOY.md).
+# D1 + KV IDs below are LIVE (provisioned 2026-06-28, APAC).
+# Secrets are NOT here — set them with `wrangler secret put NAME` (see DEPLOY.md).
 # ============================================================
 name = "adeptio-hr-v245"
 main = "worker/src/v245.js"
@@ -16,14 +16,14 @@ SINGLE_TENANT = "true"
 # --- D1: the 15-store split catalog (store_blob) ---
 [[d1_databases]]
 binding = "DB"
-database_name = "adeptio-hr-v245"     # or reuse your existing "adeptio-gantt"
-database_id = "REPLACE_WITH_D1_ID"
+database_name = "adeptio-hr-v245"
+database_id = "e077a89e-3a6e-4a0a-b997-79c9c5b6c9c5"
 migrations_dir = "migrations"
 
 # --- KV: hot session tokens ---
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "REPLACE_WITH_KV_ID"
+id = "6ae89947826b42e9ad696b6af2dd32cb"
 
 # --- R2: dated backup folders + document vault ---
 [[r2_buckets]]

@@ -1,0 +1,22 @@
+{
+  "name": "adeptio-hr-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Live-browser E2E suite for Adeptio Adaptive HR Platform UI v2.3.2.db — extends ../smoke.js into a real Chromium crawl + user-flow + DB-persistence test.",
+  "scripts": {
+    "test:e2e": "node e2e.mjs",
+    "test:e2e:local": "node e2e.mjs http://localhost:8080/",
+    "test:scroll": "node scroll-week-test.mjs",
+    "test:smoke": "node ../smoke.js ../..",
+    "test:sync": "node ../sync-smoke.js ../..",
+    "test:exports": "node exports-test.mjs",
+    "test:groupd": "node groupd-test.mjs",
+    "test:groupb": "node groupb-test.mjs",
+    "test:groupc": "node groupc-test.mjs",
+    "test:groupe": "node groupe-test.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0"
+  }
+}

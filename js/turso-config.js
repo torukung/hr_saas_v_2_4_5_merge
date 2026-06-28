@@ -24,6 +24,11 @@
    writes behind the edge Worker and drop the browser token entirely.
    ============================================================ */
 window.TURSO_CONFIG = {
-  url: "https://adeptio-hr-v241-torukung.aws-ap-northeast-1.turso.io",
-  token: "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3ODEzNzA0NTgsImlkIjoiMDE5ZWMxZjMtZjEwMS03YWZhLThhMDgtY2QwMGNiNzkxN2Y0IiwicmlkIjoiNzBkZjk0YjctYzk1Yi00OGEwLThiNGMtNDMzNzIwM2M0OTM3In0.QHWnt7yethaHSAIXnhJMzMos6r7-DEeU-qHbqcEW4ckfemlc3nqKOaoFmTgKBWtc1QBroSpatk5xXa05bSkNDw"
+  // Token removed 2026-06-28 before the public GitHub push (security).
+  // Sync activates only when BOTH url & token are set (see turso-sync.js),
+  // so the app now runs local-only (localStorage) — no network calls.
+  // The previous browser token is being ROTATED in Turso.
+  // v2.4.5 targets Cloudflare D1 — re-point sync at the Worker (see DEPLOY.md).
+  url: "",
+  token: ""
 };

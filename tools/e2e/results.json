@@ -1,0 +1,3823 @@
+{
+  "base": "https://torukung.github.io/hr_saas_v_2_3_2_db/",
+  "startedAt": "2026-06-11T15:49:00.498Z",
+  "crawl": [
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "home",
+      "hash": "#/staff/web/home",
+      "ok": true,
+      "issues": [],
+      "h1": "Good morning, Souksavanh",
+      "appLen": 23485
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "time",
+      "hash": "#/staff/web/time",
+      "ok": true,
+      "issues": [],
+      "h1": "Time & attendance",
+      "appLen": 17514
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "requests",
+      "hash": "#/staff/web/requests",
+      "ok": true,
+      "issues": [],
+      "h1": "My requests",
+      "appLen": 12045
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-new",
+      "hash": "#/staff/web/request-new/Claim",
+      "ok": true,
+      "issues": [],
+      "h1": "New request",
+      "appLen": 14246
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-detail",
+      "hash": "#/staff/web/request-detail/LV-0481",
+      "ok": true,
+      "issues": [],
+      "h1": "Annual leave · 2 days",
+      "appLen": 13769
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslips",
+      "hash": "#/staff/web/payslips",
+      "ok": true,
+      "issues": [],
+      "h1": "Payslips",
+      "appLen": 16337
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslip",
+      "hash": "#/staff/web/payslip/PS-2026-05",
+      "ok": true,
+      "issues": [],
+      "h1": "Payslip — May 2026",
+      "appLen": 13125
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "documents",
+      "hash": "#/staff/web/documents",
+      "ok": true,
+      "issues": [],
+      "h1": "Good morning, Souksavanh",
+      "appLen": 23485
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "mydata",
+      "hash": "#/staff/web/mydata",
+      "ok": true,
+      "issues": [],
+      "h1": "My data",
+      "appLen": 20682
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "reports",
+      "hash": "#/staff/web/reports",
+      "ok": true,
+      "issues": [],
+      "h1": "My reports",
+      "appLen": 16618
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/staff/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "My attendance · RPT-1004",
+      "appLen": 14300
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/staff/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "Report file storage",
+      "appLen": 12022
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "me",
+      "hash": "#/staff/web/me",
+      "ok": true,
+      "issues": [],
+      "h1": "My profile",
+      "appLen": 14678
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "home",
+      "hash": "#/staff/mobile/home",
+      "ok": true,
+      "issues": [],
+      "h1": "My day",
+      "appLen": 14785
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "time",
+      "hash": "#/staff/mobile/time",
+      "ok": true,
+      "issues": [],
+      "h1": "Time",
+      "appLen": 11978
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "requests",
+      "hash": "#/staff/mobile/requests",
+      "ok": true,
+      "issues": [],
+      "h1": "Requests",
+      "appLen": 9713
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "me",
+      "hash": "#/staff/mobile/me",
+      "ok": true,
+      "issues": [],
+      "h1": "Me",
+      "appLen": 15367
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "request-detail",
+      "hash": "#/staff/mobile/request-detail/LV-0481",
+      "ok": true,
+      "issues": [],
+      "h1": "LV-0481",
+      "appLen": 10067
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "request-new",
+      "hash": "#/staff/mobile/request-new/Claim",
+      "ok": true,
+      "issues": [],
+      "h1": "New claim",
+      "appLen": 9918
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "payslip",
+      "hash": "#/staff/mobile/payslip/PS-2026-05",
+      "ok": true,
+      "issues": [],
+      "h1": "Payslip",
+      "appLen": 10931
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "overview",
+      "hash": "#/manager/web/overview",
+      "ok": true,
+      "issues": [],
+      "h1": "Team overview",
+      "appLen": 20841
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approvals",
+      "hash": "#/manager/web/approvals",
+      "ok": true,
+      "issues": [],
+      "h1": "Approvals — L1 queue",
+      "appLen": 14513
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approval",
+      "hash": "#/manager/web/approval/EX-0210",
+      "ok": true,
+      "issues": [],
+      "h1": "Claim — Souksavanh",
+      "appLen": 13769
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "team",
+      "hash": "#/manager/web/team",
+      "ok": true,
+      "issues": [],
+      "h1": "Team — Production Line A",
+      "appLen": 13792
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "member",
+      "hash": "#/manager/web/member/EMP-0214",
+      "ok": true,
+      "issues": [],
+      "h1": "Souksavanh Phommachanh",
+      "appLen": 12713
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "schedule",
+      "hash": "#/manager/web/schedule",
+      "ok": true,
+      "issues": [],
+      "h1": "Schedule — week 24",
+      "appLen": 12086
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "teamdata",
+      "hash": "#/manager/web/teamdata",
+      "ok": true,
+      "issues": [],
+      "h1": "Team data",
+      "appLen": 24808
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "reports",
+      "hash": "#/manager/web/reports",
+      "ok": true,
+      "issues": [],
+      "h1": "Team reports",
+      "appLen": 18310
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/manager/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "Team attendance — June · RPT-1010",
+      "appLen": 14265
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/manager/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "Report file storage",
+      "appLen": 13583
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "home",
+      "hash": "#/manager/mobile/home",
+      "ok": true,
+      "issues": [],
+      "h1": "Team",
+      "appLen": 13070
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "approvals",
+      "hash": "#/manager/mobile/approvals",
+      "ok": true,
+      "issues": [],
+      "h1": "Approvals",
+      "appLen": 12688
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "team",
+      "hash": "#/manager/mobile/team",
+      "ok": true,
+      "issues": [],
+      "h1": "Team",
+      "appLen": 10987
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "alerts",
+      "hash": "#/manager/mobile/alerts",
+      "ok": true,
+      "issues": [],
+      "h1": "Alerts",
+      "appLen": 10396
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "approval",
+      "hash": "#/manager/mobile/approval/EX-0210",
+      "ok": true,
+      "issues": [],
+      "h1": "EX-0210",
+      "appLen": 10549
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "member",
+      "hash": "#/manager/mobile/member/EMP-0214",
+      "ok": true,
+      "issues": [],
+      "h1": "Souksavanh",
+      "appLen": 10179
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "pulse",
+      "hash": "#/hr/web/pulse",
+      "ok": true,
+      "issues": [],
+      "h1": "HR pulse",
+      "appLen": 22637
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approvals",
+      "hash": "#/hr/web/approvals",
+      "ok": true,
+      "issues": [],
+      "h1": "HR pulse",
+      "appLen": 22637
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approval",
+      "hash": "#/hr/web/approval/EX-0210",
+      "ok": true,
+      "issues": [],
+      "h1": "HR pulse",
+      "appLen": 22645
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "comms",
+      "hash": "#/hr/web/comms",
+      "ok": true,
+      "issues": [],
+      "h1": "Communication",
+      "appLen": 20731
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "data",
+      "hash": "#/hr/web/data/db_people",
+      "ok": true,
+      "issues": [],
+      "h1": "Data manager",
+      "appLen": 40151
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person-new",
+      "hash": "#/hr/web/person-new",
+      "ok": true,
+      "issues": [],
+      "h1": "New hire",
+      "appLen": 14813
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "people",
+      "hash": "#/hr/web/people",
+      "ok": true,
+      "issues": [],
+      "h1": "People & Org",
+      "appLen": 32888
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person",
+      "hash": "#/hr/web/person/EMP-0214",
+      "ok": true,
+      "issues": [],
+      "h1": "Souksavanh Phommachanh",
+      "appLen": 17367
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "hash": "#/hr/web/time",
+      "ok": true,
+      "issues": [],
+      "h1": "Time & Attendance",
+      "appLen": 17282
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "leave",
+      "hash": "#/hr/web/leave",
+      "ok": true,
+      "issues": [],
+      "h1": "Leave & Absence",
+      "appLen": 14248
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll",
+      "hash": "#/hr/web/payroll",
+      "ok": true,
+      "issues": [],
+      "h1": "Payroll",
+      "appLen": 15442
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll-run",
+      "hash": "#/hr/web/payroll-run/PR-2026-06",
+      "ok": true,
+      "issues": [],
+      "h1": "Pay run — June 2026",
+      "appLen": 14940
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "docs",
+      "hash": "#/hr/web/docs",
+      "ok": true,
+      "issues": [],
+      "h1": "HR pulse",
+      "appLen": 22637
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "reports",
+      "hash": "#/hr/web/reports",
+      "ok": true,
+      "issues": [],
+      "h1": "Reports",
+      "appLen": 24544
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/hr/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "Attendance — org · RPT-1009",
+      "appLen": 15138
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/hr/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "Report file storage",
+      "appLen": 16786
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "queue",
+      "hash": "#/hr/mobile/queue",
+      "ok": true,
+      "issues": [],
+      "h1": "Alerts",
+      "appLen": 10019
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "alerts",
+      "hash": "#/hr/mobile/alerts",
+      "ok": true,
+      "issues": [],
+      "h1": "Alerts",
+      "appLen": 10019
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "me",
+      "hash": "#/hr/mobile/me",
+      "ok": true,
+      "issues": [],
+      "h1": "Me",
+      "appLen": 8323
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "approval",
+      "hash": "#/hr/mobile/approval/EX-0210",
+      "ok": true,
+      "issues": [],
+      "h1": "Alerts",
+      "appLen": 10027
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "board",
+      "hash": "#/ceo/web/board",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "trends",
+      "hash": "#/ceo/web/trends",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "divisions",
+      "hash": "#/ceo/web/divisions",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "division",
+      "hash": "#/ceo/web/division/Sales",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "compliance",
+      "hash": "#/ceo/web/compliance",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "dataroom",
+      "hash": "#/ceo/web/dataroom",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "packs",
+      "hash": "#/ceo/web/packs",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/ceo/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/ceo/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "board",
+      "hash": "#/ceo/mobile/board",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "trends",
+      "hash": "#/ceo/mobile/trends",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "me",
+      "hash": "#/ceo/mobile/me",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "division",
+      "hash": "#/ceo/mobile/division/Sales",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "health",
+      "hash": "#/sysadmin/web/health",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "templates",
+      "hash": "#/sysadmin/web/templates",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "template",
+      "hash": "#/sysadmin/web/template/TPL-023",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "hash": "#/sysadmin/web/channels",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "roles",
+      "hash": "#/sysadmin/web/roles",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "integrations",
+      "hash": "#/sysadmin/web/integrations",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "database",
+      "hash": "#/sysadmin/web/database",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "dbstore",
+      "hash": "#/sysadmin/web/dbstore/db_people",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "reports",
+      "hash": "#/sysadmin/web/reports",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/sysadmin/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/sysadmin/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "backups",
+      "hash": "#/sysadmin/web/backups",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "audit",
+      "hash": "#/sysadmin/web/audit",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "health",
+      "hash": "#/sysadmin/mobile/health",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "templates",
+      "hash": "#/sysadmin/mobile/templates",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "audit",
+      "hash": "#/sysadmin/mobile/audit",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "template",
+      "hash": "#/sysadmin/mobile/template/TPL-023",
+      "ok": true,
+      "issues": [],
+      "h1": "One platform.Five personas. Live database.",
+      "appLen": 12253
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "home",
+      "hash": "#/staff/web/home",
+      "ok": true,
+      "issues": [],
+      "h1": "Good morning, Souksavanh",
+      "appLen": 21800
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "time",
+      "hash": "#/staff/web/time",
+      "ok": true,
+      "issues": [],
+      "h1": "Time & attendance",
+      "appLen": 16107
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "requests",
+      "hash": "#/staff/web/requests",
+      "ok": true,
+      "issues": [],
+      "h1": "My requests",
+      "appLen": 10638
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-new",
+      "hash": "#/staff/web/request-new/Claim",
+      "ok": true,
+      "issues": [],
+      "h1": "New request",
+      "appLen": 12437
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-detail",
+      "hash": "#/staff/web/request-detail/LV-0481",
+      "ok": true,
+      "issues": [],
+      "h1": "Annual leave · 2 days",
+      "appLen": 12362
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslips",
+      "hash": "#/staff/web/payslips",
+      "ok": true,
+      "issues": [],
+      "h1": "Payslips",
+      "appLen": 14930
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslip",
+      "hash": "#/staff/web/payslip/PS-2026-05",
+      "ok": true,
+      "issues": [],
+      "h1": "Payslip — May 2026",
+      "appLen": 11718
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "documents",
+      "hash": "#/staff/web/documents",
+      "ok": true,
+      "issues": [],
+      "h1": "Documents",
+      "appLen": 13068
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "mydata",
+      "hash": "#/staff/web/mydata",
+      "ok": true,
+      "issues": [],
+      "h1": "My data",
+      "appLen": 21332
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "reports",
+      "hash": "#/staff/web/reports",
+      "ok": true,
+      "issues": [],
+      "h1": "My reports",
+      "appLen": 15211
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/staff/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "My attendance · RPT-1004",
+      "appLen": 12893
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/staff/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "Report file storage",
+      "appLen": 10615
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "me",
+      "hash": "#/staff/web/me",
+      "ok": true,
+      "issues": [],
+      "h1": "My profile",
+      "appLen": 13271
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "home",
+      "hash": "#/staff/mobile/home",
+      "ok": true,
+      "issues": [],
+      "h1": "My day",
+      "appLen": 13824
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "time",
+      "hash": "#/staff/mobile/time",
+      "ok": true,
+      "issues": [],
+      "h1": "Time",
+      "appLen": 11248
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "requests",
+      "hash": "#/staff/mobile/requests",
+      "ok": true,
+      "issues": [],
+      "h1": "Requests",
+      "appLen": 8983
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "me",
+      "hash": "#/staff/mobile/me",
+      "ok": true,
+      "issues": [],
+      "h1": "Me",
+      "appLen": 14637
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "request-detail",
+      "hash": "#/staff/mobile/request-detail/LV-0481",
+      "ok": true,
+      "issues": [],
+      "h1": "LV-0481",
+      "appLen": 9337
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "request-new",
+      "hash": "#/staff/mobile/request-new/Claim",
+      "ok": true,
+      "issues": [],
+      "h1": "New claim",
+      "appLen": 9192
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "payslip",
+      "hash": "#/staff/mobile/payslip/PS-2026-05",
+      "ok": true,
+      "issues": [],
+      "h1": "Payslip",
+      "appLen": 10201
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "overview",
+      "hash": "#/manager/web/overview",
+      "ok": true,
+      "issues": [],
+      "h1": "Team overview",
+      "appLen": 18797
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approvals",
+      "hash": "#/manager/web/approvals",
+      "ok": true,
+      "issues": [],
+      "h1": "Approvals — L1 queue",
+      "appLen": 12469
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approval",
+      "hash": "#/manager/web/approval/EX-0210",
+      "ok": true,
+      "issues": [],
+      "h1": "Claim — Souksavanh",
+      "appLen": 12719
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "team",
+      "hash": "#/manager/web/team",
+      "ok": true,
+      "issues": [],
+      "h1": "Team — Production Line A",
+      "appLen": 12769
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "member",
+      "hash": "#/manager/web/member/EMP-0214",
+      "ok": true,
+      "issues": [],
+      "h1": "Souksavanh Phommachanh",
+      "appLen": 11690
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "schedule",
+      "hash": "#/manager/web/schedule",
+      "ok": true,
+      "issues": [],
+      "h1": "Schedule — week 24",
+      "appLen": 11063
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "teamdata",
+      "hash": "#/manager/web/teamdata",
+      "ok": true,
+      "issues": [],
+      "h1": "Team data",
+      "appLen": 23785
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "reports",
+      "hash": "#/manager/web/reports",
+      "ok": true,
+      "issues": [],
+      "h1": "Team reports",
+      "appLen": 17287
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/manager/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "Team attendance — June · RPT-1010",
+      "appLen": 13242
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/manager/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "Report file storage",
+      "appLen": 12560
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "home",
+      "hash": "#/manager/mobile/home",
+      "ok": true,
+      "issues": [],
+      "h1": "Team",
+      "appLen": 11331
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "approvals",
+      "hash": "#/manager/mobile/approvals",
+      "ok": true,
+      "issues": [],
+      "h1": "Approvals",
+      "appLen": 10949
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "team",
+      "hash": "#/manager/mobile/team",
+      "ok": true,
+      "issues": [],
+      "h1": "Team",
+      "appLen": 10257
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "alerts",
+      "hash": "#/manager/mobile/alerts",
+      "ok": true,
+      "issues": [],
+      "h1": "Alerts",
+      "appLen": 9666
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "approval",
+      "hash": "#/manager/mobile/approval/EX-0210",
+      "ok": true,
+      "issues": [],
+      "h1": "EX-0210",
+      "appLen": 9819
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "member",
+      "hash": "#/manager/mobile/member/EMP-0214",
+      "ok": true,
+      "issues": [],
+      "h1": "Souksavanh",
+      "appLen": 9449
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "pulse",
+      "hash": "#/hr/web/pulse",
+      "ok": true,
+      "issues": [],
+      "h1": "HR pulse",
+      "appLen": 20114
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approvals",
+      "hash": "#/hr/web/approvals",
+      "ok": true,
+      "issues": [],
+      "h1": "Approvals — L2 · cross-module",
+      "appLen": 12167
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approval",
+      "hash": "#/hr/web/approval/EX-0210",
+      "ok": true,
+      "issues": [],
+      "h1": "Settle — Expense claim · ₭ 420,000",
+      "appLen": 12969
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "comms",
+      "hash": "#/hr/web/comms",
+      "ok": true,
+      "issues": [],
+      "h1": "Communication",
+      "appLen": 16141
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "data",
+      "hash": "#/hr/web/data/db_people",
+      "ok": true,
+      "issues": [],
+      "h1": "Data manager",
+      "appLen": 38262
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person-new",
+      "hash": "#/hr/web/person-new",
+      "ok": true,
+      "issues": [],
+      "h1": "New hire",
+      "appLen": 13040
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "people",
+      "hash": "#/hr/web/people",
+      "ok": true,
+      "issues": [],
+      "h1": "People & Org",
+      "appLen": 31115
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person",
+      "hash": "#/hr/web/person/EMP-0214",
+      "ok": true,
+      "issues": [],
+      "h1": "Souksavanh Phommachanh",
+      "appLen": 15594
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "hash": "#/hr/web/time",
+      "ok": true,
+      "issues": [],
+      "h1": "Time & Attendance",
+      "appLen": 15295
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "leave",
+      "hash": "#/hr/web/leave",
+      "ok": true,
+      "issues": [],
+      "h1": "Leave & Absence",
+      "appLen": 12475
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll",
+      "hash": "#/hr/web/payroll",
+      "ok": true,
+      "issues": [],
+      "h1": "Payroll",
+      "appLen": 13677
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll-run",
+      "hash": "#/hr/web/payroll-run/PR-2026-06",
+      "ok": true,
+      "issues": [],
+      "h1": "Pay run — June 2026",
+      "appLen": 13170
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "docs",
+      "hash": "#/hr/web/docs",
+      "ok": true,
+      "issues": [],
+      "h1": "Documents",
+      "appLen": 12819
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "reports",
+      "hash": "#/hr/web/reports",
+      "ok": true,
+      "issues": [],
+      "h1": "Reports",
+      "appLen": 23169
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/hr/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "Attendance — org · RPT-1009",
+      "appLen": 13365
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/hr/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "Report file storage",
+      "appLen": 15013
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "queue",
+      "hash": "#/hr/mobile/queue",
+      "ok": true,
+      "issues": [],
+      "h1": "Queue",
+      "appLen": 9896
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "alerts",
+      "hash": "#/hr/mobile/alerts",
+      "ok": true,
+      "issues": [],
+      "h1": "Alerts",
+      "appLen": 9127
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "me",
+      "hash": "#/hr/mobile/me",
+      "ok": true,
+      "issues": [],
+      "h1": "Me",
+      "appLen": 7431
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "approval",
+      "hash": "#/hr/mobile/approval/EX-0210",
+      "ok": true,
+      "issues": [],
+      "h1": "EX-0210",
+      "appLen": 7926
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "board",
+      "hash": "#/ceo/web/board",
+      "ok": true,
+      "issues": [],
+      "h1": "Executive board — Q2 2026",
+      "appLen": 19010
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "trends",
+      "hash": "#/ceo/web/trends",
+      "ok": true,
+      "issues": [],
+      "h1": "Trends",
+      "appLen": 16498
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "divisions",
+      "hash": "#/ceo/web/divisions",
+      "ok": true,
+      "issues": [],
+      "h1": "Divisions",
+      "appLen": 10745
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "division",
+      "hash": "#/ceo/web/division/Sales",
+      "ok": true,
+      "issues": [],
+      "h1": "Sales — rollup",
+      "appLen": 11097
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "compliance",
+      "hash": "#/ceo/web/compliance",
+      "ok": true,
+      "issues": [],
+      "h1": "Compliance & risk posture",
+      "appLen": 12167
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "dataroom",
+      "hash": "#/ceo/web/dataroom",
+      "ok": true,
+      "issues": [],
+      "h1": "Data room",
+      "appLen": 12764
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "packs",
+      "hash": "#/ceo/web/packs",
+      "ok": true,
+      "issues": [],
+      "h1": "Board packs",
+      "appLen": 13865
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/ceo/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "Executive board pack · RPT-1003",
+      "appLen": 12302
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/ceo/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "Pack file storage",
+      "appLen": 10337
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "board",
+      "hash": "#/ceo/mobile/board",
+      "ok": true,
+      "issues": [],
+      "h1": "Snapshot · Q2",
+      "appLen": 9043
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "trends",
+      "hash": "#/ceo/mobile/trends",
+      "ok": true,
+      "issues": [],
+      "h1": "Trends",
+      "appLen": 10439
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "me",
+      "hash": "#/ceo/mobile/me",
+      "ok": true,
+      "issues": [],
+      "h1": "Me",
+      "appLen": 7502
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "division",
+      "hash": "#/ceo/mobile/division/Sales",
+      "ok": true,
+      "issues": [],
+      "h1": "Sales",
+      "appLen": 7655
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "health",
+      "hash": "#/sysadmin/web/health",
+      "ok": true,
+      "issues": [],
+      "h1": "Platform health",
+      "appLen": 16901
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "templates",
+      "hash": "#/sysadmin/web/templates",
+      "ok": true,
+      "issues": [],
+      "h1": "Content & templates — CMS",
+      "appLen": 14111
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "template",
+      "hash": "#/sysadmin/web/template/TPL-023",
+      "ok": true,
+      "issues": [],
+      "h1": "Shift reminder",
+      "appLen": 14281
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "hash": "#/sysadmin/web/channels",
+      "ok": true,
+      "issues": [],
+      "h1": "Channels & gateways",
+      "appLen": 13750
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "roles",
+      "hash": "#/sysadmin/web/roles",
+      "ok": true,
+      "issues": [],
+      "h1": "Roles & permissions",
+      "appLen": 14461
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "integrations",
+      "hash": "#/sysadmin/web/integrations",
+      "ok": true,
+      "issues": [],
+      "h1": "Integrations & SSO",
+      "appLen": 15106
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "database",
+      "hash": "#/sysadmin/web/database",
+      "ok": true,
+      "issues": [],
+      "h1": "Database studio",
+      "appLen": 37872
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "dbstore",
+      "hash": "#/sysadmin/web/dbstore/db_people",
+      "ok": true,
+      "issues": [],
+      "h1": "People & Org — phoungern-people",
+      "appLen": 36387
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "reports",
+      "hash": "#/sysadmin/web/reports",
+      "ok": true,
+      "issues": [],
+      "h1": "Platform reports",
+      "appLen": 13896
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "report-run",
+      "hash": "#/sysadmin/web/report-run",
+      "ok": true,
+      "issues": [],
+      "h1": "Audit ledger extract · RPT-1001",
+      "appLen": 13431
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "report-files",
+      "hash": "#/sysadmin/web/report-files",
+      "ok": true,
+      "issues": [],
+      "h1": "Report file storage",
+      "appLen": 11371
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "backups",
+      "hash": "#/sysadmin/web/backups",
+      "ok": true,
+      "issues": [],
+      "h1": "Backups & restore",
+      "appLen": 32948
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "audit",
+      "hash": "#/sysadmin/web/audit",
+      "ok": true,
+      "issues": [],
+      "h1": "Audit log",
+      "appLen": 12858
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "health",
+      "hash": "#/sysadmin/mobile/health",
+      "ok": true,
+      "issues": [],
+      "h1": "Platform",
+      "appLen": 8803
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "templates",
+      "hash": "#/sysadmin/mobile/templates",
+      "ok": true,
+      "issues": [],
+      "h1": "Templates",
+      "appLen": 8590
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "audit",
+      "hash": "#/sysadmin/mobile/audit",
+      "ok": true,
+      "issues": [],
+      "h1": "Audit",
+      "appLen": 9990
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "template",
+      "hash": "#/sysadmin/mobile/template/TPL-023",
+      "ok": true,
+      "issues": [],
+      "h1": "TPL-023",
+      "appLen": 7651
+    }
+  ],
+  "flows": [
+    {
+      "name": "staff",
+      "steps": [
+        {
+          "desc": "submit a Leave request persists to db_workflow",
+          "ok": true,
+          "info": "added LV-0489 · survived reload"
+        },
+        {
+          "desc": "clock in/out writes a punch to db_time",
+          "ok": true,
+          "info": "clock toggled (out), punches 6→6"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "name": "manager",
+      "steps": [
+        {
+          "desc": "approve a pending request flips status in db_workflow + persists",
+          "ok": true,
+          "info": "LV-0481 approved · survived reload"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "name": "hr",
+      "steps": [
+        {
+          "desc": "hire a new employee persists to db_people (+ leave balance)",
+          "ok": true,
+          "info": "hired EMP-0250 + leave balance · survived reload"
+        },
+        {
+          "desc": "advance a payroll run mutates db_payroll + persists",
+          "ok": true,
+          "info": "PR-2026-06 advanced from step 1 · survived reload"
+        },
+        {
+          "desc": "send a broadcast writes to db_comms",
+          "ok": true,
+          "info": "comms logged, messages 0→1"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "name": "sysadmin-db",
+      "steps": [
+        {
+          "desc": "db console add-row persists to db_people",
+          "ok": true,
+          "info": "db-add row, 32→33 · survived reload"
+        },
+        {
+          "desc": "backup → restore round-trip (per-store)",
+          "ok": true,
+          "info": "backup/restore rewound 39→38"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "name": "reports",
+      "steps": [
+        {
+          "desc": "generate a report run saves to dw_reports + persists",
+          "ok": true,
+          "info": "generated RPT-1011 (team-attendance) · survived reload"
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "deadButtons": [],
+  "stubActions": [
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "home",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "time",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "requests",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-new",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-detail",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-detail",
+      "act": "toast:History exported"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslips",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslips",
+      "act": "toast:Payslip PDF downloaded"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslip",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslip",
+      "act": "toast:Payslip PDF downloaded"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslip",
+      "act": "toast:Tax statement requested"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "documents",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "mydata",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "mydata",
+      "act": "toast:Your data export has been queued — delivered as a signed file (GDPR-style takeout)"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "reports",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "me",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "web",
+      "screen": "me",
+      "act": "toast:Change request opened (PR flow)"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "home",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "time",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "requests",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "me",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "request-detail",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "request-new",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "payslip",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "overview",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "overview",
+      "act": "toast:Nudge sent to 1 late, 1 absent"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "overview",
+      "act": "toast:Coaching note recorded (PV flow)"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approvals",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approvals",
+      "act": "toast:All caught up — nothing auto-approvable"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approval",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "team",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "team",
+      "act": "toast:Team report queued — delivered to your inbox"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "member",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "schedule",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "schedule",
+      "act": "toast:Week duplicated to week 25"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "schedule",
+      "act": "toast:Schedule published — team notified via push"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "teamdata",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "teamdata",
+      "act": "toast:Team data extract queued — scoped to Production Line A"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "reports",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "home",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "approvals",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "team",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "alerts",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "approval",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "member",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "pulse",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approvals",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approval",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "comms",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "data",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person-new",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "people",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "people",
+      "act": "toast:Org chart export queued"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person",
+      "act": "toast:Letter generated from TPL-014 — serial DOC-0294"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person",
+      "act": "toast:Edit mode is a build-phase feature"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "toast:Exceptions report generated"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "toast:Escalated on PV ladder — manager coached, HR recorded"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "toast:Noted — monitoring"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "toast:Correction reminders sent (TC flow)"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "leave",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "leave",
+      "act": "toast:Holiday calendar opens — localizable per country"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll-run",
+      "act": "toast:Variance report generated — 3 items over threshold"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "docs",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "reports",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "queue",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "alerts",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "me",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "approval",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "board",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "trends",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "divisions",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "division",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "compliance",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "dataroom",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "packs",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "board",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "trends",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "me",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "division",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "health",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "templates",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "template",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "roles",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "integrations",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "database",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "dbstore",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "reports",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "backups",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "audit",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "health",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "templates",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "audit",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "essential",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "template",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "home",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "time",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "requests",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-new",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-detail",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "request-detail",
+      "act": "toast:History exported"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslips",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslips",
+      "act": "toast:Payslip PDF downloaded"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslip",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslip",
+      "act": "toast:Payslip PDF downloaded"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "payslip",
+      "act": "toast:Tax statement requested"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "documents",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "documents",
+      "act": "toast:Acknowledged — recorded to the audit ledger"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "documents",
+      "act": "toast:Requested — Salary certificate (DOC-0291)"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "documents",
+      "act": "toast:Requested — Employment verification (DOC-0292)"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "documents",
+      "act": "toast:Requested — Leave & attendance record (DOC-0293)"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "mydata",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "mydata",
+      "act": "toast:Your data export has been queued — delivered as a signed file (GDPR-style takeout)"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "reports",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "me",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "web",
+      "screen": "me",
+      "act": "toast:Change request opened (PR flow)"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "home",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "time",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "requests",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "me",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "request-detail",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "request-new",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "staff",
+      "device": "mobile",
+      "screen": "payslip",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "overview",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "overview",
+      "act": "toast:Nudge sent to 1 late, 1 absent"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "overview",
+      "act": "toast:Coaching note recorded (PV flow)"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approvals",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approvals",
+      "act": "toast:All caught up — nothing auto-approvable"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approval",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "approval",
+      "act": "toast:Delegated to acting supervisor"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "team",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "team",
+      "act": "toast:Team report queued — delivered to your inbox"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "member",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "schedule",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "schedule",
+      "act": "toast:Week duplicated to week 25"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "schedule",
+      "act": "toast:Schedule published — team notified via push"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "teamdata",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "teamdata",
+      "act": "toast:Team data extract queued — scoped to Production Line A"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "reports",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "home",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "approvals",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "team",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "alerts",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "approval",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "manager",
+      "device": "mobile",
+      "screen": "member",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "pulse",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approvals",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approvals",
+      "act": "toast:Ledger adjusted — audit-logged"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approvals",
+      "act": "toast:Profile change approved"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approvals",
+      "act": "toast:Generated — serial DOC-0290, e-signed"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approval",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "approval",
+      "act": "toast:Routed to finance export instead"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "comms",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "data",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person-new",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "people",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "people",
+      "act": "toast:Org chart export queued"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person",
+      "act": "toast:Letter generated from TPL-014 — serial DOC-0294"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "person",
+      "act": "toast:Edit mode is a build-phase feature"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "toast:Exceptions report generated"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "toast:Escalated on PV ladder — manager coached, HR recorded"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "toast:Noted — monitoring"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "time",
+      "act": "toast:Correction reminders sent (TC flow)"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "leave",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "leave",
+      "act": "toast:Holiday calendar opens — localizable per country"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "payroll-run",
+      "act": "toast:Variance report generated — 3 items over threshold"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "docs",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "docs",
+      "act": "toast:Employment letter — pick employee, serial auto-assigned"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "docs",
+      "act": "toast:Salary certificates — bulk for Finance div (22)"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "docs",
+      "act": "toast:Contract renewals — 3 expiring contracts pre-filled"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "reports",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "queue",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "queue",
+      "act": "toast:Posted"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "queue",
+      "act": "toast:Generated & e-signed"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "alerts",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "me",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "hr",
+      "device": "mobile",
+      "screen": "approval",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "board",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "board",
+      "act": "toast:Board pack queued — compiled to PDF each period"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "trends",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "divisions",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "division",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "compliance",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "dataroom",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "packs",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "packs",
+      "act": "toast:Delivery schedule is owned by HR/SysAdmin — request sent"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "board",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "trends",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "me",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "ceo",
+      "device": "mobile",
+      "screen": "division",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "health",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "health",
+      "act": "toast:Test message sent on every live gateway"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "health",
+      "act": "toast:Reconnect attempted — vendor side, ticket raised"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "templates",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "templates",
+      "act": "toast:New frame — pick a base: letter · email · SMS · custom"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "template",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "template",
+      "act": "toast:Preview rendered with sample data"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "template",
+      "act": "toast:ລາວ variant opens side-by-side in the build phase"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "template",
+      "act": "toast:TPL-023 v0.9 published — locked, dated, audit-logged"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "act": "toast:Add channel — pick provider, paste credentials, send test"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "act": "toast:Test sent on Email · SMTP relay"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "act": "toast:Test sent on SMS · LaoTel gateway"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "act": "toast:Test sent on Push · in-app"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "act": "toast:Test sent on Webhook · LINE OA"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "channels",
+      "act": "toast:Fallback editor is a build-phase feature"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "roles",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "roles",
+      "act": "toast:Role request approved — manager gains team reports scope (audit-logged)"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "integrations",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "integrations",
+      "act": "toast:Integration catalog — certified plug-ins register via module manifest (§06)"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "database",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "dbstore",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "reports",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "report-run",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "report-files",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "backups",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "web",
+      "screen": "audit",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "health",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "templates",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "audit",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "template",
+      "act": "lang-lo"
+    },
+    {
+      "tier": "professional",
+      "persona": "sysadmin",
+      "device": "mobile",
+      "screen": "template",
+      "act": "toast:TPL-023 approved & published — audit-logged"
+    }
+  ],
+  "findings": [],
+  "robustness": [
+    {
+      "route": "#/hr/web/person/EMP-DOES-NOT-EXIST",
+      "appLen": 15604,
+      "fellBackToLauncher": false,
+      "leakedTokens": [],
+      "errors": [],
+      "ok": true
+    },
+    {
+      "route": "#/manager/web/approval/ZZ-9999",
+      "appLen": 13366,
+      "fellBackToLauncher": false,
+      "leakedTokens": [],
+      "errors": [],
+      "ok": true
+    },
+    {
+      "route": "#/staff/web/payslip/PS-NOPE",
+      "appLen": 11712,
+      "fellBackToLauncher": false,
+      "leakedTokens": [],
+      "errors": [],
+      "ok": true
+    },
+    {
+      "route": "#/sysadmin/web/dbstore/db_not_a_store",
+      "appLen": 36392,
+      "fellBackToLauncher": false,
+      "leakedTokens": [],
+      "errors": [],
+      "ok": true
+    },
+    {
+      "route": "#/manager/web/report-run/RPT-NONE",
+      "appLen": 13242,
+      "fellBackToLauncher": false,
+      "leakedTokens": [],
+      "errors": [],
+      "ok": true
+    },
+    {
+      "route": "#/foo/bar/baz",
+      "appLen": 11464,
+      "fellBackToLauncher": true,
+      "leakedTokens": [],
+      "errors": [],
+      "ok": true
+    },
+    {
+      "route": "#/staff/banana/home",
+      "appLen": 21800,
+      "fellBackToLauncher": false,
+      "leakedTokens": [],
+      "errors": [],
+      "ok": true
+    },
+    {
+      "route": "#/staff/web/totally-fake",
+      "appLen": 21800,
+      "fellBackToLauncher": false,
+      "leakedTokens": [],
+      "errors": [],
+      "ok": true
+    },
+    {
+      "coldDeepLink": "#/hr/web/payroll-run/PR-2026-06",
+      "h1": "Pay run — June 2026",
+      "appLen": 13170,
+      "fellBackToLauncher": false,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "coldDeepLink": "#/staff/web/payslips",
+      "h1": "Payslips",
+      "appLen": 14930,
+      "fellBackToLauncher": false,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "coldDeepLink": "#/sysadmin/web/audit",
+      "h1": "Audit log",
+      "appLen": 12479,
+      "fellBackToLauncher": false,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "coldDeepLink": "#/ceo/web/board",
+      "h1": "Executive board — Q2 2026",
+      "appLen": 19010,
+      "fellBackToLauncher": false,
+      "errors": [],
+      "ok": true
+    }
+  ],
+  "responsive": {
+    "viewport": "390x844",
+    "horizontalOverflowPx": 0,
+    "shot": "01-responsive_390_staff_mobile_home.png"
+  },
+  "summary": {
+    "routesCrawled": 172,
+    "routeFailures": 0,
+    "flows": 5,
+    "flowFailures": 0,
+    "deadButtonCandidates": 0,
+    "stubActionScreens": 86,
+    "robustnessProbes": 12,
+    "robustnessFailures": 0,
+    "findings": 0
+  },
+  "finishedAt": "2026-06-11T15:51:01.378Z"
+}
