@@ -45,7 +45,14 @@ window.LICENSE = (function () {
 
   // v2.4.5 G8 — open-tier seat cap enforcement. seatGuard is a no-op when no cap is set
   // (openLimits.maxUsers == null, the shipped default), so default product behaviour is unchanged.
-  function seatCount() { try { return (window.DATA && DATA.employees) ? DATA.employees.length : 0; } catch (e) { return 0; } }
+  // a "seat" = a person OR a login account, whichever is greater — so account imports (db_identity)
+  // and hires (db_people) both consume against the same cap and it binds across import batches.
+  function seatCount() {
+    let ppl = 0, acct = 0;
+    try { ppl = (window.DATA && DATA.employees) ? DATA.employees.length : 0; } catch (e) {}
+    try { acct = (window.DB && DB.list) ? DB.list("db_identity", "accounts").length : 0; } catch (e) {}
+    return Math.max(ppl, acct);
+  }
   function seatGuard(adding) {
     const cap = state.openLimits.maxUsers;
     if (cap == null) return { ok: true };

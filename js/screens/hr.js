@@ -260,8 +260,8 @@
           allStaff().map(p => ({
             go: `hr/web/person/${p.id}`,
             cells: [
-              `<div style="display:flex;align-items:center;gap:10px">${avatar(p.name)}<div><div class="strong">${p.name}</div><div class="small muted">${p.id}</div></div></div>`,
-              p.div, p.pos, p.since,
+              `<div style="display:flex;align-items:center;gap:10px">${avatar(p.name)}<div><div class="strong">${esc(p.name)}</div><div class="small muted">${esc(p.id)}</div></div></div>`,
+              esc(p.div), esc(p.pos), esc(p.since),
               (p.status || "active") === "active" ? badge("active") : p.status === "probation" ? `<span class="badge warn">Probation</span>` : badge("flagged"),
               icon("chevR")
             ]
@@ -272,17 +272,17 @@
     person(id) {
       const p = allStaff().find(x => x.id === id) || allStaff()[0];
       return {
-        title: p.name, sub: `${p.pos} · ${p.div} — the master record (full HR lens).`,
+        title: esc(p.name), sub: `${esc(p.pos)} · ${esc(p.div)} — the master record (full HR lens).`,
         crumbs: [{ label: "People & Org", go: "hr/web/people" }, { label: p.id }],
         actions: `<button class="btn ghost" data-act="gen-doc:hr-person-letter">${icon("file")} Generate letter</button><button class="btn soft soon" title="Build-phase feature — not wired in this UI preview" data-act="toast:Edit mode is a build-phase feature">${icon("edit")} Edit</button>`,
         body: `
         <div class="grid cols-3">
           <div class="card span-2">
             <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">${avatar(p.name, 1)}
-              <div><div style="font-weight:800;font-size:16px">${p.name}</div><div class="small muted">${p.id} · ${p.div} · since ${p.since}</div></div>
+              <div><div style="font-weight:800;font-size:16px">${esc(p.name)}</div><div class="small muted">${esc(p.id)} · ${esc(p.div)} · since ${esc(p.since)}</div></div>
               <span style="margin-left:auto">${badge((p.status || "active") === "active" ? "active" : p.status)}</span></div>
             ${table([{ h: "Field" }, { h: "Value" }], [
-          { cells: ["Position / grade", p.pos + " · G4"] },
+          { cells: ["Position / grade", esc(p.pos) + " · G4"] },
           { cells: ["Employment", "Full-time · permanent"] },
           { cells: ["Reports to", "Khamla Sisouphanh (EMP-0098)"] },
           { cells: ["Cost center", "PRD-A-110"] },

@@ -44,8 +44,8 @@
       const md = memberMethod(m.id);
       return rowitem({
         avatar: m.name,
-        title: m.name,
-        sub: `${m.pos} · in ${m.in}${md ? " · " + methodShort(md) : ""}`,
+        title: UI.esc(m.name),
+        sub: `${UI.esc(m.pos)} · in ${UI.esc(m.in)}${md ? " · " + methodShort(md) : ""}`,
         side: badge(m.state),
         go: `manager/${device}/member/${m.id}`
       });
@@ -181,8 +181,8 @@
           return card("Roster", table(cols, DATA.team.map(m => {
             const md = memberMethod(m.id);
             const cells = [
-              `<div style="display:flex;align-items:center;gap:10px">${avatar(m.name)}<div><div class="strong">${m.name}</div><div class="small muted">${m.id}</div></div></div>`,
-              m.pos, badge(m.state)
+              `<div style="display:flex;align-items:center;gap:10px">${avatar(m.name)}<div><div class="strong">${UI.esc(m.name)}</div><div class="small muted">${UI.esc(m.id)}</div></div></div>`,
+              UI.esc(m.pos), badge(m.state)
             ];
             if (bio) cells.push(md ? `<span class="pill">${icon(md.icon)} ${methodShort(md)}</span>` : `<span class="small muted">—</span>`);
             cells.push(`<span class="num">${m.attend}%</span>`, `<span class="num">${m.ot} h</span>`, `<span class="num">${m.leaveBal} d</span>`);
@@ -195,8 +195,8 @@
     member(id) {
       const m = DATA.team.find(x => x.id === id) || DATA.team[0];
       return {
-        title: m.name, sub: `${m.pos} · ${m.id} · your direct report — scoped view, not the HR master record.`,
-        crumbs: [{ label: "Team", go: "manager/web/team" }, { label: m.name.split(" ")[0] }],
+        title: UI.esc(m.name), sub: `${UI.esc(m.pos)} · ${UI.esc(m.id)} · your direct report — scoped view, not the HR master record.`,
+        crumbs: [{ label: "Team", go: "manager/web/team" }, { label: UI.esc(m.name.split(" ")[0]) }],
         actions: `${badge(m.state)}`,
         body: `
         <div class="grid cols-3">
@@ -243,7 +243,7 @@
           <div style="display:flex;flex-direction:column;gap:16px">
             ${card("Assign existing staff to Line A", `
               <div class="field"><label>Staff member</label>
-                <select class="input" id="mg-assign">${DATA.employees.filter(e => e.team !== "Line A").map(e => `<option value="${e.id}">${e.name} · ${e.pos} (${e.div})</option>`).join("")}</select>
+                <select class="input" id="mg-assign">${DATA.employees.filter(e => e.team !== "Line A").map(e => `<option value="${UI.esc(e.id)}">${UI.esc(e.name)} · ${UI.esc(e.pos)} (${UI.esc(e.div)})</option>`).join("")}</select>
               </div>
               <button class="btn soft" style="width:100%" data-act="mgr-assign">${icon("users")} Assign to my team</button>
               <p class="small muted" style="margin-top:10px">Sets <b>team → Line A</b> on the db_people row — roster, attendance board and schedule pick it up on the same write. New hires are created by HR (People &amp; Org → New hire); managers assign, never create.</p>`, { icon: "plus" })}
@@ -339,8 +339,8 @@
     member(id) {
       const m = DATA.team.find(x => x.id === id) || DATA.team[0];
       return {
-        title: m.name.split(" ")[0], back: "manager/mobile/team", body: `
-        ${card("", `<div style="display:flex;align-items:center;gap:12px">${avatar(m.name, 1)}<div><div style="font-weight:800">${m.name}</div><div class="small muted">${m.pos} · ${m.id}</div></div></div>`)}
+        title: UI.esc(m.name.split(" ")[0]), back: "manager/mobile/team", body: `
+        ${card("", `<div style="display:flex;align-items:center;gap:12px">${avatar(m.name, 1)}<div><div style="font-weight:800">${UI.esc(m.name)}</div><div class="small muted">${UI.esc(m.pos)} · ${UI.esc(m.id)}</div></div></div>`)}
         <div class="grid cols-2">${kpi("Attend.", m.attend + "%", "90-day")}${kpi("OT", m.ot + " h", "MTD")}</div>
         ${card("June", heatcal({ until: 10 }), { icon: "calendar" })}`
       };

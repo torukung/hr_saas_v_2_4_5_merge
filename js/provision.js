@@ -83,14 +83,15 @@ window.PROV = (function () {
     const dr = dryRun(text, opts);
     const ts = stamp();
     let created = 0, linked = 0, errors = 0, dupes = 0, capped = 0;
-    // v2.4.5 G8 — open-tier seat cap: stop creating accounts once the cap is hit (no-op unless maxUsers is set)
-    let capRemaining = Infinity;
-    try { if (window.LICENSE && LICENSE.seatGuard) { const g = LICENSE.seatGuard(0); if (g.cap != null) capRemaining = Math.max(0, g.cap - g.have); } } catch (e) {}
+    // v2.4.5 G8 — open-tier seat cap: re-check the LIVE seat count before EACH create so accounts created
+    // earlier in this batch also count against the cap (no-op unless maxUsers is set). Binds across batches.
     dr.items.forEach(x => {
       if (x.action === "error" || x.action === "conflict") { errors++; return; }
       if (x.action === "skip") { dupes++; return; }
       if (x.action === "create") {
-        if (capRemaining <= 0) { capped++; return; }   // seat cap reached — defer this create
+        let overCap = false;
+        try { if (window.LICENSE && LICENSE.seatGuard) overCap = !LICENSE.seatGuard(1).ok; } catch (e) {}
+        if (overCap) { capped++; return; }   // seat cap reached (live count) — defer this create
         if (x.mode === "local") {
           AUTH.invite({ emp: x.emp || null, name: x.name || x.email, email: x.email, scope: x.scope, who: who || "import" });
         } else {
@@ -99,7 +100,7 @@ window.PROV = (function () {
           if (!AUTH.dirUser(x.email)) AUTH.dirAdd({ email: x.email, name: x.name, emp: x.emp, type: x.mode, role: x.scope }, who);
           save();
         }
-        created++; capRemaining--;
+        created++;
       } else if (x.action === "link") {
         AUTH.setMode(x.email, x.mode, { reason: "file import" }, who); linked++;
       }

@@ -40,7 +40,7 @@ window.REP = (function () {
     "my-requests": {
       persona: "staff", icon: "inbox", title: "My requests statement", formats: "PDF · CSV",
       desc: "Every request you submitted with its current chain position — traceable shared IDs.",
-      query() { return `SELECT * FROM workflow_requests WHERE who='${DATA.me.staff.name}' — db_workflow`; },
+      query() { return `SELECT * FROM workflow_requests WHERE who='${UI.esc(DATA.me.staff.name)}' — db_workflow`; },
       headline() { const m = DATA.mine(); return m.filter(r => r.status === "pending").length + " open · " + m.length + " total"; },
       kpis() {
         const m = DATA.mine();

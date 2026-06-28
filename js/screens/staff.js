@@ -14,7 +14,7 @@
   function userPicker() {
     const cur = DATA.me.staff.id;
     return `<select class="input sm staff-pick" title="Demo — act as any user from db_people" aria-label="Acting staff user">
-      ${DATA.employees.map(e => `<option value="${e.id}" ${e.id === cur ? "selected" : ""}>${e.name} · ${e.id}</option>`).join("")}</select>`;
+      ${DATA.employees.map(e => `<option value="${UI.esc(e.id)}" ${e.id === cur ? "selected" : ""}>${UI.esc(e.name)} · ${UI.esc(e.id)}</option>`).join("")}</select>`;
   }
   function userPickerCard() {
     return card("Acting as — pick a user from db_people", `
@@ -115,7 +115,7 @@
     home() {
       const m = DATA.me.staff;
       return {
-        title: "Good morning, " + m.name.split(" ")[0], sub: `Wednesday, June 10 2026 · ${m.role} · everything that needs you, in one place.`,
+        title: "Good morning, " + UI.esc(m.name.split(" ")[0]), sub: `Wednesday, June 10 2026 · ${UI.esc(m.role)} · everything that needs you, in one place.`,
         actions: `${userPicker()}<button class="btn soft" data-go="staff/web/requests">${icon("plus")} New request</button>`,
         body: `
         <div class="grid cols-3">
@@ -481,8 +481,8 @@
         <div class="grid cols-3">
           <div class="card span-2">
             <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">${avatar(m.name, 1)}
-              <div><div style="font-weight:800;font-size:16px">${m.name}</div>
-              <div class="small muted">${m.role} · ${idtag(m.id)}</div></div></div>
+              <div><div style="font-weight:800;font-size:16px">${UI.esc(m.name)}</div>
+              <div class="small muted">${UI.esc(m.role)} · ${idtag(m.id)}</div></div></div>
             ${table([{ h: "Field" }, { h: "Value" }], [
           { cells: ["Division", m.div + (m.team !== "—" ? " · " + m.team : "")] },
           { cells: ["Site", m.site] },
@@ -500,7 +500,7 @@
           </div>
         </div>
         <div style="height:16px"></div>
-        ${card("Profile — General · Personal · Job", `<div class="grid cols-3">${PROFILE.sections().map(s => `<div><div class="strong small" style="margin-bottom:6px">${icon(s.icon)} ${s.label}</div>${table([{ h: "Field" }, { h: "Value", r: 1 }], s.fields.map(([k, lbl]) => ({ cells: [`<span class="small muted">${lbl}</span>`, `<span>${PROFILE.value(PROFILE.emp(m.id) || m, k, s.sealed)}</span>`] })))}</div>`).join("")}</div><p class="small muted" style="margin-top:8px">Read-only · the same profile your manager sees. Sealed fields (DOB · National ID) are masked.</p>`, { icon: "user" })}
+        ${card("Profile — General · Personal · Job", `<div class="grid cols-3">${PROFILE.sections().map(s => `<div><div class="strong small" style="margin-bottom:6px">${icon(s.icon)} ${s.label}</div>${table([{ h: "Field" }, { h: "Value", r: 1 }], s.fields.map(([k, lbl]) => ({ cells: [`<span class="small muted">${lbl}</span>`, `<span>${UI.esc(PROFILE.value(PROFILE.emp(m.id) || m, k, s.sealed))}</span>`] })))}</div>`).join("")}</div><p class="small muted" style="margin-top:8px">Read-only · the same profile your manager sees. Sealed fields (DOB · National ID) are masked.</p>`, { icon: "user" })}
         <div style="height:16px"></div>
         ${card("Time off", `<div class="grid cols-3" style="gap:10px;margin-bottom:12px">${LEAVECAL.balances().map(([tp, ent, used]) => `<div style="text-align:center;padding:10px;border:1px solid var(--line);border-radius:12px"><div class="num" style="font-size:20px;font-weight:700">${ent - used}</div><span class="small muted">${tp} left · ${used}/${ent}</span></div>`).join("")}</div>${table([{ h: "Upcoming holiday" }, { h: "Date" }, { h: "Kind", r: 1 }], LEAVECAL.holidays().slice(0, 4).map(h => ({ cells: [h.name, `<span class="small">${h.date}</span>`, `<span class="badge ${h.kind === "public" ? "acc" : "plain"} plain">${h.kind}</span>`] })))}<div style="margin-top:10px"><button class="btn sm" data-go="staff/web/request-new/Leave">${icon("sun")} Request time off</button></div>`, { icon: "sun" })}`
       };
@@ -549,7 +549,7 @@
       const m = DATA.me.staff;
       return {
         title: "Me", body: `
-        ${card("", `<div style="display:flex;align-items:center;gap:13px">${avatar(m.name, 1)}<div><div style="font-weight:800">${m.name}</div><div class="small muted">${m.role}</div></div></div>`)}
+        ${card("", `<div style="display:flex;align-items:center;gap:13px">${avatar(m.name, 1)}<div><div style="font-weight:800">${UI.esc(m.name)}</div><div class="small muted">${UI.esc(m.role)}</div></div></div>`)}
         ${card("Switch user — db_people", userPicker() + `<p class="small muted" style="margin-top:8px">New hires are selectable immediately.</p>`, { icon: "user" })}
         ${card("Payslips", (DATA.myPayslips().length
           ? rowlist(DATA.myPayslips().map(p => rowitem({ icon: "banknote", title: p.period, sub: "Net " + kip(p.net), side: icon("chevR"), go: `staff/mobile/payslip/${p.id}` })))

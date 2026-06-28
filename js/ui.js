@@ -90,7 +90,7 @@ window.UI = (function () {
 
   function badge(status) {
     const map = {
-      approved: ["ok", "Approved"], ok: ["ok", "OK"], live: ["ok", "Live"], active: ["ok", "Active"],
+      approved: ["ok", "Approved"], recovered: ["ok", "Recovered"], ok: ["ok", "OK"], live: ["ok", "Live"], active: ["ok", "Active"],
       published: ["ok", "Published"], disbursed: ["ok", "Disbursed"], present: ["ok", "Present"],
       pending: ["warn", "Pending"], draft: ["warn", "Draft"], review: ["warn", "In review"],
       late: ["warn", "Late"], expiring: ["warn", "Expiring"], onleave: ["", "On leave"],

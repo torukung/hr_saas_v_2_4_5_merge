@@ -194,8 +194,12 @@ window.DATA = (function () {
     const e = arr && arr.find(x => x.id === id);
     if (!e) return { ok: false, err: "No such employee." };
     const FIELDS = ["name", "pos", "div", "team", "phone", "pemail", "manager", "start", "site"];
+    // strip angle brackets at the write boundary — db_people is rendered in many places (incl. the live
+    // DATA.me.staff reference), so blocking tag injection here is the robust anti-stored-XSS layer (render
+    // sinks also UI.esc as defence-in-depth).
+    const clean = (v) => String(v == null ? "" : v).replace(/[<>]/g, "").trim();
     let changed = 0;
-    FIELDS.forEach(k => { if (patch && patch[k] != null && patch[k] !== "" && patch[k] !== e[k]) { e[k] = patch[k]; changed++; } });
+    FIELDS.forEach(k => { if (patch && patch[k] != null) { const v = clean(patch[k]); if (v !== "" && v !== e[k]) { e[k] = v; changed++; } } });
     DB.persist("db_people");
     DB.audit(who || "Vilayvanh C.", "employee.profile_edited", id + " · " + changed + " field(s)", "console");
     notify();
