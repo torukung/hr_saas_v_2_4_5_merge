@@ -6,7 +6,9 @@ Scope: **A1·A3·B1·B2·B3·B4·C1·C2·C3·D1·D2·E1·F1** (A2 excluded). Sin
 
 **Gate rule:** `node tools/smoke.js .` green before every merge. **Current: 302 · ALL CHECKS PASS.**
 
-**WAVE 1 ✅ · WAVE 2 ✅ · Close-out ✅ · Backup/Restore ✅ · T8 deploy KIT ✅ (push + CF config pending).**
+**WAVE 1 ✅ · WAVE 2 ✅ · Close-out ✅ · Backup/Restore ✅ · T8 deploy ✅ LIVE on Cloudflare (Worker deployed · client↔D1 sync flowing).**
+
+> **DEPLOY LIVE — 2026-06-28.** Worker `adeptio-hr-v245.pathom-bot.workers.dev` deployed with D1·KV·R2 bindings; `/api/health` → `{ok, stores:15}`, **0 errors**. `/api/sync` returns real D1 data — **33 employees** + payroll·leave·audit·`db_platform` (incl. persisted FLAGS/LICENSE); **14 of 15 stores replicate** (`db_identity` custody-excluded). Local-first + 30s replication to the edge is **verified flowing**. Optional owner-side: `wrangler secret put` (SMTP/LINE/WA/SMS/PEPPER) + custom domain.
 
 ### MEDIUM GAPS CLOSED — 2026-06-28 (smoke 294 → 302; all 7 mediums from the Playwright menu-flow report)
 - **G9 · persistence** — `FLAGS.state` + `LICENSE.state` (incl. `openLimits`/tier) now persist to `db_platform.settings` via `DB.platformGet/platformSet`; loaded on boot, saved on change → survive reload. Foundational (G8/G4 read through it).
@@ -31,14 +33,14 @@ Scope: **A1·A3·B1·B2·B3·B4·C1·C2·C3·D1·D2·E1·F1** (A2 excluded). Sin
 - **S2** Duplicate week · **S4** payslip delivery dispatch · **S6/S7/S8** sched-connector seams (external calendar · capture-actuals · third-party rostering) · **S9** CEO "Delivery schedule" (read-only persona — must NOT become actionable) · **S10** channel fallback editor · **S11** integration catalog. **S1** (manager auto-approve) was already removed by the unified inbox.
 - Report synced: G7/G10/G11 → **Done**; G12 reframed as accepted; S0/S3/S5 toasts removed so they drop off the next menu-flow run.
 
-### T8 · DEPLOY KIT — PREPPED in-folder · **D1 LIVE + MIGRATED (2026-06-28)**
+### T8 · DEPLOY — **LIVE on Cloudflare (2026-06-28)** · Worker deployed + client↔D1 sync flowing
 - `wrangler.toml` — Worker `adeptio-hr-v245` + **D1** (DB, id `e077a89e…`, **migrated**) / **KV** (SESSIONS, live id) / **R2** (BACKUPS) bindings.
 - ✅ **D1 DONE (2026-06-28)**: `0001_init.sql` applied to live D1 (APAC/SIN) — `store_blob` (15 stores seeded · `db_identity` sensitive=1 · `dw_reports` derived=1) + `backups` + `sessions` + `audit`. Verified via CF D1 query. Client sync already rewired to the edge (commit 28dcf3f, local-first + 30s replication).
 - `worker/src/v245.js` — D1 module Worker: `/api/health`, `/api/sync[/:store]` (push/pull, **db_identity rejected**), `/api/backup` + `/api/restore/:id` (D1 + R2 dated folders), `/mail` · `/webhook/:ch` · `/punch` (stubs).
 - `migrations/0001_init.sql` — `store_blob` (15 seeded stores) + `backups` + `sessions` + `audit`.
 - `.github/workflows/deploy.yml` — smoke gate → `wrangler deploy`. `package.json` — wrangler + `d1:init`/`deploy` scripts. `DEPLOY.md` — full runbook.
 - Verified: Worker ESM ok · package.json ok · client smoke **294** green (kit doesn't touch the app).
-- **Next (your-machine `wrangler`):** `wrangler deploy` (Worker) + `wrangler secret put` (PEPPER · SMTP_APP_PASSWORD · LINE/WA/SMS) + create the R2 bucket `adeptio-hr-backups` + connect CF Pages. D1 create/migrate is **done**. These remaining steps need the authenticated CLI on your machine — they can't run from the sandbox.
+- **DONE:** Worker **deployed** at `adeptio-hr-v245.pathom-bot.workers.dev` (D1·KV·R2 bound, 0 errors); D1 migrated + **receiving live client data**; client local-first + 30s replication to the edge **verified flowing**. **Optional owner-side (not blocking):** `wrangler secret put` (PEPPER · SMTP_APP_PASSWORD · LINE/WA/SMS) to light up live auth + external send, and optionally attach a custom domain (running on `*.workers.dev` today).
 
 ### Wave-2 CLOSE-OUT — DONE (smoke 294): HR Communication channel chips now lit by `MAIL.ready` (Email·Push always; SMS·LINE·WhatsApp light when owner enables+configures, else greyed "set up in Platform Settings"); Staff "Me" reuses the PROFILE sections (read-only, sealed masked); Staff "Me" gained a Time-off panel (balances + upcoming holidays). ✅ **DONE 2026-06-28 — calendar-core holiday-column render**: month cells draw a corner dot (public = filled · company = ring, on a soft `--hol` plum wash) + week/day headers show the holiday name + day-view note; node-safe via a render-time `LEAVECAL.isHoliday` guard; dot/ring use `--hol-d` (WCAG 1.4.11 ≥3:1) and carry a `role="img"` aria-label.
 
