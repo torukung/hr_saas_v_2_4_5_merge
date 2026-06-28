@@ -1,0 +1,287 @@
+/* ============================================================
+   ADEPTIO · v2.4.4 — Job Schedule & shifts  (calendar core styles)
+   Atelier-Pastel, elevated. Pairs with css/tokens.css + css/app.css.
+   Rules of the house, kept here too:
+     · tokens only — colours via var(--…); no raw hex (alpha overlays
+       use color-mix on tokens, never a literal #).
+     · adaptive via @container on the existing `content` / `workspace`
+       containers — the ONLY @media is prefers-reduced-motion.
+     · overlap-safe everywhere — every flex/grid text child gets
+       min-width:0; long names ellipsis; the month grid uses
+       minmax(0,1fr); week/hour rows scroll-x inside .tablewrap.
+   ============================================================ */
+
+/* ---------- shell ---------- */
+.calwrap{ display:flex; flex-direction:column; gap:clamp(10px,1.8cqi,16px); min-width:0; container-type:inline-size; }
+.cal-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; min-width:0; }
+.cal-title{ font:600 clamp(15px,2.6cqi,19px)/1.15 var(--display); letter-spacing:-.02em; color:var(--ink); min-width:0; }
+.cal-sub{ font-size:11.5px; color:var(--muted); font-weight:600; min-width:0; }
+
+/* ---------- quick-view strip (total · Active · Leave · Available) ---------- */
+.cal-quick{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:clamp(8px,1.4cqi,12px); }
+.qv-cell{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm);
+  padding:clamp(9px,1.4cqi,13px) clamp(10px,1.6cqi,15px); display:flex; flex-direction:column; gap:3px; min-width:0; box-shadow:var(--sh-sm); }
+.qv-cell .qv-n{ font:500 clamp(18px,3cqi,24px)/1 var(--display); letter-spacing:-.03em; color:var(--ink); font-variant-numeric:tabular-nums; }
+.qv-cell .qv-l{ font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.qv-cell.ok .qv-n{ color:var(--ok-text); }
+.qv-cell.warn .qv-n{ color:var(--warn-text); }
+.qv-cell.acc .qv-n{ color:var(--acc-d); }
+
+/* ---------- MONTH grid ---------- */
+.cal-dows{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; flex:1 1 320px; min-width:0; }
+.cal-dows span{ font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-2);
+  text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.cal-weekrail{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.cal-weekrow{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px; align-items:stretch; min-width:0; }
+.cal-wk{ display:flex; align-items:center; justify-content:center; width:clamp(30px,4cqi,42px);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm);
+  font:700 10.5px/1 var(--mono); color:var(--muted); cursor:pointer; transition:background var(--t),color var(--t); }
+.cal-wk:hover{ background:var(--acc-bg); color:var(--acc-d); border-color:var(--acc-ln); }
+.cal-week7{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; min-width:0; }
+
+.cal-day{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm);
+  padding:clamp(5px,1cqi,8px); min-height:clamp(64px,9cqi,104px); min-width:0;
+  display:flex; flex-direction:column; gap:5px; transition:outline-color var(--t),background var(--t); outline:2px solid transparent; outline-offset:-2px; }
+.cal-day.muted{ background:var(--surface-2); }
+.cal-day.muted .cd-num{ color:var(--muted-2); }
+.cal-day.today{ border-color:var(--acc-ln); box-shadow:inset 0 0 0 1px var(--acc-ln); }
+.cal-day.today .cd-num{ color:#fff; background:var(--acc); }
+.cal-day .cd-num{ font:700 11px/1 var(--font); color:var(--ink-2); align-self:flex-start;
+  min-width:19px; height:19px; padding:0 5px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; font-variant-numeric:tabular-nums; }
+.cd-chips{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+/* drop affordance — uses --acc, kept off the static border so layout never shifts */
+.cal-day.drop-hot{ outline-color:var(--acc); background:var(--acc-bg); }
+
+/* ---------- shift chip (pastel · persona-toned) ---------- */
+.shiftchip{ display:flex; align-items:center; gap:6px; min-width:0;
+  padding:4px 7px; border-radius:8px; font-size:10.8px; font-weight:600; line-height:1.2;
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2); }
+.shiftchip .sc-name{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.shiftchip .sc-cap{ flex:none; font:700 9.5px/1 var(--mono); font-variant-numeric:tabular-nums; opacity:.85; }
+.shiftchip.is-hr{ background:var(--hr-bg); border-color:var(--hr-ln); color:var(--hr-d); }
+.shiftchip.is-mgr{ background:var(--mgr-bg); border-color:var(--mgr-ln); color:var(--mgr-d); }
+.shiftchip.is-staff{ background:var(--staff-bg); border-color:var(--staff-ln); color:var(--staff-d); }
+.shiftchip.is-ceo{ background:var(--ceo-bg); border-color:var(--ceo-ln); color:var(--ceo-d); }
+/* cap exceeded → warn tone, regardless of persona colour */
+.shiftchip.over{ background:var(--bad-bg); border-color:var(--bad); color:var(--bad-text); }
+.shiftchip[draggable="true"]{ cursor:grab; }
+.shiftchip[draggable="true"]:active,.shiftchip.dragging{ cursor:grabbing; opacity:.6; }
+
+/* ---------- WEEK / DAY (hour-split lanes) ---------- */
+.cal-weekgrid{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:8px; min-width:560px; }
+.cal-hours{ display:flex; flex-direction:column; padding-top:30px; }
+.cal-hour{ flex:1 1 0; min-height:34px; position:relative; }
+.cal-hour span{ position:absolute; top:-6px; right:6px; font:600 9.5px/1 var(--mono); color:var(--muted-2); }
+.cal-daycols{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(120px,1fr); gap:8px; min-width:0; }
+.cal-daycol{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.cal-daycol.wide{ grid-column:1 / -1; }
+.cdc-head{ display:flex; align-items:baseline; gap:6px; min-width:0; padding:0 2px 2px; }
+.cdc-head .cdc-dow{ font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.cdc-head .cdc-num{ font:600 13px/1 var(--display); color:var(--ink); font-variant-numeric:tabular-nums; }
+.cdc-lanes{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+
+.cal-lane{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); padding:6px; min-width:0;
+  transition:outline-color var(--t),background var(--t); outline:2px solid transparent; outline-offset:-2px; }
+.cal-lane.drop-hot{ outline-color:var(--acc); background:var(--acc-bg); }
+.cal-lane.empty{ opacity:.7; }
+.cl-head{ font-size:10.5px; font-weight:700; color:var(--ink-2); margin-bottom:5px; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cl-grid{ position:relative; min-height:calc(34px * 4); border-radius:8px; overflow:hidden; min-width:0;
+  background:linear-gradient(var(--line-2) 1px, transparent 1px); background-size:100% calc(100% / 8); }
+.cl-hr{ display:none; }
+.cal-block{ position:absolute; left:3px; right:3px; min-width:0; border-radius:7px; padding:4px 6px;
+  display:flex; flex-direction:column; gap:1px; overflow:hidden; box-shadow:var(--sh-sm);
+  border:1px solid var(--line); background:var(--surface-2); }
+.cal-block .cb-t{ font-size:10px; font-weight:700; line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cal-block .cb-w{ font-size:9.5px; line-height:1.15; opacity:.8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cal-block.is-hr{ background:var(--hr-bg); border-color:var(--hr-ln); color:var(--hr-d); }
+.cal-block.is-mgr{ background:var(--mgr-bg); border-color:var(--mgr-ln); color:var(--mgr-d); }
+.cal-block.is-staff{ background:var(--staff-bg); border-color:var(--staff-ln); color:var(--staff-d); }
+.cal-block.is-ceo{ background:var(--ceo-bg); border-color:var(--ceo-ln); color:var(--ceo-d); }
+
+/* ---------- Shift-CAP meter ---------- */
+.shift-cap{ display:flex; align-items:center; gap:8px; min-width:0; }
+.shift-cap .sc-track{ flex:1 1 auto; min-width:0; height:7px; border-radius:99px; background:var(--line-2); overflow:hidden; }
+.shift-cap .sc-track span{ display:block; height:100%; min-width:3px; border-radius:99px; background:var(--ok); transition:width var(--t); }
+.shift-cap.warn .sc-track span{ background:var(--warn); }
+.shift-cap.bad .sc-track span{ background:var(--bad); }
+.shift-cap .sc-figs{ flex:none; font:700 10.5px/1 var(--mono); color:var(--ink-2); font-variant-numeric:tabular-nums; }
+
+/* ---------- status filter (multi-status pills) ---------- */
+.statusfilter{ display:flex; flex-wrap:wrap; gap:8px; min-width:0; }
+.statusfilter .sf-pill{ display:inline-flex; align-items:center; gap:6px; min-width:0;
+  padding:5px 11px; border-radius:99px; border:1px solid var(--line); background:var(--surface);
+  font-size:11.5px; font-weight:600; color:var(--ink-2); cursor:pointer; transition:background var(--t),border-color var(--t); }
+.statusfilter .sf-pill i{ width:8px; height:8px; border-radius:99px; background:var(--muted-2); flex:none; }
+.statusfilter .sf-pill:hover{ border-color:var(--acc-ln); }
+.statusfilter .sf-pill[aria-pressed="true"]{ background:var(--acc-bg); border-color:var(--acc-ln); color:var(--acc-d); }
+.statusfilter .sf-pill.on-active i{ background:var(--ok); }
+.statusfilter .sf-pill.on-leave i{ background:var(--warn); }
+.statusfilter .sf-pill.on-ot i{ background:var(--acc); }
+
+/* ---------- legend ---------- */
+.cal-legend{ display:flex; flex-wrap:wrap; gap:14px; font-size:11px; color:var(--muted); font-weight:600; min-width:0; }
+.cal-legend span{ display:inline-flex; align-items:center; gap:6px; min-width:0; }
+.cal-legend i{ width:10px; height:10px; border-radius:3px; flex:none; }
+.cal-legend i.is-hr{ background:var(--hr); }
+.cal-legend i.is-mgr{ background:var(--mgr); }
+.cal-legend i.is-staff{ background:var(--staff); }
+.cal-legend i.is-ceo{ background:var(--ceo); }
+
+/* ---------- adaptive — drive off the `content` container (app.css names it) ---------- */
+@container content (max-width: 760px){
+  .cal-quick{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@container content (max-width: 560px){
+  .cal-quick{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cal-wk{ width:26px; }
+  .cal-day{ min-height:clamp(54px,18cqi,84px); }
+  .shiftchip .sc-cap{ display:none; }            /* keep the name; drop figures when very tight */
+}
+@container content (max-width: 420px){
+  .cal-quick{ grid-template-columns:minmax(0,1fr); }
+}
+/* the month week-grid never overflows; the hour grid scrolls inside .tablewrap (set in app.css) */
+
+@media (prefers-reduced-motion:reduce){
+  .cal-day,.cal-lane,.shiftchip,.shift-cap .sc-track span,.cal-wk,.statusfilter .sf-pill{ transition:none; }
+}
+
+/* ---------- day-of-week picker pills (Shift Period form) ---------- */
+.checkpill{ display:inline-flex; align-items:center; gap:6px; min-width:0; padding:6px 11px; border:1px solid var(--line);
+  border-radius:999px; background:var(--surface); font-size:12.5px; color:var(--ink-2); cursor:pointer; user-select:none;
+  transition:background var(--t,160ms), border-color var(--t,160ms); }
+.checkpill:hover{ border-color:var(--acc-ln); background:var(--surface-2); }
+.checkpill input{ accent-color:var(--acc); margin:0; }
+.checkpill:has(input:checked){ background:var(--acc-bg); border-color:var(--acc); color:var(--acc-d); font-weight:600; }
+.checkrow{ display:flex; flex-wrap:wrap; gap:7px; min-width:0; }
+
+/* ============================================================
+   v2.4.4 fine-tune (2026-06-28)
+   Task 1 change log · Task 2 inline week expand ·
+   Task 3 roster separation · Task 4 shift-control split summary
+   tokens only · @container adaptive · only @media = reduced-motion
+   ============================================================ */
+
+/* ---------- Task 1 · change log (planned moves, review before publish) ---------- */
+.cal-changelog{ background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--acc);
+  border-radius:var(--r-sm); padding:clamp(9px,1.4cqi,13px) clamp(11px,1.6cqi,15px);
+  display:flex; flex-direction:column; gap:9px; min-width:0; box-shadow:var(--sh-sm); }
+.clg-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; min-width:0; }
+.clg-title{ display:inline-flex; align-items:center; gap:7px; font:700 12px/1 var(--font); letter-spacing:.02em; color:var(--ink); min-width:0; }
+.clg-title svg{ width:15px; height:15px; color:var(--acc-d); flex:none; }
+.clg-count{ font:700 10px/1 var(--mono); background:var(--acc-bg); color:var(--acc-d); border:1px solid var(--acc-ln);
+  border-radius:99px; padding:3px 7px; font-variant-numeric:tabular-nums; flex:none; }
+.clg-actions{ display:inline-flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:0; }
+.clg-note{ font-size:11px; color:var(--muted); font-weight:600; min-width:0; }
+.clg-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; min-width:0; }
+.clg-row{ display:flex; align-items:center; gap:9px; padding:6px 9px; border:1px solid var(--line-2);
+  border-radius:8px; background:var(--surface-2); min-width:0; }
+.clg-dot{ width:9px; height:9px; border-radius:3px; flex:none; }
+.clg-dot.is-hr{ background:var(--hr); } .clg-dot.is-mgr{ background:var(--mgr); }
+.clg-dot.is-staff{ background:var(--staff); } .clg-dot.is-ceo{ background:var(--ceo); }
+.clg-date{ font:600 11px/1 var(--mono); color:var(--ink-2); font-variant-numeric:tabular-nums; flex:none; }
+.clg-sg{ flex:1 1 42%; min-width:0; font-size:11.5px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.clg-time{ color:var(--muted); font-weight:500; }
+.clg-emp{ flex:1 1 28%; min-width:0; font-size:11.5px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.clg-badge{ margin-left:auto; flex:none; font:700 9px/1 var(--mono); text-transform:uppercase; letter-spacing:.06em;
+  color:var(--warn-text); background:var(--warn-bg); border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);
+  border-radius:99px; padding:3px 7px; }
+.clg-x{ flex:none; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; cursor:pointer;
+  border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--muted);
+  transition:background var(--t),color var(--t),border-color var(--t); }
+.clg-x svg{ width:12px; height:12px; }
+.clg-x:hover{ background:var(--bad-bg); color:var(--bad-text); border-color:var(--bad); }
+.clg-empty{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--muted); font-weight:600; padding:2px; min-width:0; }
+.clg-empty svg{ width:15px; height:15px; color:var(--ok); flex:none; }
+
+/* ---------- Task 2 · inline week expand ---------- */
+.cal-wk.open{ background:var(--acc); color:#fff; border-color:var(--acc); }
+.cal-wk.open:hover{ background:var(--acc-d); color:#fff; border-color:var(--acc-d); }
+.cal-weekexpand{ grid-column:1 / -1; margin:1px 0 4px; background:var(--surface-2); border:1px solid var(--acc-ln);
+  border-radius:var(--r-sm); padding:clamp(9px,1.4cqi,13px); display:flex; flex-direction:column; gap:9px; min-width:0;
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--acc) 8%,transparent), var(--sh-sm);
+  transform-origin:top center; animation:schedExpand .26s var(--ease,cubic-bezier(.2,.7,.2,1)); }
+.cwx-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; min-width:0; }
+.cwx-title{ font:700 11.5px/1 var(--font); letter-spacing:.02em; color:var(--acc-d); min-width:0; }
+.cwx-days{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; min-width:0; }
+.cwx-day{ display:flex; flex-direction:column; gap:5px; background:var(--surface); border:1px solid var(--line);
+  border-radius:8px; padding:6px; min-width:0; }
+.cwx-day.today{ border-color:var(--acc-ln); box-shadow:inset 0 0 0 1px var(--acc-ln); }
+.cwx-dhead{ display:flex; align-items:baseline; justify-content:space-between; gap:5px; min-width:0; }
+.cwx-dow{ font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.cwx-dnum{ font:600 12px/1 var(--display); color:var(--ink); font-variant-numeric:tabular-nums; }
+.cwx-shifts{ display:flex; flex-direction:column; gap:5px; min-width:0; }
+.cwx-shift{ border:1px solid var(--line); border-radius:7px; padding:4px 6px; background:var(--surface-2); min-width:0; }
+.cwx-shift.is-hr{ background:var(--hr-bg); border-color:var(--hr-ln); } .cwx-shift.is-mgr{ background:var(--mgr-bg); border-color:var(--mgr-ln); }
+.cwx-shift.is-staff{ background:var(--staff-bg); border-color:var(--staff-ln); } .cwx-shift.is-ceo{ background:var(--ceo-bg); border-color:var(--ceo-ln); }
+.cwx-shead{ display:flex; align-items:center; justify-content:space-between; gap:5px; min-width:0; }
+.cwx-slabel{ font-size:10px; font-weight:700; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.cwx-scap{ font:700 9px/1 var(--mono); color:var(--ink-2); font-variant-numeric:tabular-nums; flex:none; }
+.cwx-stime{ font:600 9px/1 var(--mono); color:var(--muted); margin-top:2px; }
+.cwx-people{ list-style:none; margin:4px 0 0; padding:0; display:flex; flex-direction:column; gap:2px; min-width:0; }
+.cwx-people li{ font-size:10px; color:var(--ink-2); display:flex; align-items:center; gap:4px; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cwx-plan{ width:5px; height:5px; border-radius:99px; background:var(--warn); flex:none; }
+.cwx-none{ font-size:10px; color:var(--muted-2); text-align:center; padding:4px 0; }
+.cwx-empty{ font-size:11px; color:var(--muted); font-weight:600; text-align:center; padding:4px; }
+@keyframes schedExpand{ from{ opacity:0; transform:translateY(-6px) scaleY(.97); } to{ opacity:1; transform:none; } }
+
+/* ---------- Task 3 · roster separation ---------- */
+.sched-divider{ display:flex; align-items:center; gap:12px; margin:8px 0 2px; min-width:0; }
+.sched-divider::before,.sched-divider::after{ content:""; height:1px; background:var(--line); flex:1 1 auto; min-width:0; }
+.sched-divider span{ flex:none; font:700 10px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2); }
+
+/* ---------- Task 4 · shift-control summary — one frame per shift period (refined 2026-06-28) ---------- */
+.ssum2{ display:flex; flex-direction:column; gap:10px; min-width:0; }
+.ssum2-cols,.ssum2-frame{ display:grid; grid-template-columns:minmax(160px,1fr) minmax(0,1.95fr); gap:clamp(10px,1.8cqi,18px); min-width:0; }
+.ssum2-head{ padding:0 4px 1px; }
+.ssum2-frame{ align-items:start; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-2); padding:11px 13px; }
+.ssum2-period{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.ssum2-groups{ display:flex; flex-direction:column; gap:9px; min-width:0; border-left:1px solid var(--line); padding-left:clamp(10px,1.8cqi,18px); }
+.ssum-gitem{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.ssum-gitem + .ssum-gitem{ border-top:1px dashed var(--line); padding-top:9px; }
+.ssum-eyebrow{ display:inline-flex; align-items:center; gap:6px; font:700 10px/1 var(--mono); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); min-width:0; }
+.ssum-eyebrow svg{ width:13px; height:13px; color:var(--acc-d); flex:none; }
+.ssum-item{ border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-2);
+  padding:9px 11px; display:flex; flex-direction:column; gap:6px; min-width:0; }
+.ssum-itop{ display:flex; align-items:center; gap:7px; min-width:0; }
+.ssum-dot{ width:9px; height:9px; border-radius:3px; flex:none; }
+.ssum-dot.is-hr{ background:var(--hr); } .ssum-dot.is-mgr{ background:var(--mgr); }
+.ssum-dot.is-staff{ background:var(--staff); } .ssum-dot.is-ceo{ background:var(--ceo); }
+.ssum-name{ flex:1 1 auto; min-width:0; font:700 12.5px/1.1 var(--font); color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ssum-kind{ flex:none; font:600 10px/1 var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+.ssum-meta{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:11px; color:var(--muted); min-width:0; }
+.ssum-hours{ font:600 11.5px/1 var(--mono); color:var(--ink-2); font-variant-numeric:tabular-nums; }
+.ssum-sub{ color:var(--ink-2); font-weight:600; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ssum-sep{ color:var(--muted-2); flex:none; }
+.ssum-divs{ display:flex; flex-direction:column; gap:6px; min-width:0; border-top:1px dashed var(--line); padding-top:6px; }
+.ssum-div{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.ssum-divhead{ display:flex; align-items:center; justify-content:space-between; gap:6px; min-width:0; }
+.ssum-divname{ font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-2);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.ssum-divn{ flex:none; font:700 10px/1 var(--mono); color:var(--acc-d); background:var(--acc-bg);
+  border-radius:99px; padding:2px 7px; font-variant-numeric:tabular-nums; }
+.ssum-names{ display:flex; flex-wrap:wrap; gap:4px; min-width:0; }
+.ssum-chip{ font-size:10.5px; color:var(--ink-2); background:var(--surface); border:1px solid var(--line);
+  border-radius:99px; padding:2px 8px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ssum-none,.ssum-empty{ font-size:11px; color:var(--muted-2); font-weight:600; padding:4px 0; }
+
+/* ---------- adaptive (drive off the `content` container) ---------- */
+@container content (max-width: 760px){
+  .ssum2-head{ display:none; }
+  .ssum2-frame{ grid-template-columns:minmax(0,1fr); gap:10px; }
+  .ssum2-groups{ border-left:0; padding-left:0; border-top:1px solid var(--line); padding-top:10px; }
+  .cwx-days{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@container content (max-width: 520px){
+  .cwx-days{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .clg-sg{ flex-basis:100%; }
+}
+@media (prefers-reduced-motion:reduce){
+  .cal-weekexpand{ animation:none; }
+  .clg-x{ transition:none; }
+}

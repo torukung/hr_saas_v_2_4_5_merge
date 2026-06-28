@@ -1,0 +1,44 @@
+# wrangler.toml — Adeptio edge auth Worker (v2.4.2.edge.auth · B1–B4 + /punch device capture)
+# connect() (cloudflare:sockets) is built-in — no flags needed for LDAPS / RadSec / SMTP.
+
+name = "adeptio-auth"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+# Non-secret config — safe to commit.
+[vars]
+ALLOWED_ORIGIN        = "https://torukung.github.io"   # the SPA origin (CORS + link base). Use your Pages/custom domain.
+AUTH_MODE             = "remote"                        # remote = real send/bind | local = outbox only (demo)
+MAIL_PROVIDER         = "smtp"                          # smtp (Gmail today) | http (ESP swap-in later)
+SMTP_HOST             = "smtp.gmail.com"
+SMTP_PORT             = "465"                           # 465 implicit TLS (recommended) or 587 STARTTLS — NOT 25
+MAIL_FROM             = "adeptio.stage@gmail.com"
+
+# Directory providers (non-secret connection facts; the bind secret is NOT here).
+LDAP_HOST             = "ad.phoungern.la:636"           # AD over LDAPS
+LDAP_TRANSPORT        = "ldaps"
+LDAP_USER_DN_TEMPLATE = ""                              # empty = AD UPN bind (bind name = e-mail). For generic LDAP: "uid={user},ou=people,dc=phoungern,dc=la"
+RADIUS_HOST           = "nps.phoungern.la:2083"         # RadSec (TLS)
+
+# v2.4.2 — device capture (/punch). Non-secret config:
+ZKTECO_COMMKEY        = ""                              # optional ADMS comm key echoed by ZKTeco devices (?CommKey=). Empty = accept (LAN-trusted).
+PUNCH_DEVICE_MAP      = "{}"                            # optional JSON { "<SN>": { "site": "...", "resolve": "ad|local" } }
+
+# Turso (the server-authoritative identity store) — URL is non-secret, the token is a secret.
+TURSO_URL             = "https://adeptio-hr-v241-torukung.aws-ap-northeast-1.turso.io"
+
+# ---------------------------------------------------------------------------
+# SECRETS — never commit these. Set with wrangler (or repo Actions secrets in CI):
+#
+#   wrangler secret put TURSO_TOKEN        # full-access token for adeptio-hr-v241
+#   wrangler secret put PASSWORD_PEPPER    # any long random string — peppers every Argon2id hash
+#   wrangler secret put RADIUS_SECRET      # the RADIUS shared secret (PAP)
+#   wrangler secret put SMTP_USER          # adeptio.stage@gmail.com
+#   wrangler secret put SMTP_PASS          # 16-char Gmail App Password (NOT the login password)
+#   wrangler secret put MAILTEST_TOKEN     # guards POST /__mailtest
+#   wrangler secret put SEED_TOKEN         # guards POST /__seed (first-deploy demo roster)
+#   wrangler secret put PUNCH_HMAC_SECRET  # v2.4.2 — HMAC key for POST /punch/custom (signed webhooks)
+#
+# The GitHub Action (.github/workflows/deploy-worker.yml) pushes these from repo Actions
+# secrets at deploy time, so they still never live in the repo.
+# ---------------------------------------------------------------------------

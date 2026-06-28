@@ -1,0 +1,26 @@
+import { handlePunch } from "../src/punch.js";
+const enc = new TextEncoder();
+async function hmacHex(secret, raw){ const k=await crypto.subtle.importKey("raw",enc.encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]); const s=await crypto.subtle.sign("HMAC",k,enc.encode(raw)); return [...new Uint8Array(s)].map(b=>b.toString(16).padStart(2,"0")).join(""); }
+const mkReq=(method,headers,bodyText)=>({method,headers:{get:k=>headers[k.toLowerCase()]||null},text:async()=>bodyText});
+let pass=0,fail=0; const ok=(c,m)=>{c?pass++:(fail++,console.log("FAIL:",m));};
+const recorded=[]; const store={recordPunch:async r=>recorded.push(r)};
+let r=await handlePunch(new URL("https://e/punch/zkteco/getrequest?SN=ZK1"),mkReq("GET",{},""),{},store);
+ok(r.status===200 && (await r.text())==="OK","zkteco GET handshake → OK");
+const body="EMP-0214\t2026-06-24 08:30:00\t0\t15\nEMP-0231\t2026-06-24 17:31:00\t1\t1";
+r=await handlePunch(new URL("https://e/punch/zkteco/cdata?SN=ZK1&table=ATTLOG"),mkReq("POST",{},body),{},store);
+const t=await r.text();
+ok(t.startsWith("OK: 2"),"zkteco ATTLOG → OK: 2 (got "+t+")");
+ok(recorded.length===2,"zkteco wrote 2 punches");
+ok(recorded[0].method==="face"&&recorded[0].dir==="in","verify=15→face, status0→in");
+ok(recorded[1].method==="finger"&&recorded[1].dir==="out","verify=1→finger, status1→out");
+recorded.length=0; const secret="s3cr3t"; const payload=JSON.stringify({emp:"EMP-0001",dir:"in",method:"card",ts:"2026-06-24 08:00"});
+let sig=await hmacHex(secret,payload);
+r=await handlePunch(new URL("https://e/punch/custom"),mkReq("POST",{"x-adeptio-signature":sig},payload),{PUNCH_HMAC_SECRET:secret},store);
+let j=JSON.parse(await r.text());
+ok(r.status===200&&j.ok&&j.accepted===1,"custom good HMAC → accepted 1");
+r=await handlePunch(new URL("https://e/punch/custom"),mkReq("POST",{"x-adeptio-signature":"deadbeef"},payload),{PUNCH_HMAC_SECRET:secret},store);
+ok(r.status===401,"custom bad HMAC → 401");
+r=await handlePunch(new URL("https://e/punch/hikvision"),mkReq("POST",{},"{}"),{},store);
+ok(r.status===400,"hikvision push → 400 (Lane B is pull)");
+console.log(fail?`PUNCH TEST FAIL (${fail})`:`worker punch-test: ALL ${pass} CHECKS PASS — zkteco ADMS parse + custom HMAC verify + lane guard`);
+process.exit(fail?1:0);

@@ -1,0 +1,54 @@
+/* ============================================================
+   ADEPTIO ADAPTIVE HR · Platform UI v2.3
+   Design tokens — Atelier Pastel, elevated
+   Source of truth: Structure Blueprint v2.3 (§01 persona accents)
+   ============================================================ */
+
+:root{
+  /* Brand */
+  --brand:#5C6493; --brand-deep:#404668; --brand-bg:#E8E9F1;
+
+  /* Neutrals — warm cream canvas
+     --muted darkened in v2.3.1 (#8C887F → #7C786F) for 4.5:1 small-label contrast */
+  --ink:#222127; --ink-2:#4A4954; --muted:#7C786F; --muted-2:#AFABA1;
+  --line:#E7E3DA; --line-2:#F0EDE6;
+  --canvas:#F2F1EC; --surface:#FFFFFF; --surface-2:#FBFAF7;
+
+  /* Persona accents — hard-firm pastel (do not drift) */
+  --staff:#C28A4A; --staff-d:#7E5722; --staff-bg:#F4E8D6; --staff-ln:#E9D6B8;
+  --mgr:#6E9A6E;   --mgr-d:#3F623F;   --mgr-bg:#DEEBDD;   --mgr-ln:#C6DCC4;
+  --hr:#6E8FC0;    --hr-d:#3C567F;    --hr-bg:#E0E8F5;    --hr-ln:#C8D6EE;
+  --ceo:#9279B8;   --ceo-d:#5A4282;   --ceo-bg:#EAE2F3;   --ceo-ln:#D9CCEC;
+  --sys:#5E91A0;   --sys-d:#345661;   --sys-bg:#DDEAEE;   --sys-ln:#C2DBE2;
+
+  /* Status (-text variants are AA-safe for small type on white) */
+  --ok:#5E8C63; --ok-bg:#E2EEE3; --ok-text:#3F6244;
+  --warn:#C28A4A; --warn-bg:#F4E8D6; --warn-text:#8F6020;
+  --bad:#B5675C; --bad-bg:#F3E1DE; --bad-text:#94503F;
+
+  /* Active persona accent — set by [data-persona] on <body> */
+  --acc:var(--brand); --acc-d:var(--brand-deep); --acc-bg:var(--brand-bg); --acc-ln:var(--line);
+
+  /* Geometry */
+  --r:16px; --r-sm:11px; --r-lg:22px; --r-xl:30px;
+  --sh:0 1px 1px rgba(40,38,33,.03), 0 12px 34px -20px rgba(40,38,33,.20);
+  --sh-sm:0 1px 2px rgba(40,38,33,.04);
+  --sh-lg:0 2px 4px rgba(40,38,33,.04), 0 30px 70px -30px rgba(40,38,33,.30);
+  --maxw:1180px;
+
+  /* Type — Manrope + Noto Sans Lao staged for ລາວ */
+  --font:"Manrope","Noto Sans Lao",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+  --display:"Manrope","Noto Sans Lao",-apple-system,"SF Pro Display","Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+
+  /* Motion */
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --t:160ms var(--ease);
+}
+
+/* Persona accent switching — one attribute drives the whole shell */
+body[data-persona="staff"]  { --acc:var(--staff); --acc-d:var(--staff-d); --acc-bg:var(--staff-bg); --acc-ln:var(--staff-ln); }
+body[data-persona="manager"]{ --acc:var(--mgr);   --acc-d:var(--mgr-d);   --acc-bg:var(--mgr-bg);   --acc-ln:var(--mgr-ln); }
+body[data-persona="hr"]     { --acc:var(--hr);    --acc-d:var(--hr-d);    --acc-bg:var(--hr-bg);    --acc-ln:var(--hr-ln); }
+body[data-persona="ceo"]    { --acc:var(--ceo);   --acc-d:var(--ceo-d);   --acc-bg:var(--ceo-bg);   --acc-ln:var(--ceo-ln); }
+body[data-persona="sysadmin"]{--acc:var(--sys);   --acc-d:var(--sys-d);   --acc-bg:var(--sys-bg);   --acc-ln:var(--sys-ln); }

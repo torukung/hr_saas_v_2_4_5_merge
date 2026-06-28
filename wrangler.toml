@@ -1,0 +1,38 @@
+# ============================================================
+# Adeptio v2.4.5 Merged — Cloudflare Worker config (single-tenant)
+# Deploy:  wrangler deploy           (from repo root)
+# The IDs below are placeholders — I'll fill them when I configure
+# Cloudflare for you after you push to Git (or run the steps in DEPLOY.md).
+# ============================================================
+name = "adeptio-hr-v245"
+main = "worker/src/v245.js"
+compatibility_date = "2026-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+APP = "Adeptio v2.4.5 Merged — Single Platform · Single Tenant"
+SINGLE_TENANT = "true"
+
+# --- D1: the 15-store split catalog (store_blob) ---
+[[d1_databases]]
+binding = "DB"
+database_name = "adeptio-hr-v245"     # or reuse your existing "adeptio-gantt"
+database_id = "REPLACE_WITH_D1_ID"
+migrations_dir = "migrations"
+
+# --- KV: hot session tokens ---
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "REPLACE_WITH_KV_ID"
+
+# --- R2: dated backup folders + document vault ---
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "adeptio-hr-backups"
+
+# Secrets (NOT stored here — set with `wrangler secret put NAME`):
+#   PEPPER              · password pepper (carried from edge-auth)
+#   SMTP_APP_PASSWORD   · Gmail App Password for the mail relay (/mail)
+#   LINE_TOKEN          · LINE OA channel token (/webhook/line)
+#   WA_TOKEN            · WhatsApp Cloud-API token (/webhook/whatsapp)
+#   SMS_KEY             · SMS provider API key (/webhook/sms)

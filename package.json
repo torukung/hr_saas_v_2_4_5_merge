@@ -1,0 +1,17 @@
+{
+  "name": "adeptio-hr-v245-merge",
+  "version": "2.4.5.0",
+  "private": true,
+  "description": "Adeptio Adaptive HR v2.4.5 Merged — Single Platform · Single Tenant. Static client (index.html + js/ + css/) + Cloudflare Worker (D1/KV/R2).",
+  "scripts": {
+    "smoke": "node tools/smoke.js .",
+    "preview": "node tools/make-preview-tune.js .",
+    "d1:init": "wrangler d1 execute adeptio-hr-v245 --remote --file=migrations/0001_init.sql",
+    "d1:migrate": "wrangler d1 migrations apply adeptio-hr-v245 --remote",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}
