@@ -1,65 +1,34 @@
-# Deploy the Adeptio edge auth Worker on push — satisfies blueprint D6
-# ("auth API auto-deployed from the same GitHub repo by an Action on every push").
-#
-# Commit this file at the REPO ROOT as .github/workflows/deploy-worker.yml, with the Worker
-# kit under /worker (so workingDirectory: worker matches). Frontend stays on GitHub Pages;
-# the API ships to Cloudflare Workers — one push, both sides.
-#
-# Repo → Settings → Secrets and variables → Actions → add:
-#   CLOUDFLARE_API_TOKEN   (Workers Scripts: Edit)
-#   CLOUDFLARE_ACCOUNT_ID
-#   TURSO_TOKEN            full-access token for adeptio-hr-v241
-#   PASSWORD_PEPPER        any long random string
-#   RADIUS_SECRET          RADIUS shared secret (PAP)
-#   SMTP_USER              adeptio.stage@gmail.com
-#   SMTP_PASS              16-char Gmail App Password
-#   MAILTEST_TOKEN         random string
-#   SEED_TOKEN             random string
-
-name: Deploy auth Worker
-
+name: Adeptio v2.4.5 — CI + deploy
 on:
   push:
     branches: [main]
-    paths:
-      - "worker/**"
-      - ".github/workflows/deploy-worker.yml"
   workflow_dispatch: {}
 
 jobs:
-  deploy:
+  smoke:
+    name: Smoke (node — 294 screens)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+        with: { node-version: "20" }
+      - name: Render every screen + structural checks
+        run: node tools/smoke.js .
 
-      - name: Install deps (hash-wasm)
-        working-directory: worker
-        run: npm install
-
-      - name: Deploy with Wrangler
+  deploy-worker:
+    name: Deploy Cloudflare Worker
+    needs: smoke
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
+    env:
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Worker
+        if: ${{ env.CF_API_TOKEN != '' && env.CF_ACCOUNT_ID != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: worker
-          # wrangler-action pushes each name below to the Worker as a secret, sourced from env.
-          secrets: |
-            TURSO_TOKEN
-            PASSWORD_PEPPER
-            RADIUS_SECRET
-            SMTP_USER
-            SMTP_PASS
-            MAILTEST_TOKEN
-            SEED_TOKEN
-        env:
-          TURSO_TOKEN: ${{ secrets.TURSO_TOKEN }}
-          PASSWORD_PEPPER: ${{ secrets.PASSWORD_PEPPER }}
-          RADIUS_SECRET: ${{ secrets.RADIUS_SECRET }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          MAILTEST_TOKEN: ${{ secrets.MAILTEST_TOKEN }}
-          SEED_TOKEN: ${{ secrets.SEED_TOKEN }}
+          command: deploy
