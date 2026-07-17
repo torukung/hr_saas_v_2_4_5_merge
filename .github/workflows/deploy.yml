@@ -1,3 +1,11 @@
+# ============================================================
+# Adeptio v2.4.5 Merged — CI + deploy
+# 1) smoke gate (renders every screen in node — must pass)
+# 2) deploy the Cloudflare Worker (D1/KV/R2 API)
+# The static client (index.html + js/ + css/) is served by Cloudflare Pages
+# via the Git integration (root output, no build) OR GitHub Pages — see DEPLOY.md.
+# Required repo secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+# ============================================================
 name: Adeptio v2.4.5 — CI + deploy
 on:
   push:
@@ -6,13 +14,13 @@ on:
 
 jobs:
   smoke:
-    name: Smoke (node — 294 screens)
+    name: Smoke — render every screen (node)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - name: Render every screen + structural checks
+      - name: Smoke — render every screen (node)
         run: node tools/smoke.js .
 
   deploy-worker:
@@ -26,9 +34,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy Worker
+        # REAL gate: only runs when BOTH secrets exist, so the job stays GREEN
+        # before Cloudflare is configured (env can read secrets; step-if can read env).
         if: ${{ env.CF_API_TOKEN != '' && env.CF_ACCOUNT_ID != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+        # D1 schema is already applied (migrations/0001_init.sql, run out-of-band).
+        # To (re)apply via CI instead, add to the step above:
+        #   preCommands: wrangler d1 migrations apply adeptio-hr-v245 --remote
+      - name: Assert Worker health (stores=15)
+        # Same gate as Deploy: only asserts when Cloudflare is actually configured.
+        if: ${{ env.CF_API_TOKEN != '' && env.CF_ACCOUNT_ID != '' }}
+        run: curl -s https://adeptio-hr-v245.pathom-bot.workers.dev/api/health | grep -q '"stores":15'

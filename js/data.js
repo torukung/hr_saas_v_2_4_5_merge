@@ -184,6 +184,8 @@ window.DATA = (function () {
     DB.audit("Vilayvanh C.", "employee.hired", id + " · " + f.name, "10.0.4.12");
     // the Leave cell reacts to the employee.hired fact (§05 event chain, simulated):
     DB.add("db_leave", "balances", { emp: id, name: shortName(f.name), annual: 15, sick: 30, taken: 0 }, "system");
+    // v2.4.5.1 — email-on-registration seam: HR-admin alert (local outbox row + real send via the Worker). Success path only; guarded so it never throws in node/smoke.
+    try { if (window.AUTH && AUTH.notifyHire) AUTH.notifyHire({ id, name: f.name, pos: f.pos, div: f.div, team: f.team }); } catch (e) {}
     notify();
     return id;
   }

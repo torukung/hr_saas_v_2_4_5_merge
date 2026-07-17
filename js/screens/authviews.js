@@ -557,6 +557,8 @@ window.AUTHV = (function () {
 
   // auth_mode — identity authority seg (in-browser simulator vs edge Worker)
   function authModeSeg(sm) {
+    // v2.4.5.1 — gated OFF: the auth_mode (remote edge) control renders only when the edgeauth flag is on.
+    if (typeof window === "undefined" || !window.FLAGS || !FLAGS.on("edgeauth")) return "";
     const m = AUTH.authMode();
     const edgeReady = AUTH.remoteBase && AUTH.remoteBase();
     return `<div class="seg ${sm ? "sm" : ""} mode" role="group" aria-label="Identity authority (auth_mode)" title="auth_mode — local = in-browser directory simulator · remote = the edge Worker binds LDAPS/RadSec + Argon2id">

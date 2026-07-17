@@ -19,7 +19,10 @@
    CUSTODY FLIP (B1): db_identity is server-authoritative — the edge
    Worker owns its credentials; the browser NEVER pushes or pulls
    db_identity (guarded in enqueue / flush / pull). The Worker also
-   403s it on GET/PUT. Only the operational stores ride this sync.
+   403s it on GET/PUT. db_audit is likewise excluded — an append-only
+   ledger, never synced from the client. The operational stores ride
+   this sync, each PUT authenticated with a Bearer SYNC_TOKEN and
+   reconciled server-side by a compare-and-swap on 'updated'.
 
    NODE-SAFE: every browser global (document, fetch, setInterval,
    navigator, window events, CustomEvent) is behind a typeof guard;
@@ -33,9 +36,12 @@ window.SYNC = (function () {
   const base = String(CFG.base || "").replace(/\/+$/, "");   // trailing slash stripped
   const enabled = !!base;                                    // empty base → local-only
   const SYNC_MS = (CFG.syncSeconds || 30) * 1000;
+  const token = String(CFG.syncToken || "");                 // Bearer for /api/sync; empty => fail-closed Worker 401s
   const NS = "adeptio.v245.sync.";
-  // custody flip — credential store never leaves the device via this path.
-  const skip = (id) => id === "db_identity";
+  // Excluded from this sync path:
+  //   db_identity — custody flip; the credential store never leaves the device.
+  //   db_audit    — append-only ledger (immutable WORM copy is server-side); never synced from the client.
+  const skip = (id) => id === "db_identity" || id === "db_audit";
 
   /* ---------- outbox (survives reloads → offline writes drain later) ---------- */
   function obGet() { try { return JSON.parse(localStorage.getItem(NS + "outbox") || "[]"); } catch (e) { return []; } }
@@ -64,14 +70,25 @@ window.SYNC = (function () {
       for (const id of ids) {
         if (skip(id)) { obSave(obGet().filter(x => x !== id)); continue; }  // never push identity
         const meta = DB.localMeta(id) || {};
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers.Authorization = "Bearer " + token;    // fail-closed Worker requires it
         const res = await fetch(base + "/api/sync/" + id, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tables: DB.raw(id), v: meta.v || 12 })
+          headers: headers,
+          // base = client's last-known server 'updated' (sv) → the Worker CAS pivots on it.
+          body: JSON.stringify({ tables: DB.raw(id), v: (meta.v || 12), base: (DB.localMeta(id) || {}).sv || 0 })
         });
         if (res && res.ok) {
+          const out = await res.json().catch(() => ({}));        // { ok, store, updated }
+          if (out && out.updated) DB.markSynced(id, out.updated); // advance sv=t → next push carries the fresh base
           obSave(obGet().filter(x => x !== id));   // re-dirtied during flight stays queued
           pushed.push(id);
+        } else if (res && res.status === 409) {
+          // CAS conflict — the server row moved under us. Drop our local push (server wins),
+          // do NOT loop forever; surface a conflict status and pull the server copy in.
+          obSave(obGet().filter(x => x !== id));
+          setStatus("conflict", id + " changed in the cloud — taking the server copy");
+          pull().catch(() => {});
         }
       }
       setStatus("synced", "last push " + new Date().toLocaleTimeString());
@@ -92,7 +109,9 @@ window.SYNC = (function () {
     let hydrated = 0;
     const pulled = [];
     try {
-      const res = await fetch(base + "/api/sync");
+      const headers = {};
+      if (token) headers.Authorization = "Bearer " + token;      // same Bearer as PUT — Worker GET is also gated
+      const res = await fetch(base + "/api/sync", { headers: headers });
       const out = (res && res.json) ? await res.json() : null;
       const stores = (out && out.stores) || [];
       const dirty = obGet();
@@ -144,6 +163,7 @@ window.SYNC = (function () {
       syncing: ["#b8860b", "☁ D1 · syncing"],
       synced:  ["#2e7d32", "☁ D1 · synced"],
       offline: ["#b8860b", "☁ D1 · offline"],
+      conflict:["#b8860b", "☁ D1 · conflict"],
       error:   ["#c62828", "☁ D1 · error"]
     };
     const m = M[state.status] || M.boot;
@@ -154,7 +174,7 @@ window.SYNC = (function () {
   if (enabled && typeof document !== "undefined") {
     setStatus("boot", "contacting D1 Worker");
     setTimeout(() => { pull().catch(e => setStatus("error", String(e && e.message || e))); }, 300);
-    setInterval(() => { if (obGet().length) flush(); }, SYNC_MS);   // replicate every ~30s
+    setInterval(() => { flush().then(() => pull()).catch(() => {}); }, SYNC_MS);   // replicate every ~30s + pull so two open devices converge without a reload
     if (typeof window !== "undefined" && window.addEventListener) {
       window.addEventListener("online", () => flush());
     }

@@ -12,7 +12,7 @@ AUTH_MODE             = "remote"                        # remote = real send/bin
 MAIL_PROVIDER         = "smtp"                          # smtp (Gmail today) | http (ESP swap-in later)
 SMTP_HOST             = "smtp.gmail.com"
 SMTP_PORT             = "465"                           # 465 implicit TLS (recommended) or 587 STARTTLS — NOT 25
-MAIL_FROM             = "adeptio.stage@gmail.com"
+MAIL_FROM             = "info@deskcentral.io"
 
 # Directory providers (non-secret connection facts; the bind secret is NOT here).
 LDAP_HOST             = "ad.phoungern.la:636"           # AD over LDAPS
@@ -33,7 +33,7 @@ TURSO_URL             = "https://adeptio-hr-v241-torukung.aws-ap-northeast-1.tur
 #   wrangler secret put TURSO_TOKEN        # full-access token for adeptio-hr-v241
 #   wrangler secret put PASSWORD_PEPPER    # any long random string — peppers every Argon2id hash
 #   wrangler secret put RADIUS_SECRET      # the RADIUS shared secret (PAP)
-#   wrangler secret put SMTP_USER          # adeptio.stage@gmail.com
+#   wrangler secret put SMTP_USER          # info@deskcentral.io
 #   wrangler secret put SMTP_PASS          # 16-char Gmail App Password (NOT the login password)
 #   wrangler secret put MAILTEST_TOKEN     # guards POST /__mailtest
 #   wrangler secret put SEED_TOKEN         # guards POST /__seed (first-deploy demo roster)

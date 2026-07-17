@@ -16,7 +16,7 @@ window.MAIL = (function () {
   ];
   // owner-set config (keys held as secrets at deploy; here just configured? + note + budget)
   const cfg = {
-    mail:     { configured: true,  note: "smtp.gmail.com:465 · App Password set", budget: { used: 412, limit: 5000 } },
+    mail:     { configured: true,  note: "info@deskcentral.io · SMTP relay set", budget: { used: 412, limit: 5000 } },
     sms:      { configured: false, note: "provider / API key not set",            budget: { used: 0,   limit: 2000 } },
     line:     { configured: false, note: "OA channel token not set",              budget: { used: 0,   limit: 2000 } },
     whatsapp: { configured: false, note: "Cloud-API token not set",               budget: { used: 0,   limit: 2000 } }

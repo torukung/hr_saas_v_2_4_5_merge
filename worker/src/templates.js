@@ -85,4 +85,15 @@ export const templates = {
       { href: link, labelEN: "Open review queue", labelLO: "ເປີດຄິວກວດສອບ" }
     ),
   }),
+
+  // NEW: HR notification — a new hire was registered in the system (no action required).
+  registered: ({ name = "", pos = "", div = "", team = "", id = "", org = "Adeptio" }) => ({
+    subject: org + ": New hire registered — " + name,
+    ...wrap(
+      "New hire registered",
+      "ລົງທະບຽນພະນັກງານໃໝ່",
+      name + " (" + (pos || "Staff") + ", " + (div || "—") + (team && team !== "—" ? " · " + team : "") + ") was registered in the " + org + " HR system as " + id + ". HR notification — no action required.",
+      name + " ຖືກລົງທະບຽນເຂົ້າລະບົບ " + org + " HR ເປັນລະຫັດ " + id + ". ນີ້ແມ່ນການແຈ້ງເຕືອນ HR — ບໍ່ຕ້ອງດຳເນີນການ."
+    )
+  }),
 };

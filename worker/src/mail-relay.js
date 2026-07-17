@@ -32,14 +32,17 @@ export async function sendAuthMail(env, { kind, to, vars = {}, recordOutbox } = 
   const built = tpl(vars);
   const msg = { to, subject: built.subject, text: built.text, html: built.html };
   const mode = String(env.AUTH_MODE || "local").toLowerCase();
+  // Real send is decoupled from AUTH_MODE: turn it on explicitly (MAIL_ENABLED=true),
+  // implicitly once SMTP creds exist, or via the legacy remote auth_mode.
+  const mailOn = String(env.MAIL_ENABLED || "").toLowerCase() === "true" || (!!env.SMTP_USER && !!env.SMTP_PASS) || mode === "remote";
 
   // Outbox is the log lens — record in BOTH modes (never store secrets, only metadata).
   if (typeof recordOutbox === "function") {
     await recordOutbox({ kind, to, subject: msg.subject, mode, recordedAt: new Date().toISOString() });
   }
 
-  if (mode !== "remote") {
-    return { delivered: false, mode, reason: "auth_mode=local (outbox only, no real send)" };
+  if (!mailOn) {
+    return { delivered: false, mode, reason: "mail disabled (set MAIL_ENABLED=true or SMTP_USER/SMTP_PASS)" };
   }
 
   const provider = String(env.MAIL_PROVIDER || "smtp").toLowerCase();

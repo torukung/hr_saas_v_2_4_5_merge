@@ -23,7 +23,8 @@ window.FLAGS = (function () {
     geofence:   { label: "Geofence on punch",                scope: "manager", def: true },
     selfie:     { label: "Selfie capture",                   scope: "manager", def: true },
     shiftswap:  { label: "Shift swap & open-shift",          scope: "manager", def: true },
-    scheduling: { label: "Scheduling / roster",              scope: "manager", def: true }
+    scheduling: { label: "Scheduling / roster",              scope: "manager", def: true },
+    edgeauth: { label: "Edge identity (remote auth)", scope: "sys", def: false }
   };
   const ORDER = Object.keys(REGISTRY);
   const CORE = [

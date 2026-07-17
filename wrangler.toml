@@ -12,6 +12,21 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 APP = "Adeptio v2.4.5 Merged — Single Platform · Single Tenant"
 SINGLE_TENANT = "true"
+# --- Central mail identity (v2.4.5.1) -------------------------------------
+# One neutral mailbox for ALL platform mail: info@deskcentral.io.
+# The domain is provider-neutral (not tied to any product/party). From == SMTP
+# login == alert recipient, which also maximises deliverability (envelope From
+# matches the authenticated user). The password is the ONLY secret — set it with
+# `wrangler secret put SMTP_PASS`; real send auto-enables once SMTP_USER + SMTP_PASS
+# are both present (or force it with MAIL_ENABLED="true").
+SMTP_HOST = "smtp.gmail.com"          # deskcentral.io mail host — change if not on Google Workspace
+SMTP_PORT = "465"
+SMTP_USER = "info@deskcentral.io"     # SMTP login (the neutral central mailbox)
+MAIL_FROM = "info@deskcentral.io"     # envelope + From address
+HR_ALERT_TO = "info@deskcentral.io"   # recipient for kind="registered" (new-hire alert)
+# Operator still sets (uncomment or as secrets):
+#   MAIL_ENABLED  = "true"                        # optional — force real send on
+#   CLIENT_ORIGIN = "https://<project>.pages.dev" # pinned CORS origin (client Pages URL)
 
 # --- D1: the 15-store split catalog (store_blob) ---
 [[d1_databases]]
@@ -31,8 +46,13 @@ binding = "BACKUPS"
 bucket_name = "adeptio-hr-backups"
 
 # Secrets (NOT stored here — set with `wrangler secret put NAME`):
+#   SYNC_TOKEN          · REQUIRED — Bearer that gates /api/* (except health) + /mail;
+#                         must match the client's js/api-config.js syncToken. Fail-closed.
+#   SMTP_PASS           · REQUIRED for real send — password / App Password for info@deskcentral.io
+#                         (the ONLY mail secret; MAIL_FROM/HR_ALERT_TO/SMTP_USER are vars above)
 #   PEPPER              · password pepper (carried from edge-auth)
-#   SMTP_APP_PASSWORD   · Gmail App Password for the mail relay (/mail)
 #   LINE_TOKEN          · LINE OA channel token (/webhook/line)
 #   WA_TOKEN            · WhatsApp Cloud-API token (/webhook/whatsapp)
 #   SMS_KEY             · SMS provider API key (/webhook/sms)
+# Vars (set here or as secrets): CLIENT_ORIGIN (pinned CORS origin),
+#   MAIL_ENABLED ("true" to enable real send), SMTP_HOST, SMTP_PORT (defaults above).

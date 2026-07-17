@@ -110,7 +110,14 @@ window.AUTH = (function () {
   const roadmap = () => flags().filter(f => f.key.indexOf("auth.") === 0);
 
   /* ---------- B0 · auth_mode — the identity authority (local simulator | remote edge Worker) ---------- */
-  function authMode() { const f = flag("auth_mode"); return (f && f.mode) || "local"; }
+  function authMode() {
+    const f = flag("auth_mode"); const m = (f && f.mode) || "local";
+    // v2.4.5.1 — while the edge-auth feature is gated OFF, present "local" regardless of any
+    // persisted "remote" (the toggle is hidden, so a stale remote would otherwise brick sign-in
+    // with no visible control to switch back). The stored value is preserved for re-enable.
+    if (m === "remote" && typeof window !== "undefined" && window.FLAGS && !FLAGS.on("edgeauth")) return "local";
+    return m;
+  }
   function setAuthMode(mode, who) {
     const f = flag("auth_mode"); if (!f) return;
     mode = mode === "remote" ? "remote" : "local";
@@ -198,6 +205,11 @@ window.AUTH = (function () {
     sync_notice: {
       en: (d) => ({ subject: (d.kind === "import" ? "Import" : "Directory sync") + " finished — " + d.created + " created, " + d.conflicts + " to review", body: `Sabaidee ${d.name},\n\nThe ${d.kind === "import" ? "file import" : "directory delta-sync"} just ran.\nCreated ${d.created} · linked ${d.linked} · suspended ${d.suspended}.\n${d.conflicts} item(s) need review:\n→ ${d.link}` }),
       lo: (d) => ({ subject: (d.kind === "import" ? "ການນຳເຂົ້າ" : "ການຊິ້ງໄດເຣັກທໍຣີ") + "ສຳເລັດ", body: `ສະບາຍດີ ${d.name},\n\n${d.kind === "import" ? "ການນຳເຂົ້າໄຟລ໌" : "ການຊິ້ງໄດເຣັກທໍຣີ"}ຫາກໍແລ່ນແລ້ວ.\nສ້າງ ${d.created} · ເຊື່ອມ ${d.linked} · ໂຈະ ${d.suspended}.\nມີ ${d.conflicts} ລາຍການຕ້ອງກວດສອບ:\n→ ${d.link}` })
+    },
+    // v2.4.5.1 · new-hire registered — HR-admin alert (internal notice; NO activation link)
+    hired: {
+      en: (d) => ({ subject: "New hire registered — " + d.name, body: `A new employee was just registered in Adeptio.\n\nName: ${d.name}\nEmployee ID: ${d.id}\nPosition: ${d.pos}\nDivision: ${d.div}\nTeam: ${d.team}\n\nReview the record in the HR console. Internal notice — no activation link.` }),
+      lo: (d) => ({ subject: "ລົງທະບຽນພະນັກງານໃໝ່ — " + d.name, body: `ມີການລົງທະບຽນພະນັກງານໃໝ່ໃນ Adeptio.\n\nຊື່: ${d.name}\nລະຫັດ: ${d.id}\nຕຳແໜ່ງ: ${d.pos}\nພະແນກ: ${d.div}\nທີມ: ${d.team}\n\nກວດເບິ່ງໃນ HR console. ແຈ້ງການພາຍໃນ — ບໍ່ມີລິ້ງ.` })
     }
   };
   function mail(kind, to, name, data, who) {
@@ -212,6 +224,18 @@ window.AUTH = (function () {
     return true;
   }
   const mails = () => DB.list("db_comms", "messages").filter(m => m.mail);
+
+  /* ---------- v2.4.5.1 · email-on-registration seam — HR-admin alert on a new hire ----------
+     Local outbox row (via mail("hired", …)) AND a real send through the edge Worker's POST /mail
+     (kind "registered" — the Worker fills the recipient). Both wrapped so it never throws in
+     node/smoke (guards window.API_CONFIG + fetch) and never blocks the hire on the success path. */
+  function notifyHire(emp){ try {
+      const to = (window.API_CONFIG && API_CONFIG.hrAlertTo) || "info@deskcentral.io";
+      try { mail("hired", to, emp.name, { pos: emp.pos, div: emp.div, team: emp.team, id: emp.id, link: "" }, "system"); } catch (e) {}
+      if (window.API_CONFIG && API_CONFIG.base && typeof fetch !== "undefined") {
+        fetch(String(API_CONFIG.base).replace(/\/+$/, "") + "/mail", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + (API_CONFIG.syncToken || "") }, body: JSON.stringify({ kind: "registered", vars: { name: emp.name, pos: emp.pos, div: emp.div, team: emp.team, id: emp.id } }) }).catch(function(){});
+      }
+    } catch (e) {} }
 
   /* ---------- password policy — D3: min length 8 is the only hard rule ---------- */
   function policyCheck(pw) {
@@ -491,7 +515,7 @@ window.AUTH = (function () {
      The Worker is authoritative (Argon2id / LDAPS bind / RadSec). On success the SPA mirrors a
      local session so the UI (scopes, staff lens) stays coherent; the password hash never reaches it. */
   function remoteBase() { try { return (window.API_CONFIG && window.API_CONFIG.base) || ""; } catch (e) { return ""; } }
-  function remoteEnabled() { return authMode() === "remote" && !!remoteBase(); }
+  function remoteEnabled() { return authMode() === "remote" && !!remoteBase() && (typeof window==="undefined" || !window.FLAGS || FLAGS.on("edgeauth")); }
   async function loginRemote(email, pw) {
     const base = remoteBase();
     if (!base) return { ok: false, code: "noedge", msg: "auth_mode=remote but no Worker URL is configured (js/api-config.js)." };
@@ -642,7 +666,7 @@ window.AUTH = (function () {
     session, sessions, mySessions, login, lookup, logout, revoke, revokeOthers, lockRemainMs,
     invite, resend, accessOff, unlock, forceReset, onOffboard,
     activate, resetRequest, resetDo, changePassword, token, makeToken, mail,
-    mails, stats, funnel, neverLogged,
+    mails, notifyHire, stats, funnel, neverLogged,
     primaryScope, inScope, SEEDPW
   };
 })();
