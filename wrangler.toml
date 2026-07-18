@@ -24,9 +24,11 @@ SMTP_PORT = "465"
 SMTP_USER = "info@deskcentral.io"     # SMTP login (the neutral central mailbox)
 MAIL_FROM = "info@deskcentral.io"     # envelope + From address
 HR_ALERT_TO = "info@deskcentral.io"   # recipient for kind="registered" (new-hire alert)
+# CORS pin — the client's ORIGIN (scheme+host only, NO path). GitHub Pages serves the
+# client at torukung.github.io/<repo>/, but the CORS origin is just the host below.
+CLIENT_ORIGIN = "https://torukung.github.io"
 # Operator still sets (uncomment or as secrets):
 #   MAIL_ENABLED  = "true"                        # optional — force real send on
-#   CLIENT_ORIGIN = "https://<project>.pages.dev" # pinned CORS origin (client Pages URL)
 
 # --- D1: the 15-store split catalog (store_blob) ---
 [[d1_databases]]
