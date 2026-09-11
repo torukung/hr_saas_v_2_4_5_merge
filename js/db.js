@@ -533,11 +533,12 @@ window.DB = (function () {
   const data = {};
   function key(id) { return NS + "db." + TENANT + "-" + id; }
   function persist(id) {
-    try { LS.setItem(key(id), JSON.stringify({ v: SEED_VERSION, t: Date.now(), tables: data[id] })); } catch (e) { /* quota — demo keeps running in-memory */ }
+    // preserve the last-known SERVER 'updated' (sv) across a local write — only t moves.
+    try { const prev = JSON.parse(LS.getItem(key(id)) || "null"); LS.setItem(key(id), JSON.stringify({ v: SEED_VERSION, t: Date.now(), sv: (prev && prev.sv) || 0, tables: data[id] })); } catch (e) { /* quota — demo keeps running in-memory */ }
     try { if (window.SYNC && window.SYNC.enqueue) window.SYNC.enqueue(id); } catch (e) { /* cloud sync is optional */ }
   }
   /* cloud-sync hooks (js/d1-sync.js) — no-ops unless API_CONFIG.base (the D1 Worker) is set */
-  function localMeta(id) { try { const p = JSON.parse(LS.getItem(key(id)) || "null"); return p ? { v: p.v, t: p.t } : null; } catch (e) { return null; } }
+  function localMeta(id) { try { const p = JSON.parse(LS.getItem(key(id)) || "null"); return p ? { v: p.v, t: p.t, sv: p.sv || 0 } : null; } catch (e) { return null; } }
   function raw(id) { return data[id]; }
   // v2.4.5 G9 — durable platform settings (FLAGS/LICENSE persistence) under db_platform.settings
   function platformGet(k) { try { return (data.db_platform && data.db_platform.settings && data.db_platform.settings[k]) || null; } catch (e) { return null; } }
@@ -545,9 +546,15 @@ window.DB = (function () {
   function hydrate(id, tables, t) {
     if (!byId[id] || !tables) return false;
     data[id] = tables;
-    try { LS.setItem(key(id), JSON.stringify({ v: SEED_VERSION, t: t || Date.now(), tables })); } catch (e) { /* quota */ }
+    // sv = server 'updated' we just pulled — sv==t means "in step with the cloud", so a
+    // follow-up flush uses base=sv and the CAS no-ops instead of echoing back.
+    try { LS.setItem(key(id), JSON.stringify({ v: SEED_VERSION, t: (t || Date.now()), sv: (t || 0), tables })); } catch (e) { /* quota */ }
     return true; // note: hydrate persists WITHOUT enqueueing — a pull must never echo back as a push
   }
+  // mark a store as accepted by the server on a successful push: advance sv (last-known
+  // server 'updated') AND t to the server value so the next push carries the fresh base
+  // and the client no longer looks dirty relative to the cloud.
+  function markSynced(id, updated){ try { const cur = JSON.parse(LS.getItem(key(id)) || "null") || { v: SEED_VERSION, tables: data[id] }; cur.sv = updated; cur.t = updated; if (!cur.tables) cur.tables = data[id]; LS.setItem(key(id), JSON.stringify(cur)); } catch (e) {} }
   function loadAll() {
     const sd = seeds();
     CATALOG.forEach(c => {
@@ -789,6 +796,6 @@ window.DB = (function () {
     backups: { all: bkAll, now: backupNow, restore: backupRestore, remove: backupDelete, clear: backupClear },
     reports: { runs: reportRuns, save: reportSave, remove: reportDelete, nextId: nextReportId, VISIBLE: VISIBLE_RUNS },
     exportObj, tick, drill, rebuildReports,
-    persist, localMeta, raw, hydrate, platformGet, platformSet
+    persist, localMeta, raw, hydrate, markSynced, platformGet, platformSet
   };
 })();

@@ -739,7 +739,7 @@ ${tp.kind.includes("SMS") ? "Shift reminder: {{shift_date}} {{shift_time}} at {{
           ${kpi("Open-tier users", lim == null ? "∞" : String(lim), "seat cap")}
         </div>
         ${card("Tier licensing", `${rowitem({ icon: on ? "shield" : "x", title: `Tier licensing — ${on ? "ON" : "OFF"}`, sub: on ? "Essential/Pro/Enterprise caps apply." : "Disabled · all features available (the default).", side: `<button class="btn ${on ? "soft" : ""}" data-act="lic:toggle">${on ? "Disable" : "Enable"}</button>` })}
-          <div class="choice-row" style="margin-top:10px">${tierBtn("essential", "Essential ≤50")}${tierBtn("professional", "Pro ≤250")}${tierBtn("enterprise", "Enterprise")}</div>
+          ${on ? `<div class="choice-row" style="margin-top:10px">${tierBtn("essential", "Essential ≤50")}${tierBtn("professional", "Pro ≤250")}${tierBtn("enterprise", "Enterprise")}</div>` : ""}
           <p class="small muted" style="margin-top:8px">${on ? "Tier sets the feature cap." : "Tier picker activates when licensing is on."}</p>`, { icon: "shield" })}
         ${card("Open-tier limits", `<p class="small muted" style="margin-bottom:8px">Applied while licensing is OFF — cap seats &amp; storage without a commercial tier.</p>
           <div class="field"><label>Max users</label><div class="choice-row">${limBtn(5, "5")}${limBtn(20, "20")}${limBtn("", "Unlimited")}</div></div>`, { icon: "users" })}
@@ -800,7 +800,7 @@ ${tp.kind.includes("SMS") ? "Shift reminder: {{shift_date}} {{shift_time}} at {{
         { id: "templates", icon: "files", label: t("sys.templates"), count: () => DATA.templates.filter(x => x.status !== "published").length },
         { id: "channels", icon: "plug", label: t("sys.channels") },
         { id: "functions", icon: "settings", label: "Functions" },
-        { id: "licensing", icon: "shield", label: "Licensing" },
+        ...((window.LICENSE && LICENSE.enabled) ? [{ id: "licensing", icon: "shield", label: "Licensing" }] : []), // v2.4.5.1 — tier ladder hidden while licensing is OFF (the default)
         { id: "platsettings", icon: "key", label: "Platform Settings" }
         /* ==SEAM:NAV:sysadmin== platform-owner / settings nav items == */
       ]},

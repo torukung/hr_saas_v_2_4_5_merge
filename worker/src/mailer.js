@@ -72,13 +72,15 @@ function makeReader(readable) {
 }
 
 function buildMime({ from, to, subject, text, html }) {
+  // Message-ID domain derives from the sending address (neutral, provider-agnostic — no app-name leak).
+  const dom = (String(from).split("@")[1] || "localhost");
   const head = [
     `From: ${from}`,
     `To: ${to}`,
     `Subject: ${encodeHeaderWord(subject)}`,
     `Date: ${new Date().toUTCString()}`,
     `MIME-Version: 1.0`,
-    `Message-ID: <${crypto.randomUUID()}@adeptio.stage>`,
+    `Message-ID: <${crypto.randomUUID()}@${dom}>`,
   ];
   const plain = text || (html ? htmlToText(html) : "");
 
@@ -127,6 +129,7 @@ export async function smtpSendMail(env, msg) {
   const user = env.SMTP_USER;
   const pass = env.SMTP_PASS;
   const from = env.MAIL_FROM || user;
+  const heloDomain = (String(from).split("@")[1] || "localhost");   // neutral EHLO identity from the send domain
 
   if (!user || !pass) throw new Error("SMTP not configured: set SMTP_USER and SMTP_PASS secrets.");
   if (port === 25) throw new Error("Port 25 is blocked on Cloudflare Workers. Use 465 (TLS) or 587 (STARTTLS).");
@@ -152,7 +155,7 @@ export async function smtpSendMail(env, msg) {
 
   try {
     await expect("greeting", 220);
-    await send(`EHLO adeptio.stage`);
+    await send(`EHLO ${heloDomain}`);
     await expect("EHLO", 250);
 
     if (port === 587) {
@@ -165,7 +168,7 @@ export async function smtpSendMail(env, msg) {
       await socket.opened;
       reader = makeReader(socket.readable);
       writer = socket.writable.getWriter();
-      await send(`EHLO adeptio.stage`);
+      await send(`EHLO ${heloDomain}`);
       await expect("EHLO(tls)", 250);
     }
 

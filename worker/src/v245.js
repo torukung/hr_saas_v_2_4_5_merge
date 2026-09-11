@@ -14,17 +14,24 @@
      POST /api/backup          → create a full-split set (D1 row + R2 object)
      POST /api/restore/:id     → restore a set into store_blob
      POST /mail | /webhook/:ch | /punch  → channel/device seams (stubs until keyed)
-   NOTE: external send (SMTP/LINE/WA/SMS) is a STUB here — wire the real
-   adapters + auth hardening in Claude Code. Secrets come from wrangler.
+   AUTH: every /api/* write + read (except /api/health) and /mail require
+     'Authorization: Bearer <SYNC_TOKEN>'. Fail-closed: if SYNC_TOKEN is unset,
+     those routes return 401 by design.
+   CORS: pinned per-request to env.CLIENT_ORIGIN (falls back to "*").
    ============================================================ */
+import { sendAuthMail } from "./mail-relay.js";
+
 const SENSITIVE = new Set(["db_identity"]);            // never synced from the browser
-const CORS = {
-  "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET,PUT,POST,OPTIONS",
-  "access-control-allow-headers": "content-type,authorization"
-};
-const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", ...CORS } });
+const json = (o, s = 200, cors = {}) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", ...cors } });
 const today = () => new Date().toISOString().slice(0, 10);
+
+// Bearer gate — fail-closed: no SYNC_TOKEN configured ⇒ nobody is authed.
+function authed(req, env) {
+  const need = env.SYNC_TOKEN;
+  if (!need) return false;
+  const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  return !!tok && tok === need;
+}
 
 async function requireSession(req, env) {
   // minimal bearer check — harden in Claude Code (Argon2 + KV TTL already scaffolded in sessions.js)
@@ -35,47 +42,64 @@ async function requireSession(req, env) {
 
 export default {
   async fetch(req, env, ctx) {
-    if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+    // Per-request CORS, pinned to the configured client origin (env only exists here).
+    const ORIGIN = env.CLIENT_ORIGIN || "*";
+    const cors = {
+      "access-control-allow-origin": ORIGIN,
+      "access-control-allow-methods": "GET,PUT,POST,OPTIONS",
+      "access-control-allow-headers": "content-type,authorization",
+      "vary": "Origin"
+    };
+    if (req.method === "OPTIONS") return new Response(null, { headers: cors });
     const url = new URL(req.url);
     const p = url.pathname.replace(/\/+$/, "");
     try {
-      // ---- health ----
+      // ---- health (OPEN — no auth) ----
       if (p === "/api/health") {
         const r = await env.DB.prepare("SELECT count(*) n FROM store_blob").first().catch(() => null);
-        return json({ ok: true, app: env.APP || "Adeptio v2.4.5", ts: new Date().toISOString(), stores: r ? r.n : null });
+        return json({ ok: true, app: env.APP || "Adeptio v2.4.5", ts: new Date().toISOString(), stores: r ? r.n : null }, 200, cors);
       }
 
       // ---- sync (pull) ----
       if (p === "/api/sync" && req.method === "GET") {
+        if (!authed(req, env)) return json({ ok: false, err: "unauthorized" }, 401, cors);
         const { results } = await env.DB.prepare("SELECT store, tables, v, updated FROM store_blob WHERE sensitive=0").all();
-        return json({ ok: true, stores: results });
+        return json({ ok: true, stores: results }, 200, cors);
       }
       const mSync = p.match(/^\/api\/sync\/(db_[a-z]+|dw_reports)$/);
       if (mSync) {
+        if (!authed(req, env)) return json({ ok: false, err: "unauthorized" }, 401, cors);
         const store = mSync[1];
         if (req.method === "GET") {
-          if (SENSITIVE.has(store)) return json({ ok: false, err: "sensitive store is server-authoritative" }, 403);
+          if (SENSITIVE.has(store)) return json({ ok: false, err: "sensitive store is server-authoritative" }, 403, cors);
           const row = await env.DB.prepare("SELECT store, tables, v, updated FROM store_blob WHERE store=?").bind(store).first();
-          return row ? json({ ok: true, store: row }) : json({ ok: false, err: "unknown store" }, 404);
+          return row ? json({ ok: true, store: row }, 200, cors) : json({ ok: false, err: "unknown store" }, 404, cors);
         }
         if (req.method === "PUT") {
-          if (SENSITIVE.has(store)) return json({ ok: false, err: "db_identity is never accepted from the client (custody)" }, 403);
+          if (SENSITIVE.has(store)) return json({ ok: false, err: "db_identity is never accepted from the client (custody)" }, 403, cors);
           const body = await req.json().catch(() => null);
-          if (!body || typeof body.tables !== "object") return json({ ok: false, err: "expected { tables, v }" }, 400);
+          if (!body || typeof body.tables !== "object") return json({ ok: false, err: "expected { tables, v }" }, 400, cors);
           const now = Date.now();
-          await env.DB.prepare("UPDATE store_blob SET tables=?, v=?, updated=? WHERE store=?")
-            .bind(JSON.stringify(body.tables), body.v || 12, now, store).run();
-          return json({ ok: true, store, updated: now });
+          const base = Number(body.base) || 0;
+          // compare-and-swap: only overwrite if the server row is still at the client's last-known 'updated'.
+          const r = await env.DB.prepare("UPDATE store_blob SET tables=?, v=?, updated=? WHERE store=? AND updated=?")
+            .bind(JSON.stringify(body.tables), body.v || 12, now, store, base).run();
+          if (r.meta.changes === 0) {
+            const row = await env.DB.prepare("SELECT store, tables, v, updated FROM store_blob WHERE store=?").bind(store).first();
+            return json({ ok: false, conflict: true, store, current: row }, 409, cors);
+          }
+          return json({ ok: true, store, updated: now }, 200, cors);
         }
       }
 
       // ---- backups ----
       if (p === "/api/backup" && req.method === "GET") {
+        if (!authed(req, env)) return json({ ok: false, err: "unauthorized" }, 401, cors);
         const { results } = await env.DB.prepare("SELECT id, folder, ts, kind, label, stores, rows, sizekb, r2_key FROM backups ORDER BY created DESC LIMIT 200").all();
-        return json({ ok: true, backups: results });
+        return json({ ok: true, backups: results }, 200, cors);
       }
       if (p === "/api/backup" && req.method === "POST") {
-        const sess = await requireSession(req, env); // backups are admin-only
+        if (!authed(req, env)) return json({ ok: false, err: "unauthorized" }, 401, cors);
         const body = await req.json().catch(() => ({}));
         const id = "BK-" + Date.now();
         const folder = body.folder || today();
@@ -85,12 +109,13 @@ export default {
         await env.DB.prepare("INSERT INTO backups (id,folder,ts,kind,label,stores,data,r2_key,rows,sizekb,created) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
           .bind(id, folder, new Date().toISOString(), body.kind || "manual-force", body.label || ("Force · " + folder),
             JSON.stringify(body.stores || []), dataStr, r2key, body.rows || 0, Math.round(dataStr.length / 1024), Date.now()).run();
-        return json({ ok: true, id, folder, r2_key: r2key });
+        return json({ ok: true, id, folder, r2_key: r2key }, 200, cors);
       }
       const mRes = p.match(/^\/api\/restore\/(BK-[\w-]+)$/);
       if (mRes && req.method === "POST") {
+        if (!authed(req, env)) return json({ ok: false, err: "unauthorized" }, 401, cors);
         const bk = await env.DB.prepare("SELECT data FROM backups WHERE id=?").bind(mRes[1]).first();
-        if (!bk) return json({ ok: false, err: "backup not found" }, 404);
+        if (!bk) return json({ ok: false, err: "backup not found" }, 404, cors);
         const data = JSON.parse(bk.data || "{}");
         let n = 0;
         for (const store of Object.keys(data)) {
@@ -99,17 +124,30 @@ export default {
             .bind(JSON.stringify(data[store].tables || data[store]), Date.now(), store).run();
           n++;
         }
-        return json({ ok: true, restored: n, id: mRes[1] });
+        return json({ ok: true, restored: n, id: mRes[1] }, 200, cors);
       }
 
-      // ---- channel + device seams (stubs until keyed in Claude Code) ----
-      if (p === "/mail" && req.method === "POST") return json({ ok: true, queued: true, note: "SMTP relay stub — set SMTP_APP_PASSWORD secret + wire mailer.js" });
-      if (p.startsWith("/webhook/")) return json({ ok: true, channel: p.split("/")[2], note: "channel webhook stub — set token secret + verify signature" });
-      if (p === "/punch" && req.method === "POST") return json({ ok: true, note: "device punch ingest stub — see src/punch.js (ZKTeco ADMS · HMAC custom)" });
+      // ---- channel + device seams ----
+      if (p === "/mail" && req.method === "POST") {
+        if (!authed(req, env)) return json({ ok: false, err: "unauthorized" }, 401, cors);
+        const body = await req.json().catch(() => ({}));
+        const kind = body.kind || "registered";
+        const to = (kind === "registered") ? (env.HR_ALERT_TO || env.MAIL_FROM) : body.to;
+        if (!to) return json({ ok: true, delivered: false, reason: "no recipient (set HR_ALERT_TO)" }, 200, cors);
+        try {
+          const r = await sendAuthMail(env, { kind, to, vars: body.vars || {} });
+          return json({ ok: true, ...r }, 200, cors);
+        } catch (e) {
+          return json({ ok: false, err: String(e && e.message || e) }, 502, cors);
+        }
+      }
+      if (p.startsWith("/webhook/") && req.method === "POST") return json({ ok: true, channel: p.split("/")[2], note: "channel webhook stub — set token secret + verify signature" }, 200, cors);
+      if (p === "/punch" && req.method === "POST") return json({ ok: true, note: "device punch ingest stub — see src/punch.js (ZKTeco ADMS · HMAC custom)" }, 200, cors);
 
-      return json({ ok: false, err: "not found", path: p }, 404);
+      return json({ ok: false, err: "not found", path: p }, 404, cors);
     } catch (e) {
-      return json({ ok: false, err: String(e && e.message || e) }, 500);
+      // Never leak internal error text to the client.
+      return json({ ok: false, err: "internal error" }, 500, cors);
     }
   }
 };

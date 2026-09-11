@@ -187,7 +187,7 @@
       <div class="launch-meta">
         <span><b>${DATA.tier() === "essential" ? "Essential ≤50" : "Professional ≤250"}</b> tier flag</span>
         <span data-act="portal-mode:${AUTH.portalOn() ? "off" : "on"}" class="meta-act" role="button" tabindex="0" title="Click to switch the front door"><b>auth_portal</b> ${AUTH.portalOn() ? "on — switch off" : "off — switch on"}</span>
-        <span data-act="edge-mode:${AUTH.authMode() === "remote" ? "local" : "remote"}" class="meta-act" role="button" tabindex="0" title="Click to switch the identity authority"><b>auth_mode</b> ${AUTH.authMode() === "remote" ? "edge — to simulator" : "simulator — to edge"}</span>
+        ${(window.FLAGS && FLAGS.on("edgeauth")) ? `<span data-act="edge-mode:${AUTH.authMode() === "remote" ? "local" : "remote"}" class="meta-act" role="button" tabindex="0" title="Click to switch the identity authority"><b>auth_mode</b> ${AUTH.authMode() === "remote" ? "edge — to simulator" : "simulator — to edge"}</span>` : ""}
         <span><b>${AUTH.stats().active}/${AUTH.stats().accounts}</b> accounts active</span>
         <span><b>5</b> personas</span><span><b>13</b> live data stores</span>
         <span><b>${DB.backups.all().length}</b> snapshots in L-CU</span><span><b>B1·B2·B3</b> backup ladder</span>
@@ -422,6 +422,8 @@
       }
       case "dbops": { // T7 — per-store reset / purge / migrate (auto-snapshots first)
         const [op, store] = String(arg).split(":");
+        // v2.4.5.1 — reset/purge auto-replicate to D1 within 30s across every device; confirm first (headless-safe).
+        if ((op === "reset" || op === "purge") && typeof confirm === "function" && !confirm("This also overwrites the cloud copy on ALL devices within 30s. Continue?")) break;
         if (op === "reset") { DBOPS.reset(store); toast(`${store} reset to seed — snapshot taken`); }
         else if (op === "purge") { DBOPS.purge(store); toast(`${store} purged — snapshot taken`, "warn"); }
         else if (op === "migrate") { toast(DBOPS.migrate(store).note); }
@@ -449,7 +451,7 @@
         const parts = String(arg).split(":");
         if (parts[0] === "force") { const bk = BACKUP.forceNow("admin"); toast(bk ? `Full backup ${bk.id} — ${(bk.stores || []).length} stores into folder ${BACKUP.today()}` : "Backup failed", bk ? undefined : "warn"); }
         else if (parts[0] === "daily") { const r2 = BACKUP.runDaily("admin"); toast(r2.ok ? `Daily backup created — folder ${BACKUP.today()}` : "Today's daily backup already exists", r2.ok ? undefined : "warn"); }
-        else if (parts[0] === "restore") { const r2 = BACKUP.restore(parts[1], "admin"); toast(r2.ok ? `Restored from ${parts[1]} — ${r2.ids.length} stores` : "Restore failed", r2.ok ? undefined : "warn"); }
+        else if (parts[0] === "restore") { if (typeof confirm === "function" && !confirm("This also overwrites the cloud copy on ALL devices within 30s. Continue?")) break; const r2 = BACKUP.restore(parts[1], "admin"); toast(r2.ok ? `Restored from ${parts[1]} — ${r2.ids.length} stores` : "Restore failed", r2.ok ? undefined : "warn"); }
         else if (parts[0] === "export") { try { const json = BACKUP.exportSet(parts[1]); if (json && typeof document !== "undefined") { const blob = new Blob([json], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "adeptio-backup-" + parts[1] + ".json"; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); toast("Backup " + parts[1] + " exported (download)"); } else { toast("Backup not found", "warn"); } } catch (er) { toast("Export failed", "warn"); } }
         DATA.pulse();
         break;
@@ -719,12 +721,14 @@
         break;
       }
       case "db-reset": {
+        if (typeof confirm === "function" && !confirm("This also overwrites the cloud copy on ALL devices within 30s. Continue?")) break;
         if (arg === "all") { DB.reset(null, "Thip N."); toast("All stores reseeded with sample data — registry, policies and audit refreshed"); }
         else { DB.reset(arg, "console"); toast(arg + " reseeded — blast radius: this store only"); }
         DATA.pulse();
         break;
       }
       case "db-factory": { // demo: clean slate — reseed every store AND clear the custodial snapshot area
+        if (typeof confirm === "function" && !confirm("This also overwrites the cloud copy on ALL devices within 30s. Continue?")) break;
         DB.reset(null, "Thip N."); // reseed first so the clear-fact below survives on the fresh audit ledger
         const n = DB.backups.clear("Thip N.");
         toast(`Factory reset — all stores reseeded, ${n} snapshot${n === 1 ? "" : "s"} cleared, schedules re-armed. Clean slate for the next demo.`);
@@ -747,6 +751,7 @@
         break;
       }
       case "store-restore": { // restore just this store from the newest snapshot containing it
+        if (typeof confirm === "function" && !confirm("This also overwrites the cloud copy on ALL devices within 30s. Continue?")) break;
         const bk = DB.backups.all().find(b => b.stores.includes(arg) && b.data[arg]);
         if (!bk) { toast("No snapshot holds " + arg + " yet — take one first", "warn"); break; }
         DB.backups.restore(bk.id, [arg], "console");
@@ -755,6 +760,7 @@
         break;
       }
       case "backup-restore": {
+        if (typeof confirm === "function" && !confirm("This also overwrites the cloud copy on ALL devices within 30s. Continue?")) break;
         const ids = DB.backups.restore(arg, null, "Thip N.");
         toast(ids ? `${arg} restored → ${ids.length} store${ids.length > 1 ? "s" : ""} rewound to the snapshot` : "Snapshot not found", ids ? undefined : "warn");
         DATA.pulse();
@@ -1432,7 +1438,7 @@
     const up = e.target.closest && e.target.closest("#bk-upload"); // v2.4.5 — admin restore from an uploaded backup file
     if (up && up.files && up.files[0]) {
       const file = up.files[0], rd = new FileReader();
-      rd.onload = () => { const res = BACKUP.importFile(rd.result, "admin"); toast(res.ok ? `Restored ${res.n} store${res.n === 1 ? "" : "s"} from ${file.name}${res.skipped && res.skipped.length ? " · identity excluded" : ""}` : res.err, res.ok ? undefined : "warn"); if (res.ok) { DATA.pulse(); const r = route(); if (r.view === "app") go(`${r.persona}/${r.device}/backups`); } };
+      rd.onload = () => { if (typeof confirm === "function" && !confirm("This also overwrites the cloud copy on ALL devices within 30s. Continue?")) return; const res = BACKUP.importFile(rd.result, "admin"); toast(res.ok ? `Restored ${res.n} store${res.n === 1 ? "" : "s"} from ${file.name}${res.skipped && res.skipped.length ? " · identity excluded" : ""}` : res.err, res.ok ? undefined : "warn"); if (res.ok) { DATA.pulse(); const r = route(); if (r.view === "app") go(`${r.persona}/${r.device}/backups`); } };
       rd.readAsText(file); return;
     }
     const sp = e.target.closest(".staff-pick"); // v2.3.2.db — switch the acting Staff user (any row in db_people)

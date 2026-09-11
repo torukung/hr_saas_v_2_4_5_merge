@@ -21,5 +21,12 @@ window.API_CONFIG = {
   // e.g. "https://adeptio-hr-v245.<your-subdomain>.workers.dev"
   base: "https://adeptio-hr-v245.pathom-bot.workers.dev",
   // D1 replication interval in seconds (js/d1-sync.js); empty base => no sync.
-  syncSeconds: 30
+  syncSeconds: 30,
+  // Bearer token sent on every /api/sync request — set to the SAME value as the
+  // Worker's SYNC_TOKEN secret. Empty => the fail-closed Worker returns 401.
+  syncToken: "fa5e25948d21a7dc655ce2e06eb1889406bb3496f488a1b61be5cda6ce04f945",
+  // HR mailbox shown on the local "new hire registered" outbox row (display only);
+  // the Worker fills the REAL delivery recipient from its HR_ALERT_TO var/secret.
+  // Central neutral mailbox — matches the Worker's HR_ALERT_TO / MAIL_FROM.
+  hrAlertTo: "info@deskcentral.io"
 };
